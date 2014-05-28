@@ -5,6 +5,8 @@
 
 %include "imprimir.mac"
 
+extern GDT_DESC
+
 global start
 
 
@@ -25,6 +27,7 @@ iniciando_mp_len equ    $ - iniciando_mp_msg
 ;; -------------------------------------------------------------------------- ;;
 
 ;; Punto de entrada del kernel.
+
 BITS 16
 start:
     ; Deshabilitar interrupciones
@@ -44,16 +47,38 @@ start:
     ; Habilitar A20
     
     ; Cargar la GDT
+    cli
+    lgdt [GDT_DESC]
     
     ; Setear el bit PE del registro CR0
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
     
     ; Saltar a modo protegido
+    jmp 0b1001000:protected_mode
+
+BITS 32
+protected_mode:
     
     ; Establecer selectores de segmentos
+    mov ax, 0b1011000     ; index 11 | gdt 0 | rpl 00
+    mov ds, ax
+    mov ss, ax
+    mov ax, 0b1101000     ; index 13 | gdt 0 | rpl 00
+    mov fs, ax            ; video en fs.
     
     ; Establecer la base de la pila
+    mov esp, 0x27000      ; setear la pila del kernel en la dirección 0x27000.
+    
+    ; rutina para limpiar la pantalla
+    call limpiar_pantalla
+    
+    ; pintar el area "del mapa"
+
     
     ; Imprimir mensaje de bienvenida
+    
     
     ; Inicializar pantalla
     
@@ -98,5 +123,11 @@ start:
     jmp $
 
 ;; -------------------------------------------------------------------------- ;;
+
+
+limpiar_pantalla:
+  
+  
+  ret
 
 %include "a20.asm"
