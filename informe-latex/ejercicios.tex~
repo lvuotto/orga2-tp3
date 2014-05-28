@@ -1,0 +1,212 @@
+\subsection*{Ejercicio 1}
+\vspace*{0.5cm} 
+
+\noindent
+a) Completar la Tabla de Descriptores Globales (\verb|GDT|) con 4 segmentos, dos para código de
+nivel 0 y 3; y otros dos para datos de nivel 0 y 3. Estos segmentos deben direccionar los
+primeros 733MB de memoria. En la \textit{gdt}, por restricción del trabajo práctico, las primeras 
+8 posiciones se consideran utilizadas y no deben utilizarse. El primer índice que deben usar
+para declarar los segmentos, es el 9 (contando desde cero).
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+b) Completar el código necesario para pasar a modo protegido y setear la pila del \textit{kernel}
+en la dirección \verb|0x27000|.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+c) Declarar un segmento adicional que describa el área de la pantalla en memoria que pueda ser 
+utilizado sólo por el \textit{kernel}.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+d) Escribir una rutina que se encargue de limpiar la pantalla y pintar en el área de \textit{el_mapa} un 
+fondo de color (sugerido verde). Para este ejercicio se debe escribir en la pantalla usando el segmento 
+declarado en el punto anterior (para los próximos ejercicios se accederá a la memoria de video por medio del 
+segmento de datos de 733MB).
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\newpage
+
+
+
+
+
+\subsection*{Ejercicio 2}
+\vspace*{0.5cm}
+
+\noindent
+a) Completar las entradas necesarias en la \verb|IDT| para asociar diferentes rutinas a todas las
+excepciones del procesador. Cada rutina de excepción debe indicar en pantalla qué problema se produjo
+e interrumpir la ejecución. Posteriormente se modificarán estas rutinas para que se continúe la ejecución,
+resolviendo el problema y desalojando a la tarea que lo produjo.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+b) Hacer lo necesario para que el procesador utilice la \verb|IDT| creada anteriormente. Generar una
+excepción para probarla.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\newpage
+
+
+
+
+
+\subsection*{Ejercicio 3}
+\vspace*{0.5cm}
+
+\noindent
+a) Escribir una rutina que se encargue de limpiar el \textit{buffer} de video y pintarlo como indica la figura 8.
+Tener en cuenta que deben ser escritos de forma genérica para, posteriormente, ser completados con información del
+sistema. Además, considerar estas imágenes como sugerencias, ya que pueden ser modificadas a gusto según cada grupo,
+mostrando siempre la misma información.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+b) Escribir las rutinas encargadas de inicializar el directorio y tablas de páginas para el \textit{kernel}\newline
+(\verb|mmu_inicializar_dir_kernel|). Se debe generar un directorio de páginas que mapee, usando \textit{identity mapping}, 
+las direcciones \verb|0x00000000| a \verb|0x00DC3FFF|, como ilustra la figura 5. Además, esta función debe inicializar
+el directorio de páginas en la dirección \verb|0x27000| y las tablas de páginas según muestra la figura 1.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+c) Completar el código necesario para activar paginación.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+d) Escribir una rutina que imprima el nombre del grupo en pantalla. Debe estar ubicado en la primer línea
+de la pantalla, alineado a la derecha.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\newpage
+
+
+
+
+
+\subsection*{Ejercicio 4}
+
+\vspace*{0.3cm} \noindent
+
+completar.
+
+\newpage
+
+
+
+
+
+\subsection*{Ejercicio 5}
+
+\vspace*{0.3cm} \noindent
+
+completar.
+
+\newpage
+
+
+
+
+
+\subsection*{Ejercicio 6}
+
+\vspace*{0.3cm} \noindent
+
+completar.
+
+\newpage
+
+
+
+
+
+\subsection*{Ejercicio 7}
+
+\vspace*{0.3cm} \noindent
+
+completar.
+
+\newpage
+
+
+
+
+
+\subsection*{Ejercicio 8 (optativo)}
+
+\vspace*{0.3cm} \noindent
+
+completar.
+
+\newpage

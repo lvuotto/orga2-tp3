@@ -1,0 +1,11 @@
+# Fdb version 3
+["pdflatex"] 1401316240 "ejercicios.tex" "ejercicios.pdf" "ejercicios" 1401316240
+  "/etc/texmf/web2c/texmf.cnf" 1398115340 475 c0e671620eb5563b2130f56340a5fde8 ""
+  "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1374751034 31103 dbc49c70ca9e47fd7f4e40a14691afe7 ""
+  "/usr/share/texmf/web2c/texmf.cnf" 1374751034 31103 dbc49c70ca9e47fd7f4e40a14691afe7 ""
+  "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1398441505 778543 a4162440a8a3c95828b816117962f880 ""
+  "ejercicios.aux" 1401316240 8 a94a2480d3289e625eea47cd1b285758 ""
+  "ejercicios.tex" 1401316238 4000 01a677b80dee628d6c71a56b17069de5 ""
+  (generated)
+  "ejercicios.log"
+  "ejercicios.pdf"
