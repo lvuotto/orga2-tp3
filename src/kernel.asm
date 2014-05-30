@@ -6,6 +6,8 @@
 %include "imprimir.mac"
 
 extern GDT_DESC
+extern IDT_DESC
+extern idt_inicializar
 
 global start
 
@@ -43,8 +45,10 @@ start:
     ; Imprimir mensaje de bienvenida
     imprimir_texto_mr iniciando_mr_msg, iniciando_mr_len, 0x07, 0, 0
     
-
+    
     ; Habilitar A20
+    ;~ ¿?¿?
+    call habilitar_A20
     
     ; Cargar la GDT
     cli
@@ -75,45 +79,64 @@ protected_mode:
     call limpiar_pantalla
     
     ; pintar el area "del mapa"
-
+    call pintar_pantalla
     
     ; Imprimir mensaje de bienvenida
     
     
     ; Inicializar pantalla
     
+    
     ; Inicializar el manejador de memoria
+    
     
     ; Inicializar el directorio de paginas
     
+    
     ; Cargar directorio de paginas
+    
     
     ; Habilitar paginacion
     
+    
     ; Inicializar tss
+    
     
     ; Inicializar tss de la tarea Idle
     
+    
     ; Inicializar tss de las tanques
+    
     
     ; Inicializar el scheduler
     
+    
     ; Inicializar la IDT
+    call idt_inicializar
+    lidt [IDT_DESC]
+    int 10
     
     ; Inicializar Game
     
+    
     ; Cargar IDT
+    
     
     ; Configurar controlador de interrupciones
     
+    
     ; pintar posiciones inciales de tanques
     
+    
     ; Cargar tarea inicial
-
+    
+    
     ; Habilitar interrupciones
- 
+    
+    
     ; Saltar a la primera tarea: Idle
-
+    
+    
     ; Ciclar infinitamente (por si algo sale mal...)
     mov eax, 0xFFFF
     mov ebx, 0xFFFF
@@ -127,7 +150,58 @@ protected_mode:
 
 limpiar_pantalla:
   
+  xor eax, eax
+  mov ecx, 50
+  
+  .ciclo_fila:
+    
+    xor esi, esi
+    .ciclo_columna:
+      
+      and dword [fs:eax + 2*esi], 0xff00ff00
+      add esi, 2
+      cmp esi, 80
+      jl .ciclo_columna
+      
+    ; FIN .ciclo_columna
+    
+    add eax, 80*2
+    loop .ciclo_fila
+    
+  ; FIN .ciclo_fila
   
   ret
+  
+; FIN limpiar_pantalla
+
+
+pintar_pantalla:
+  
+  xor eax, eax
+  mov ecx, 50
+  
+  .ciclo_fila:
+    
+    xor esi, esi
+    .ciclo_columna:
+      
+      and dword [fs:eax + 2*esi], 0x8fff8fff
+      or  dword [fs:eax + 2*esi], 0x20002000
+      
+      add esi, 2
+      cmp esi, 50
+      jl .ciclo_columna
+      
+    ; FIN .ciclo_columna
+    
+    add eax, 80*2
+    loop .ciclo_fila
+    
+  ; FIN .ciclo_fila
+  
+  ret
+  
+; FIN pintar_pantalla
+
 
 %include "a20.asm"

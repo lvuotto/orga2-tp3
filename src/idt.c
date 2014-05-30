@@ -14,8 +14,8 @@
 idt_entry idt[255] = { };
 
 idt_descriptor IDT_DESC = {
-    sizeof(idt) - 1,
-    (unsigned int) &idt
+  sizeof(idt) - 1,
+  (unsigned int) &idt
 };
 
 /*
@@ -33,17 +33,36 @@ idt_descriptor IDT_DESC = {
     }
 */
 
-/*
-#define IDT_ENTRY(numero)                                                                                        \
-    idt[numero].offset_0_15 = (unsigned short) ((unsigned int)(&_isr ## numero) & (unsigned int) 0xFFFF);        \
-    idt[numero].segsel = (unsigned short) 0x00;                                                                  \
-    idt[numero].attr = (unsigned short) 0x0000;                                                                  \
-    idt[numero].offset_16_31 = (unsigned short) ((unsigned int)(&_isr ## numero) >> 16 & (unsigned int) 0xFFFF);
-*/
+
+#define IDT_ENTRY(numero, _segsel, _attr)                                                                      \
+  idt[numero].offset_0_15 = (unsigned short) ((unsigned int)(&_isr ## numero) & (unsigned int) 0xffff);        \
+  idt[numero].segsel = (unsigned short) _segsel;                                                               \
+  idt[numero].attr = (unsigned short) _attr;                                                                   \
+  idt[numero].offset_16_31 = (unsigned short) ((unsigned int)(&_isr ## numero) >> 16 & (unsigned int) 0xffff);
+
 
 
 unsigned int idt_inicializar() {
-    // Excepciones
-    
-    return (unsigned int)tss_tanques;
+  IDT_ENTRY( 0, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY( 1, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY( 2, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY( 3, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY( 4, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY( 5, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY( 6, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY( 7, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY( 8, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY( 9, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY(10, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY(11, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY(12, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY(13, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY(14, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY(15, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY(16, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY(17, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY(18, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY(19, 0b1001000, 0b1000111000000000);
+  
+  return (unsigned int)tss_tanques;
 }
