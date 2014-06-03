@@ -60,7 +60,13 @@
 \vfill
 \begin{abstract}
 
-completar.
+  \begin{figure}
+    \begin{center}
+    \includegraphics[scale=2]{imagenes/bart-tank.jpg}
+    \end{center}
+  \end{figure}
+  
+\textbf{completar.}
 
 \end{abstract}
 
@@ -73,17 +79,12 @@ completar.
 %\normalsize
 \newpage
 
+
 \section{Objetivos generales}
 
 
-\begin{figure}
-    \begin{center}
-    \includegraphics[scale=2]{imagenes/bart-tank.jpg}
-    \end{center}
-  \end{figure}
-
-
 \textbf{completar.}
+
 
 \newpage 
 
@@ -93,6 +94,8 @@ completar.
 
 \section{Conclusiones}
 
+
 \textbf{completar.}
+
 
 \end{document}

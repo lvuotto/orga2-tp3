@@ -157,9 +157,57 @@ de la pantalla, alineado a la derecha.
 
 \subsection*{Ejercicio 4}
 
-\vspace*{0.3cm} \noindent
+\noindent
+a) Escribir una rutina (\verb|inicializar_mmu|), que se encargue de inicializar las estructuras necesarias para administrar la memoria en el área libre.
 
-completar.
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+b) Escribir una rutina (\verb|mmu_inicializar_dir_tarea|), encargada de inicializar un directorio de páginas y tablas de páginas para una tarea, respetando la figura 5 (ver enunciado). La rutina debe copiar el código de la tarea a su área asignada, es decir, sus dos páginas de código dentro de \textit{el_mapa} y mapear dichas páginas a partir de la dirección virtual (\verb|0x08000000|) (128MB).
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+c) Escribir dos rutinas encargadas de mapear y desmapear páginas de memoria.
+
+\begin{enumerate}
+  \item \verb|mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica)|
+  Permite mapear la página física correspondiente a \verb|fisica| en la dirección virtual \verb|virtual| utilizando \verb|cr3|.
+  
+  \item \verb|mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3)|
+  Borra el mapeo creado en la dirección virtual \verb|virtual| utilizando \verb|cr3|.
+\end{enumerate}
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+d) Construir un mapa de memoria para tareas e intercambiarlo con el del \textit{kernel}, luego cambiar el color del fondo del primer caracter de la pantalla y volver a la normalidad.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
 
 \newpage
 
