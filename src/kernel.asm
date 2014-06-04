@@ -8,8 +8,10 @@
 extern GDT_DESC
 extern IDT_DESC
 extern idt_inicializar
+extern mmu_inicializar
 
 global start
+
 
 
 ;; Saltear seccion de datos
@@ -91,13 +93,16 @@ protected_mode:
     
     
     ; Inicializar el directorio de paginas
-    
+    call mmu_inicializar      ; creamos la tabla.
     
     ; Cargar directorio de paginas
-    
+    mov eax, 0x27000
+    mov cr3, eax
     
     ; Habilitar paginacion
-    
+    mov eax, cr0
+    or eax, 0x80000000
+    mov cr0, eax
     
     ; Inicializar tss
     
