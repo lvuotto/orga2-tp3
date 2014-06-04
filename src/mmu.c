@@ -39,8 +39,8 @@ void mmu_inicializar() {
   page_dir[2].base = 0x2a;
   page_dir[3].base = 0x2b;
   
-  /* Marco: se puede (y debe) hacer casteo a la zabeca. */
-  /* shift de 12 para llegar a un direccion valida.     */
+  /* Marco: se puede (y debe) hacer casteo a la zabeca.       */
+  /* shift de 12 porque las direcciones estan alineadas a 4k. */
   p = (page_table_entry_t *) (page_dir[0].base << 12);
   for (i = 0; i < 1024; i++) {
     p->p = 1;

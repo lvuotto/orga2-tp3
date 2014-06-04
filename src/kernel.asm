@@ -38,11 +38,11 @@ start:
     cli
 
     ; Cambiar modo de video a 80 X 50
-    mov ax, 0003h
-    int 10h ; set mode 03h
+    mov ax, 0x0003
+    int 0x10 ; set mode 0x03
     xor bx, bx
-    mov ax, 1112h
-    int 10h ; load 8x8 font
+    mov ax, 0x1112
+    int 0x10 ; load 8x8 font
 
     ; Imprimir mensaje de bienvenida
     imprimir_texto_mr iniciando_mr_msg, iniciando_mr_len, 0x07, 0, 0
@@ -118,14 +118,14 @@ protected_mode:
     
     ; Inicializar la IDT
     call idt_inicializar
-    lidt [IDT_DESC]
-    int 10
+    
     
     ; Inicializar Game
     
     
     ; Cargar IDT
-    
+    lidt [IDT_DESC]
+    int 10
     
     ; Configurar controlador de interrupciones
     
@@ -143,10 +143,10 @@ protected_mode:
     
     
     ; Ciclar infinitamente (por si algo sale mal...)
-    mov eax, 0xFFFF
-    mov ebx, 0xFFFF
-    mov ecx, 0xFFFF
-    mov edx, 0xFFFF
+    mov eax, 0xffff
+    mov ebx, 0xffff
+    mov ecx, 0xffff
+    mov edx, 0xffff
     jmp $
     jmp $
 
