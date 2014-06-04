@@ -1,0 +1,10 @@
+
+src/*.o
+src/*.bin
+src/*.tmp
+src/*.ctsko
+src/*.tsko
+src/*.tsk
+src/diskette.img
+src/Makefile.taskwars
+src/*~
