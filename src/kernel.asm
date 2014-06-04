@@ -93,16 +93,16 @@ protected_mode:
     
     
     ; Inicializar el directorio de paginas
-    call mmu_inicializar      ; creamos la tabla.
+    ;~ call mmu_inicializar      ; creamos la tabla.
     
     ; Cargar directorio de paginas
-    mov eax, 0x27000
-    mov cr3, eax
+    ;~ mov eax, 0x27000
+    ;~ mov cr3, eax
     
     ; Habilitar paginacion
-    mov eax, cr0
-    or eax, 0x80000000
-    mov cr0, eax
+    ;~ mov eax, cr0
+    ;~ or eax, 0x80000000
+    ;~ mov cr0, eax
     
     ; Inicializar tss
     
@@ -125,7 +125,7 @@ protected_mode:
     
     ; Cargar IDT
     lidt [IDT_DESC]
-    int 10
+    int 19
     
     ; Configurar controlador de interrupciones
     
