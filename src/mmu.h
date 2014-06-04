@@ -26,7 +26,7 @@ struct page_directory_entry_s {
   unsigned char cero:1;
   unsigned char ps:1;
   unsigned char g:1;
-  unsigned char disponible:4;
+  unsigned char disponible:3;
   unsigned int base:20;
 } __attribute__((__packed__, aligned (4)));
 
@@ -40,7 +40,7 @@ struct page_table_entry_s {
   unsigned char d:1;
   unsigned char pat:1;
   unsigned char g:1;
-  unsigned char disponible:4;
+  unsigned char disponible:3;
   unsigned int base:20;
 } __attribute__((__packed__, aligned (4)));
 
