@@ -129,8 +129,11 @@ protected_mode:
     ; Imprimir mensaje de bienvenida
     
     
-    ; Inicializar pantalla
+    ; Limpiar buffer de video
+    limpiar_buffer_video
     
+
+    ; Inicializar pantalla
     call pintar_info
     imprimir_texto_mp _eax, _eax_len, 0x70, 8, 55
     imprimir_texto_mp _ebx, _ebx_len, 0x70, 10, 55
@@ -354,6 +357,17 @@ pintar_info:
       
   
   ret
+
+
+%macro limpiar_buffer_video 0
+  mov ecx, 0xa0000
+  .ciclo:
+  and dword [ecx], 0xff00ff00
+  add ecx, 4
+  cmp ecx, 0xc0000
+  jl .ciclo
+%endmacro
+  
 
 
 %include "a20.asm"
