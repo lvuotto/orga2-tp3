@@ -13,8 +13,17 @@
 #include "tss.h"
 #include "game.h"
 
-void mmu_inicializar ();
-void mmu_inicializar_dir_kernel ();
+
+enum task_id_e {
+  TAREA_1,
+  TAREA_2,
+  TAREA_3,
+  TAREA_4,
+  TAREA_5,
+  TAREA_6,
+  TAREA_7,
+  TAREA_8
+};
 
 
 struct page_directory_entry_s {
@@ -48,12 +57,22 @@ struct page_table_entry_s {
 
 typedef struct page_directory_entry_s page_directory_entry_t;
 typedef struct page_table_entry_s page_table_entry_t;
+typedef enum task_id_e task_id_t;
 
 
 extern page_directory_entry_t *page_dir;
 
 
-#endif	/* !__MMU_H__ */
+unsigned int mmu_inicializar            ();
+void         mmu_inicializar_dir_kernel ();
+unsigned int mmu_inicializar_dir_tarea  (task_id_t id_tarea);
+void         mmu_mapear_pagina          (unsigned int virtual,
+                                         unsigned int cr3,
+                                         unsigned int fisica,
+                                         unsigned int attr);
+/**/
+
+#endif  /* !__MMU_H__ */
 
 
 
