@@ -27,48 +27,7 @@ iniciando_mr_len equ    $ - iniciando_mr_msg
 iniciando_mp_msg db     'Iniciando kernel (Modo Protegido)...'
 iniciando_mp_len equ    $ - iniciando_mp_msg
 
-_eax:  	   db 'eax '
-_eax_len:  equ $ - _eax
-_ebx:  	   db 'ebx '
-_ebx_len:  equ $ - _ebx
-_ecx:  	   db 'ecx '
-_ecx_len:  equ $ - _ecx
-_edx:  	   db 'edx '
-_edx_len:  equ $ - _edx
-_esi:  	   db 'esi '
-_esi_len:  equ $ - _esi
-_edi:  	   db 'edi '
-_edi_len:  equ $ - _edi
-_ebp:  	   db 'ebp '
-_ebp_len:  equ $ - _ebp
-_esp:  	   db 'esp '
-_esp_len:  equ $ - _esp
-_eip:  	   db 'eip '
-_eip_len:  equ $ - _eip
-_cs:  	   db 'cs '
-_cs_len:  equ $ - _cs
-_ds:  	   db 'ds '
-_ds_len:  equ $ - _ds
-_es:  	   db 'es '
-_es_len:  equ $ - _es
-_fs:  	   db 'fs '
-_fs_len:  equ $ - _fs
-_gs:  	   db 'gs '
-_gs_len:  equ $ - _gs
-_ss:  	   db 'ss '
-_ss_len:  equ $ - _ss
-_eflags:  	   db 'eflags '
-_eflags_len:  equ $ - _eflags
-_cr0:  	    db 'cr0 '
-_cr0_len:  equ $ - _cr0
-_cr2:  	    db 'cr2 '
-_cr2_len:  equ $ - _cr2
-_cr3:  	    db 'cr3 '
-_cr3_len:  equ $ - _cr3
-_cr4:  	    db 'cr4 '
-_cr4_len:  equ $ - _cr4
-_st:  	   db '_st '
-_st_len:  equ $ - _st
+
 
 ;;
 ;; Seccion de código.
@@ -135,35 +94,35 @@ protected_mode:
 
     ; Inicializar pantalla
     call pintar_info
-    imprimir_texto_mp _eax, _eax_len, 0x70, 8, 55
-    imprimir_texto_mp _ebx, _ebx_len, 0x70, 10, 55
-    imprimir_texto_mp _ecx, _ecx_len, 0x70, 12, 55
-    imprimir_texto_mp _edx, _edx_len, 0x70, 14, 55
-    imprimir_texto_mp _esi, _esi_len, 0x70, 16, 55
-    imprimir_texto_mp _edi, _edi_len, 0x70, 18, 55
-    imprimir_texto_mp _ebp, _ebp_len, 0x70, 20, 55
-    imprimir_texto_mp _esp, _esp_len, 0x70, 22, 55
-    imprimir_texto_mp _eip, _eip_len, 0x70, 24, 55
-    imprimir_texto_mp _cs, _cs_len, 0x70, 26, 55
-    imprimir_texto_mp _ds, _ds_len, 0x70, 28, 55
-    imprimir_texto_mp _es, _es_len, 0x70, 30, 55
-    imprimir_texto_mp _fs, _fs_len, 0x70, 32, 55
-    imprimir_texto_mp _gs, _gs_len, 0x70, 34, 55
-    imprimir_texto_mp _ss, _ss_len, 0x70, 36, 55
-    imprimir_texto_mp _eflags, _eflags_len, 0x70, 36, 55
+    imprimir_texto_mp tag_eax, tag_eax_len, 0x70, 8, 55
+    imprimir_texto_mp tag_ebx, tag_ebx_len, 0x70, 10, 55
+    imprimir_texto_mp tag_ecx, tag_ecx_len, 0x70, 12, 55
+    imprimir_texto_mp tag_edx, tag_edx_len, 0x70, 14, 55
+    imprimir_texto_mp tag_esi, tag_esi_len, 0x70, 16, 55
+    imprimir_texto_mp tag_edi, tag_edi_len, 0x70, 18, 55
+    imprimir_texto_mp tag_ebp, tag_ebp_len, 0x70, 20, 55
+    imprimir_texto_mp tag_esp, tag_esp_len, 0x70, 22, 55
+    imprimir_texto_mp tag_eip, tag_eip_len, 0x70, 24, 55
+    imprimir_texto_mp tag_cs, tag_cs_len, 0x70, 26, 55
+    imprimir_texto_mp tag_ds, tag_ds_len, 0x70, 28, 55
+    imprimir_texto_mp tag_es, tag_es_len, 0x70, 30, 55
+    imprimir_texto_mp tag_fs, tag_fs_len, 0x70, 32, 55
+    imprimir_texto_mp tag_gs, tag_gs_len, 0x70, 34, 55
+    imprimir_texto_mp tag_ss, tag_ss_len, 0x70, 36, 55
+    imprimir_texto_mp tag_eflags, tag_eflags_len, 0x70, 36, 55
     
-    imprimir_texto_mp _cr0, _cr0_len, 0x70, 8, 66
-    imprimir_texto_mp _cr2, _cr2_len, 0x70, 10, 66
-    imprimir_texto_mp _cr3, _cr3_len, 0x70, 12, 66
-    imprimir_texto_mp _cr4, _cr4_len, 0x70, 14, 66
-    imprimir_texto_mp _st, _st_len, 0x70, 28, 66
+    imprimir_texto_mp tag_cr0, tag_cr0_len, 0x70, 8, 66
+    imprimir_texto_mp tag_cr2, tag_cr2_len, 0x70, 10, 66
+    imprimir_texto_mp tag_cr3, tag_cr3_len, 0x70, 12, 66
+    imprimir_texto_mp tag_cr4, tag_cr4_len, 0x70, 14, 66
+    imprimir_texto_mp tag_stack, tag_stack_len, 0x70, 25, 66
     
     
     ; Inicializar el manejador de memoria
     
     
     ; Inicializar el directorio de paginas
-    call mmu_inicializar      ; creamos la tabla.
+    call mmu_inicializar
     
     ; Cargar directorio de paginas
     mov eax, 0x27000
@@ -173,6 +132,10 @@ protected_mode:
     mov eax, cr0
     or eax, 0x80000000
     mov cr0, eax
+    
+    xchg bx, bx
+    
+    imprimir_texto_mp nombre, nombre_len, 0x0c, 1, 80 - nombre_len
     
     ; Inicializar tss
     
@@ -367,7 +330,53 @@ pintar_info:
   cmp ecx, 0xc0000
   jl .ciclo
 %endmacro
-  
+
+
+
+tag_eax        db 'eax '
+tag_eax_len    equ $ - tag_eax
+tag_ebx        db 'ebx '
+tag_ebx_len    equ $ - tag_ebx
+tag_ecx        db 'ecx '
+tag_ecx_len    equ $ - tag_ecx
+tag_edx        db 'edx '
+tag_edx_len    equ $ - tag_edx
+tag_esi        db 'esi '
+tag_esi_len    equ $ - tag_esi
+tag_edi        db 'edi '
+tag_edi_len    equ $ - tag_edi
+tag_ebp        db 'ebp '
+tag_ebp_len    equ $ - tag_ebp
+tag_esp        db 'esp '
+tag_esp_len    equ $ - tag_esp
+tag_eip        db 'eip '
+tag_eip_len    equ $ - tag_eip
+tag_cs         db 'cs '
+tag_cs_len     equ $ - tag_cs
+tag_ds         db 'ds '
+tag_ds_len     equ $ - tag_ds
+tag_es         db 'es '
+tag_es_len     equ $ - tag_es
+tag_fs         db 'fs '
+tag_fs_len     equ $ - tag_fs
+tag_gs         db 'gs '
+tag_gs_len     equ $ - tag_gs
+tag_ss         db 'ss '
+tag_ss_len     equ $ - tag_ss
+tag_eflags     db 'eflags '
+tag_eflags_len equ $ - tag_eflags
+tag_cr0        db 'cr0 '
+tag_cr0_len    equ $ - tag_cr0
+tag_cr2        db 'cr2 '
+tag_cr2_len    equ $ - tag_cr2
+tag_cr3        db 'cr3 '
+tag_cr3_len    equ $ - tag_cr3
+tag_cr4        db 'cr4 '
+tag_cr4_len    equ $ - tag_cr4
+tag_stack      db 'stack '
+tag_stack_len  equ $ - tag_stack
+nombre:      db 'Alemania / Vollkornbrot '
+nombre_len:  equ $ - nombre
 
 
 %include "a20.asm"

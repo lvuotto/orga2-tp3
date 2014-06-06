@@ -13,7 +13,8 @@
 #include "tss.h"
 #include "game.h"
 
-void mmu_inicializar();
+void mmu_inicializar ();
+void mmu_inicializar_dir_kernel ();
 
 
 struct page_directory_entry_s {
