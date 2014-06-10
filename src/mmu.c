@@ -314,7 +314,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   /*memoria_mapa = saraza;*/
   d = (unsigned char *) memoria_mapa;
   f = (unsigned char *) codigo;
-  for (i = 0; i < 2*PAGE_SIZE; i += PAGE_SIZE) {
+  for (i = 0; i < 2*PAGE_SIZE; i++) {
     *d++ = *f++;
   }
  
