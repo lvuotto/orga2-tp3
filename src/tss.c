@@ -17,5 +17,3 @@ tss tss_tanques[CANT_TANQUES];
 
 void tss_inicializar() {
 }
-
-

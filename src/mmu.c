@@ -142,9 +142,9 @@ void mmu_inicializar_dir_kernel () {
     p[i].disponible = 0;
     p[i].base = 1024*3 + i;
   }
-  /*for (i = 452; i < 1024; i++) {
+  for (i = 452; i < 1024; i++) {
     p[i].p = 0;
-    p[i].rw = 0;
+    p[i].rw = 1;
     p[i].us = 0;
     p[i].pwt = 0;
     p[i].pcd = 0;
@@ -154,7 +154,7 @@ void mmu_inicializar_dir_kernel () {
     p[i].g = 0;
     p[i].disponible = 0;
     p[i].base = 0;
-  }*/
+  }
   
 }
 
@@ -164,13 +164,12 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   page_directory_entry_t *pd;
   page_table_entry_t *p;
   unsigned int i, cr3, codigo;
+  unsigned char *d, *f;
   /* cr3 y codigo funcionan como punteros. */
   
   
-  cr3 = pagina_libre;
-  pd = (page_directory_entry_t *) pagina_libre;
-  pagina_libre += PAGE_SIZE;
-  
+  cr3 = mmu_crear_pagina();
+  pd = (page_directory_entry_t *) cr3;
   
   for(i = 0; i < 1024; i++) {
     pd[i].p = 0;
@@ -191,14 +190,10 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   pd[2].p = 1;
   pd[3].p = 1;
   
-  pd[0].base = pagina_libre >> 12;
-  pagina_libre += PAGE_SIZE;
-  pd[1].base = pagina_libre >> 12;
-  pagina_libre += PAGE_SIZE;
-  pd[2].base = pagina_libre >> 12;
-  pagina_libre += PAGE_SIZE;
-  pd[3].base = pagina_libre >> 12;
-  pagina_libre += PAGE_SIZE;
+  pd[0].base = mmu_crear_pagina() >> 12;
+  pd[1].base = mmu_crear_pagina() >> 12;
+  pd[2].base = mmu_crear_pagina() >> 12;
+  pd[3].base = mmu_crear_pagina() >> 12;
   
   
   p = (page_table_entry_t *) (pd[0].base << 12);
@@ -260,19 +255,19 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
     p[i].disponible = 0;
     p[i].base = 1024*3 + i;
   }
-  /*for (i = 452; i < 1024; i++) {
+  for (i = 452; i < 1024; i++) {
     p[i].p = 0;
     p[i].rw = 1;
     p[i].us = 1;
-    p[i].pwt = 0;       PREGUNTAR
-    p[i].pcd = 0;       PREGUNTAR
-    p[i].a = 0;         PREGUNTAR
+    p[i].pwt = 0;
+    p[i].pcd = 0;
+    p[i].a = 0;
     p[i].d = 0;
     p[i].pat = 0;
     p[i].g = 0;
     p[i].disponible = 0;
-    p[i].base = PAGE_SIZE*3 + i;
-  }*/
+    p[i].base = 1024*3 + i;
+  }
   
   
   switch (tid) {
@@ -301,10 +296,34 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
       codigo = DIR_TAREA_8;
       break;
     default:
+      codigo = 0xdead0000;
       break;
   }
   
-  mmu_mapear_pagina(codigo_virtual, cr3, codigo, 0);
+  /**
+   * TODO:
+   *  - [X] Consultar el tema de copiado.
+   *        Si, hay que copiar, a algun lado de _el_mapa_, en principio, lo
+   *        hacemos lineal, despues se va randomizar.
+   *  - [X] Consultar si el mapeo esta todo liso.
+   *        No. Estamos mapeando solo una pagina. Debe mapear tooooodas las
+   *        paginas. -> HECHO.
+   **/
+  
+  /* Codigo de copia. */
+  /*memoria_mapa = saraza;*/
+  d = (unsigned char *) memoria_mapa;
+  f = (unsigned char *) codigo;
+  for (i = 0; i < 2*PAGE_SIZE; i += PAGE_SIZE) {
+    *d++ = *f++;
+  }
+ 
+  for (i = 0; i < 2*PAGE_SIZE; i += PAGE_SIZE) {
+    mmu_mapear_pagina(codigo_virtual + i, cr3, memoria_mapa + i, 3);
+    /* 3 = 0b11 => r/w = 1, u/s = 1 */
+  }
+  
+  memoria_mapa += 2*PAGE_SIZE;
   codigo_virtual += 2*PAGE_SIZE;
   
   return cr3;
@@ -320,7 +339,7 @@ unsigned int mmu_inicializar () {
   
   mmu_inicializar_dir_kernel();
   
-  cr3 = mmu_inicializar_dir_tarea(TAREA_1);
+  cr3 = mmu_inicializar_dir_tarea(TAREA_1);   /* CONSULTA ENUMS */
   mmu_inicializar_dir_tarea(TAREA_2);
   mmu_inicializar_dir_tarea(TAREA_3);
   mmu_inicializar_dir_tarea(TAREA_4);
@@ -340,27 +359,46 @@ void mmu_mapear_pagina (unsigned int virtual,
                         unsigned int attr)
 {
   
-  unsigned int dir_idx, tabla_idx;
+  unsigned int i,dir_idx, tabla_idx, us, rw;
   page_directory_entry_t *dir;
   page_table_entry_t *tabla;
+  
+  rw =  attr & 1;
+  us = (attr & 2) >> 1;
   
   dir = (page_directory_entry_t *) cr3;
   dir_idx = virtual >> 22;
   
   if (!dir[dir_idx].p) {
-    dir[dir_idx].base = (mmu_crear_pagina() >> 12) & MASK_22_BAJOS;
+    dir[dir_idx].base = (mmu_crear_pagina() >> 12);
     dir[dir_idx].p = 1;
-    dir[dir_idx].us = 1;   /* CONSULTAAAAAAAAAAAAAAR */
-    dir[dir_idx].rw = 1;
+    dir[dir_idx].rw = rw;
+    dir[dir_idx].us = us;
+    
+    tabla = (page_table_entry_t *) (dir[dir_idx].base << 12);
+    for (i = 0; i < 1024; i++) {
+      tabla[i].p = 0;
+      tabla[i].rw = rw;
+      tabla[i].us = us;
+      tabla[i].pwt = 0;
+      tabla[i].pcd = 0;
+      tabla[i].a = 0;
+      tabla[i].d = 0;
+      tabla[i].pat = 0;
+      tabla[i].g = 0;
+      tabla[i].disponible = 0;
+      tabla[i].base = 0;
+    }
+  } else {
+    tabla = (page_table_entry_t *) (dir[dir_idx].base << 12);
   }
   
-  tabla = (page_table_entry_t *) (dir[dir_idx].base << 12);
   tabla_idx = (virtual & MASK_22_BAJOS) >> 12;
   
   if (!tabla[tabla_idx].p) {
     tabla[tabla_idx].p = 1;
-    tabla[tabla_idx].us = 1;
-    tabla[tabla_idx].rw = 1;
+    tabla[tabla_idx].rw = rw;
+    tabla[tabla_idx].us = us;
   }
   
   tabla[tabla_idx].base = fisica >> 12;
@@ -391,10 +429,3 @@ void mmu_unmapear_pagina (unsigned int virtual,
   }
   
 }
-
-
-
-
-
-
-
