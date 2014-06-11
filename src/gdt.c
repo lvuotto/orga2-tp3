@@ -11,8 +11,10 @@
 #define GDT_IDX_CD_1 10 
 #define GDT_IDX_DD_0 11 
 #define GDT_IDX_DD_1 12 
-#define GDT_IDX_SD   13 
-
+#define GDT_IDX_SD   13
+#define GDT_TSS_TAREA_INICIAL 14
+#define GDT_TSS_1 15
+#define GDT_TSS_2 16
 
 
 gdt_entry gdt[GDT_COUNT] = {
@@ -35,7 +37,7 @@ gdt_entry gdt[GDT_COUNT] = {
   },
   
   [GDT_IDX_CD_0] = (gdt_entry) {
-    (unsigned short)    0xdd00,         /* limit[0:15]  */
+    (unsigned short)    0xdcff,         /* limit[0:15]  */
     (unsigned short)    0x0000,         /* base[0:15]   */
     (unsigned char)     0x00,           /* base[23:16]  */
     (unsigned char)     0x0a,           /* type         */
@@ -51,7 +53,7 @@ gdt_entry gdt[GDT_COUNT] = {
   },
   
   [GDT_IDX_CD_1] = (gdt_entry) {
-    (unsigned short)    0xdd00,         /* limit[0:15]  */
+    (unsigned short)    0xdcff,         /* limit[0:15]  */
     (unsigned short)    0x0000,         /* base[0:15]   */
     (unsigned char)     0x00,           /* base[23:16]  */
     (unsigned char)     0x0a,           /* type         */
@@ -67,7 +69,7 @@ gdt_entry gdt[GDT_COUNT] = {
   },
   
   [GDT_IDX_DD_0] = (gdt_entry) {
-    (unsigned short)    0xdd00,         /* limit[0:15]  */
+    (unsigned short)    0xdcff,         /* limit[0:15]  */
     (unsigned short)    0x0000,         /* base[0:15]   */
     (unsigned char)     0x00,           /* base[23:16]  */
     (unsigned char)     0x02,           /* type         */
@@ -83,7 +85,7 @@ gdt_entry gdt[GDT_COUNT] = {
   },
   
   [GDT_IDX_DD_1] = (gdt_entry) {
-    (unsigned short)    0xdd00,         /* limit[0:15]  */
+    (unsigned short)    0xdcff,         /* limit[0:15]  */
     (unsigned short)    0x0000,         /* base[0:15]   */
     (unsigned char)     0x00,           /* base[23:16]  */
     (unsigned char)     0x02,           /* type         */
@@ -99,7 +101,7 @@ gdt_entry gdt[GDT_COUNT] = {
   },
   
   [GDT_IDX_SD] = (gdt_entry) {
-    (unsigned short)    0x0500,         /* limit[0:15]  */
+    (unsigned short)    0x04ff,         /* limit[0:15]  */
     (unsigned short)    0x8000,         /* base[0:15]   */
     (unsigned char)     0x0b,           /* base[23:16]  */
     (unsigned char)     0x02,           /* type         */
@@ -114,8 +116,53 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* base[31:24]  */
   },
   
+  [GDT_TSS_TAREA_INICIAL] = (gdt_entry) {
+    (unsigned short)    0x0067,         /* limit[0:15]  */
+    (unsigned short)    0x0000,         /* base[0:15]   */
+    (unsigned char)     0x00,           /* base[23:16]  */
+    (unsigned char)     0x09,           /* type         */
+    (unsigned char)     0x00,           /* s            */
+    (unsigned char)     0x00,           /* dpl          */
+    (unsigned char)     0x01,           /* p            */
+    (unsigned char)     0x00,           /* limit[16:19] */
+    (unsigned char)     0x00,           /* avl          */
+    (unsigned char)     0x00,           /* l            */
+    (unsigned char)     0x00,           /* db           */
+    (unsigned char)     0x00,           /* g            */
+    (unsigned char)     0x00,           /* base[31:24]  */
+  },
   
+  [GDT_TSS_1] = (gdt_entry) {
+    (unsigned short)    0x0067,         /* limit[0:15]  */
+    (unsigned short)    0x0000,         /* base[0:15]   */
+    (unsigned char)     0x00,           /* base[23:16]  */
+    (unsigned char)     0x09,           /* type         */
+    (unsigned char)     0x00,           /* s            */
+    (unsigned char)     0x00,           /* dpl          */
+    (unsigned char)     0x01,           /* p            */
+    (unsigned char)     0x00,           /* limit[16:19] */
+    (unsigned char)     0x00,           /* avl          */
+    (unsigned char)     0x00,           /* l            */
+    (unsigned char)     0x00,           /* db           */
+    (unsigned char)     0x00,           /* g            */
+    (unsigned char)     0x00,           /* base[31:24]  */
+  },
   
+  [GDT_TSS_2] = (gdt_entry) {
+    (unsigned short)    0x0067,         /* limit[0:15]  */
+    (unsigned short)    0x0000,         /* base[0:15]   */
+    (unsigned char)     0x00,           /* base[23:16]  */
+    (unsigned char)     0x09,           /* type         */
+    (unsigned char)     0x00,           /* s            */
+    (unsigned char)     0x00,           /* dpl          */
+    (unsigned char)     0x01,           /* p            */
+    (unsigned char)     0x00,           /* limit[16:19] */
+    (unsigned char)     0x00,           /* avl          */
+    (unsigned char)     0x00,           /* l            */
+    (unsigned char)     0x00,           /* db           */
+    (unsigned char)     0x00,           /* g            */
+    (unsigned char)     0x00,           /* base[31:24]  */
+  },
 
 };
 
