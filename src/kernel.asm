@@ -125,7 +125,7 @@ protected_mode:
     call mmu_inicializar
     
     ; Cargar directorio de paginas
-    ;~ mov eax, 0x27000
+    ;~ mov eax, 0x27000       DESCOMENTAR ESTO
     mov cr3, eax
     
     ; Habilitar paginacion
