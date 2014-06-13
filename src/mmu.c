@@ -308,7 +308,6 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
    **/
   
   /* Codigo de copia. */
-  /*memoria_mapa = saraza;*/
   d = (unsigned char *) memoria_mapa;
   f = (unsigned char *) codigo;
   for (i = 0; i < 2*PAGE_SIZE; i++) {
@@ -321,29 +320,24 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   }
   
   memoria_mapa += 2*PAGE_SIZE;
-  codigo_virtual += 2*PAGE_SIZE;
   
   return cr3;
   
 }
 
 
-unsigned int mmu_inicializar () {
-  
-  unsigned int cr3;
+void mmu_inicializar () {
   
   mmu_inicializar_dir_kernel();
   
-  cr3 = mmu_inicializar_dir_tarea(TAREA_1);   /* CONSULTA ENUMS */
+  /*mmu_inicializar_dir_tarea(TAREA_1);
   mmu_inicializar_dir_tarea(TAREA_2);
   mmu_inicializar_dir_tarea(TAREA_3);
   mmu_inicializar_dir_tarea(TAREA_4);
   mmu_inicializar_dir_tarea(TAREA_5);
   mmu_inicializar_dir_tarea(TAREA_6);
   mmu_inicializar_dir_tarea(TAREA_7);
-  mmu_inicializar_dir_tarea(TAREA_8);
-  
-  return cr3;
+  mmu_inicializar_dir_tarea(TAREA_8);*/
   
 }
 

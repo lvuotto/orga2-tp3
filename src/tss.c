@@ -16,12 +16,13 @@ tss tss_idle;
 tss tss_tanques[CANT_TANQUES];
 
 void tss_inicializar() {
-  unsigned int i;
+  unsigned int i, cr3;
   
   for (i = 0; i < CANT_TANQUES; i++) {
+    cr3 = mmu_inicializar_dir_tarea(i); /* CONSULTAR */
     tss_tanques[i].ptl =      0x0;
     tss_tanques[i].unused0 =  0x0;
-    tss_tanques[i].esp0 =     0x27000;
+    tss_tanques[i].esp0 =     mmu_crear_pagina() + PAGE_SIZE;
     tss_tanques[i].ss0 =      0b1011000;
     tss_tanques[i].unused1 =  0x0;
     tss_tanques[i].esp1 =     0x0;
@@ -30,7 +31,7 @@ void tss_inicializar() {
     tss_tanques[i].esp2 =     0x0;
     tss_tanques[i].ss2 =      0x0;
     tss_tanques[i].unused3 =  0x0;
-    tss_tanques[i].cr3 =      0xdead;  /* ??? */
+    tss_tanques[i].cr3 =      cr3;  /* ??? */
     tss_tanques[i].eip =      0x8000000;
     tss_tanques[i].eflags =   0x00000202;
     tss_tanques[i].eax =      0x0;
