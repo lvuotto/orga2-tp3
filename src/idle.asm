@@ -9,25 +9,27 @@ BITS 32
 %include "imprimir.mac"
 
 idle:
-    .loopear:
-        inc dword [numero]
-        cmp dword [numero], 0x4
-        jb .imprimir
+  mov eax, 4
+  mov ecx, 35
+  .loopear:
+    inc dword [numero]
+    cmp dword [numero], 0x4
+    jb .imprimir
 
-    .reset_contador:
-        mov dword [numero], 0x0
+  .reset_contador:
+    mov dword [numero], 0x0
 
-    .imprimir:
-        ; Imprimir 'reloj'
-        mov ebx, dword [numero]
-        add ebx, message1
-        imprimir_texto_mp ebx, 1, 0x0f, 49, 76
-        mov ebx, chirimbolo_open
-        imprimir_texto_mp ebx, 1, 0x0f, 49, 76-1
-        mov ebx, chirimbolo_close
-        imprimir_texto_mp ebx, 1, 0x0f, 49, 76+1
+  .imprimir:
+    ; Imprimir 'reloj'
+    mov ebx, dword [numero]
+    add ebx, message1
+    imprimir_texto_mp ebx, 1, 0x0f, 49, 76
+    mov ebx, chirimbolo_open
+    imprimir_texto_mp ebx, 1, 0x0f, 49, 76-1
+    mov ebx, chirimbolo_close
+    imprimir_texto_mp ebx, 1, 0x0f, 49, 76+1
 
-    jmp .loopear
+  jmp .loopear
 
 numero:   dd 0x00000000
 

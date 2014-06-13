@@ -7,15 +7,6 @@
 
 #include "gdt.h"
 
-#define GDT_IDX_CD_0  9
-#define GDT_IDX_CD_1 10 
-#define GDT_IDX_DD_0 11 
-#define GDT_IDX_DD_1 12 
-#define GDT_IDX_SD   13
-#define GDT_TSS_TAREA_INICIAL 14
-#define GDT_TSS_1 15
-#define GDT_TSS_2 16
-
 
 gdt_entry gdt[GDT_COUNT] = {
   /* Descriptor nulo*/
@@ -127,14 +118,14 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* limit[16:19] */
     (unsigned char)     0x00,           /* avl          */
     (unsigned char)     0x00,           /* l            */
-    (unsigned char)     0x00,           /* db           */
+    (unsigned char)     0x01,           /* db           */
     (unsigned char)     0x00,           /* g            */
     (unsigned char)     0x00,           /* base[31:24]  */
   },
   
   [GDT_TSS_1] = (gdt_entry) {
     (unsigned short)    0x0067,         /* limit[0:15]  */
-    (unsigned short)    0x0000,         /* base[0:15]   */
+    (unsigned short)    0x0000,         /* base[0:15]   */  /* &tss_idle */
     (unsigned char)     0x00,           /* base[23:16]  */
     (unsigned char)     0x09,           /* type         */
     (unsigned char)     0x00,           /* s            */
@@ -143,7 +134,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* limit[16:19] */
     (unsigned char)     0x00,           /* avl          */
     (unsigned char)     0x00,           /* l            */
-    (unsigned char)     0x00,           /* db           */
+    (unsigned char)     0x01,           /* db           */
     (unsigned char)     0x00,           /* g            */
     (unsigned char)     0x00,           /* base[31:24]  */
   },
@@ -159,7 +150,7 @@ gdt_entry gdt[GDT_COUNT] = {
     (unsigned char)     0x00,           /* limit[16:19] */
     (unsigned char)     0x00,           /* avl          */
     (unsigned char)     0x00,           /* l            */
-    (unsigned char)     0x00,           /* db           */
+    (unsigned char)     0x01,           /* db           */
     (unsigned char)     0x00,           /* g            */
     (unsigned char)     0x00,           /* base[31:24]  */
   },

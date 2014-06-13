@@ -24,7 +24,7 @@
 #define MASK_22_BAJOS 0x3fffff
 
 
-page_directory_entry_t *page_dir = (page_directory_entry_t *) 0x27000;
+//~ page_directory_entry_t *page_dir = (page_directory_entry_t *) 0x27000;
 unsigned int pagina_libre = BASE_AREA_LIBRE;
 unsigned int memoria_mapa = BASE_EL_MAPA;
 unsigned int codigo_virtual = BASE_TAREA_VIRTUAL;
@@ -53,37 +53,35 @@ unsigned int mmu_crear_pagina () {
 void mmu_inicializar_dir_kernel () {
   
   unsigned int i;
+  page_directory_entry_t *pd;
   page_table_entry_t *p;
   
+  pd = (page_directory_entry_t *) 0x27000;
   for(i = 0; i < 1024; i++) {
-    page_dir[i].p = 0;
-    page_dir[i].rw = 1;
-    page_dir[i].us = 0;
-    page_dir[i].pwt = 0;
-    page_dir[i].pcd = 0;
-    page_dir[i].a = 0;
-    page_dir[i].cero = 0;
-    page_dir[i].ps = 0;
-    page_dir[i].g = 0;
-    page_dir[i].disponible = 0;
-    page_dir[i].base = 0;
+    pd[i].p = 0;
+    pd[i].rw = 1;
+    pd[i].us = 0;
+    pd[i].pwt = 0;
+    pd[i].pcd = 0;
+    pd[i].a = 0;
+    pd[i].cero = 0;
+    pd[i].ps = 0;
+    pd[i].g = 0;
+    pd[i].disponible = 0;
+    pd[i].base = 0;
   }
   
+  pd[0].p = 1;
+  pd[1].p = 1;
+  pd[2].p = 1;
+  pd[3].p = 1;
+  pd[0].base = 0x28;
+  pd[1].base = 0x29;
+  pd[2].base = 0x2a;
+  pd[3].base = 0x2b;
   
-  /* Para hacer identity mapping de 0x00000000 a 0x00dc3fff */
-  page_dir[0].p = 1;
-  page_dir[1].p = 1;
-  page_dir[2].p = 1;
-  page_dir[3].p = 1;
   
-  page_dir[0].base = 0x28;
-  page_dir[1].base = 0x29;
-  page_dir[2].base = 0x2a;
-  page_dir[3].base = 0x2b;
-  
-  /* Marco: se puede (y debe) hacer casteo a la zabeca.       */
-  /* shift de 12 porque las direcciones estan alineadas a 4k. */
-  p = (page_table_entry_t *) (page_dir[0].base << 12);
+  p = (page_table_entry_t *) (pd[0].base << 12);
   for (i = 0; i < 1024; i++) {
     p[i].p = 1;
     p[i].rw = 1;
@@ -98,7 +96,7 @@ void mmu_inicializar_dir_kernel () {
     p[i].base = i;
   }
   
-  p = (page_table_entry_t *) (page_dir[1].base << 12);
+  p = (page_table_entry_t *) (pd[1].base << 12);
   for (i = 0; i < 1024; i++) {
     p[i].p = 1;
     p[i].rw = 1;
@@ -113,7 +111,7 @@ void mmu_inicializar_dir_kernel () {
     p[i].base = 1024 + i;
   }
   
-  p = (page_table_entry_t *) (page_dir[2].base << 12);
+  p = (page_table_entry_t *) (pd[2].base << 12);
   for (i = 0; i < 1024; i++) {
     p[i].p = 1;
     p[i].rw = 1;
@@ -128,7 +126,7 @@ void mmu_inicializar_dir_kernel () {
     p[i].base = 1024*2 + i;
   }
   
-  p = (page_table_entry_t *) (page_dir[3].base << 12);
+  p = (page_table_entry_t *) (pd[3].base << 12);
   for (i = 0; i < 452; i++) {
     p[i].p = 1;
     p[i].rw = 1;
@@ -153,8 +151,110 @@ void mmu_inicializar_dir_kernel () {
     p[i].pat = 0;
     p[i].g = 0;
     p[i].disponible = 0;
-    p[i].base = 0;
+    p[i].base = 1024*3 + i;
   }
+  
+  
+  //~ for(i = 0; i < 1024; i++) {
+    //~ page_dir[i].p = 1;
+    //~ page_dir[i].rw = 1;
+    //~ page_dir[i].us = 0;
+    //~ page_dir[i].pwt = 0;
+    //~ page_dir[i].pcd = 0;
+    //~ page_dir[i].a = 0;
+    //~ page_dir[i].cero = 0;
+    //~ page_dir[i].ps = 0;
+    //~ page_dir[i].g = 0;
+    //~ page_dir[i].disponible = 0;
+    //~ page_dir[i].base = 0;
+  //~ }
+  //~ 
+  //~ 
+  //~ /* Para hacer identity mapping de 0x00000000 a 0x00dc3fff */
+  //~ page_dir[0].p = 1;
+  //~ page_dir[1].p = 1;
+  //~ page_dir[2].p = 1;
+  //~ page_dir[3].p = 1;
+  //~ 
+  //~ page_dir[0].base = 0x28;
+  //~ page_dir[1].base = 0x29;
+  //~ page_dir[2].base = 0x2a;
+  //~ page_dir[3].base = 0x2b;
+  //~ 
+  //~ /* Marco: se puede (y debe) hacer casteo a la zabeca.       */
+  //~ /* shift de 12 porque las direcciones estan alineadas a 4k. */
+  //~ p = (page_table_entry_t *) (page_dir[0].base << 12);
+  //~ for (i = 0; i < 1024; i++) {
+    //~ p[i].p = 1;
+    //~ p[i].rw = 1;
+    //~ p[i].us = 0;
+    //~ p[i].pwt = 0;
+    //~ p[i].pcd = 0;
+    //~ p[i].a = 0;
+    //~ p[i].d = 0;
+    //~ p[i].pat = 0;
+    //~ p[i].g = 0;
+    //~ p[i].disponible = 0;
+    //~ p[i].base = i;
+  //~ }
+  //~ 
+  //~ p = (page_table_entry_t *) (page_dir[1].base << 12);
+  //~ for (i = 0; i < 1024; i++) {
+    //~ p[i].p = 1;
+    //~ p[i].rw = 1;
+    //~ p[i].us = 0;
+    //~ p[i].pwt = 0;
+    //~ p[i].pcd = 0;
+    //~ p[i].a = 0;
+    //~ p[i].d = 0;
+    //~ p[i].pat = 0;
+    //~ p[i].g = 0;
+    //~ p[i].disponible = 0;
+    //~ p[i].base = 1024 + i;
+  //~ }
+  //~ 
+  //~ p = (page_table_entry_t *) (page_dir[2].base << 12);
+  //~ for (i = 0; i < 1024; i++) {
+    //~ p[i].p = 1;
+    //~ p[i].rw = 1;
+    //~ p[i].us = 0;
+    //~ p[i].pwt = 0;
+    //~ p[i].pcd = 0;
+    //~ p[i].a = 0;
+    //~ p[i].d = 0;
+    //~ p[i].pat = 0;
+    //~ p[i].g = 0;
+    //~ p[i].disponible = 0;
+    //~ p[i].base = 1024*2 + i;
+  //~ }
+  //~ 
+  //~ p = (page_table_entry_t *) (page_dir[3].base << 12);
+  //~ for (i = 0; i < 452; i++) {
+    //~ p[i].p = 1;
+    //~ p[i].rw = 1;
+    //~ p[i].us = 0;
+    //~ p[i].pwt = 0;
+    //~ p[i].pcd = 0;
+    //~ p[i].a = 0;
+    //~ p[i].d = 0;
+    //~ p[i].pat = 0;
+    //~ p[i].g = 0;
+    //~ p[i].disponible = 0;
+    //~ p[i].base = 1024*3 + i;
+  //~ }
+  //~ for (i = 452; i < 1024; i++) {
+    //~ p[i].p = 0;
+    //~ p[i].rw = 1;
+    //~ p[i].us = 0;
+    //~ p[i].pwt = 0;
+    //~ p[i].pcd = 0;
+    //~ p[i].a = 0;
+    //~ p[i].d = 0;
+    //~ p[i].pat = 0;
+    //~ p[i].g = 0;
+    //~ p[i].disponible = 0;
+    //~ p[i].base = 0;
+  //~ }
   
 }
 
@@ -319,7 +419,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   }
  
   for (i = 0; i < 2*PAGE_SIZE; i += PAGE_SIZE) {
-    mmu_mapear_pagina(codigo_virtual + i, cr3, memoria_mapa + i, 3);
+    mmu_mapear_pagina(codigo_virtual, cr3, memoria_mapa + i, 3);
     /* 3 = 0b11 => r/w = 1, u/s = 1 */
   }
   
@@ -332,8 +432,6 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
 
 
 unsigned int mmu_inicializar () {
-  
-  /* CAMBIAR ESTO A VOID */
   
   unsigned int cr3;
   
