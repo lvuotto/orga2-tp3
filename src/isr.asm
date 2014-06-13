@@ -21,6 +21,9 @@ extern game_mover
 extern game_misil
 extern game_minar
 
+global _isr32
+global _isr0x52
+
 ;;
 ;; Definición de MACROS
 ;; -------------------------------------------------------------------------- ;;
@@ -130,6 +133,16 @@ ISR 19
 ;;
 ;; Rutina de atención del RELOJ
 ;; -------------------------------------------------------------------------- ;;
+_isr32:
+  cli
+  pushad
+  
+  call fin_intr_pic1
+  call proximo_reloj
+  
+  popad
+  sti
+  iret 
 
 ;;
 ;; Rutina de atención del TECLADO
@@ -142,12 +155,15 @@ ISR 19
 %define SYS_MISIL     0x911
 %define SYS_MINAR     0x355
 
+_isr0x52:
+  mov eax, 0x42
+  iret
+  
 
 
 ;; Funciones Auxiliares
 ;; -------------------------------------------------------------------------- ;;
 proximo_reloj:
-  pushad
   inc DWORD [isrnumero]
   mov ebx, [isrnumero]
   cmp ebx, 0x4
@@ -157,7 +173,6 @@ proximo_reloj:
   .ok:
     add ebx, isrClock
     imprimir_texto_mp ebx, 1, 0x0f, 49, 79
-    popad
   ret
   
   

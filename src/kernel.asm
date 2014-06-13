@@ -11,6 +11,9 @@ extern idt_inicializar
 extern mmu_inicializar
 extern tss_inicializar
 extern tss_inicializar_tarea_idle
+extern resetear_pic
+extern habilitar_pic
+extern deshabilitar_pic
 
 
 global start
@@ -168,7 +171,9 @@ protected_mode:
   ;~ int 19
   
   ; Configurar controlador de interrupciones
-  
+  call resetear_pic
+  call habilitar_pic
+  sti
   
   ; pintar posiciones inciales de tanques
   
