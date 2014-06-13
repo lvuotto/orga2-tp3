@@ -12,14 +12,19 @@
 #include "tss.h"
 
 
-typedef struct nodo_sched_s nodo_sched_t;
 
-struct nodo_sched_s {
-  tss          *la_tss;
-  nodo_sched_t *next;
-  nodo_sched_t *prev;
-} __attribute__((__packed__, aligned (4)));
+//typedef struct scheduler_s {
+  //tss *sched_ctx_arr[];
+  //tss *idle_ctx;
+  //tss *tss1;
+  //tss *tss2;
+  //unsigned int tarea_actual;
+//} __attribute__((__packed__, aligned (4))) scheduler_t;
 
+
+
+tss *idle_ctx;
+void scheduler_inicializar ();
 
 unsigned short sched_proximo_indice ();
 
