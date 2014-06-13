@@ -61,11 +61,11 @@ extern tss tss_tanques[];
 extern tss tss_next_1;
 extern tss tss_next_2;
 
-void tss_inicializar();
-void tss_inicializar_tarea_idle();
-void tss_inicializar_tarea_tanque(unsigned int id);
-void tss_inicializar_tareas_tanques();
-void tss_copy(tss* tss_src, tss* tss_dst);
-unsigned int tss_get_cr3(unsigned int id);
+void         tss_inicializar                ();
+void         tss_inicializar_tarea_idle     ();
+void         tss_inicializar_tarea_tanque   (unsigned int id);
+void         tss_inicializar_tareas_tanques ();
+void         tss_copy                       (tss* tss_src, tss* tss_dst);
+unsigned int tss_get_cr3                    (unsigned int id);
 
 #endif  /* !__TSS_H__ */
