@@ -9,6 +9,8 @@ extern GDT_DESC
 extern IDT_DESC
 extern idt_inicializar
 extern mmu_inicializar
+extern tss_inicializar
+extern tss_inicializar_tarea_idle
 
 
 global start
@@ -28,6 +30,10 @@ iniciando_mp_msg db     'Iniciando kernel (Modo Protegido)...'
 iniciando_mp_len equ    $ - iniciando_mp_msg
 
 
+offset:   dd 0x0
+selector: dw 0x0
+
+
 
 ;;
 ;; Seccion de código.
@@ -37,151 +43,155 @@ iniciando_mp_len equ    $ - iniciando_mp_msg
 
 BITS 16
 start:
-    ; Deshabilitar interrupciones
-    cli
+  ; Deshabilitar interrupciones
+  cli
 
-    ; Cambiar modo de video a 80 X 50
-    mov ax, 0x0003
-    int 0x10 ; set mode 0x03
-    xor bx, bx
-    mov ax, 0x1112
-    int 0x10 ; load 8x8 font
+  ; Cambiar modo de video a 80 X 50
+  mov ax, 0x0003
+  int 0x10 ; set mode 0x03
+  xor bx, bx
+  mov ax, 0x1112
+  int 0x10 ; load 8x8 font
 
-    ; Imprimir mensaje de bienvenida
-    imprimir_texto_mr iniciando_mr_msg, iniciando_mr_len, 0x07, 0, 0
-    
-    
-    ; Habilitar A20
-    call habilitar_A20
-    
-    ; Cargar la GDT
-    cli
-    lgdt [GDT_DESC]
-    
-    ; Setear el bit PE del registro CR0
-    mov eax, cr0
-    or eax, 1
-    mov cr0, eax
-    
-    ; Saltar a modo protegido
-    jmp 0b1001000:protected_mode
+  ; Imprimir mensaje de bienvenida
+  imprimir_texto_mr iniciando_mr_msg, iniciando_mr_len, 0x07, 0, 0
+  
+  
+  ; Habilitar A20
+  call habilitar_A20
+  
+  ; Cargar la GDT
+  cli
+  lgdt [GDT_DESC]
+  
+  ; Setear el bit PE del registro CR0
+  mov eax, cr0
+  or eax, 1
+  mov cr0, eax
+  
+  ; Saltar a modo protegido
+  jmp 0b1001000:protected_mode
 
 BITS 32
 protected_mode:
-    
-    ; Establecer selectores de segmentos
-    mov ax, 0b1011000     ; index 11 | gdt 0 | rpl 00
-    mov ds, ax
-    mov ss, ax
-    mov ax, 0b1101000     ; index 13 | gdt 0 | rpl 00
-    mov fs, ax            ; video en fs.
-    
-    ; Establecer la base de la pila
-    mov esp, 0x27000      ; setear la pila del kernel en la dirección 0x27000.
-    
-    ; rutina para limpiar la pantalla
-    call limpiar_pantalla
-    
-    ; pintar el area "del mapa"
-    call pintar_pantalla
-    
-    ; Imprimir mensaje de bienvenida
-    
-    
-    ; Limpiar buffer de video
-    limpiar_buffer_video
-    
+  
+  ; Establecer selectores de segmentos
+  mov ax, 0b1011000     ; index 11 | gdt 0 | rpl 00
+  mov ds, ax
+  mov es, ax
+  mov gs, ax
+  mov ss, ax
+  mov ax, 0b1101000     ; index 13 | gdt 0 | rpl 00
+  mov fs, ax            ; video en fs.
+  
+  ; Establecer la base de la pila
+  mov esp, 0x27000      ; setear la pila del kernel en la dirección 0x27000.
+  
+  ; rutina para limpiar la pantalla
+  call limpiar_pantalla
+  
+  ; pintar el area "del mapa"
+  call pintar_pantalla
+  
+  ; Imprimir mensaje de bienvenida
+  
+  
+  ; Limpiar buffer de video
+  limpiar_buffer_video
 
-    ; Inicializar pantalla
-    call pintar_info
-    imprimir_texto_mp tag_eax, tag_eax_len, 0x70, 8, 55
-    imprimir_texto_mp tag_ebx, tag_ebx_len, 0x70, 10, 55
-    imprimir_texto_mp tag_ecx, tag_ecx_len, 0x70, 12, 55
-    imprimir_texto_mp tag_edx, tag_edx_len, 0x70, 14, 55
-    imprimir_texto_mp tag_esi, tag_esi_len, 0x70, 16, 55
-    imprimir_texto_mp tag_edi, tag_edi_len, 0x70, 18, 55
-    imprimir_texto_mp tag_ebp, tag_ebp_len, 0x70, 20, 55
-    imprimir_texto_mp tag_esp, tag_esp_len, 0x70, 22, 55
-    imprimir_texto_mp tag_eip, tag_eip_len, 0x70, 24, 55
-    imprimir_texto_mp tag_cs, tag_cs_len, 0x70, 26, 55
-    imprimir_texto_mp tag_ds, tag_ds_len, 0x70, 28, 55
-    imprimir_texto_mp tag_es, tag_es_len, 0x70, 30, 55
-    imprimir_texto_mp tag_fs, tag_fs_len, 0x70, 32, 55
-    imprimir_texto_mp tag_gs, tag_gs_len, 0x70, 34, 55
-    imprimir_texto_mp tag_ss, tag_ss_len, 0x70, 36, 55
-    imprimir_texto_mp tag_eflags, tag_eflags_len, 0x70, 36, 55
-    
-    imprimir_texto_mp tag_cr0, tag_cr0_len, 0x70, 8, 66
-    imprimir_texto_mp tag_cr2, tag_cr2_len, 0x70, 10, 66
-    imprimir_texto_mp tag_cr3, tag_cr3_len, 0x70, 12, 66
-    imprimir_texto_mp tag_cr4, tag_cr4_len, 0x70, 14, 66
-    imprimir_texto_mp tag_stack, tag_stack_len, 0x70, 25, 66
-    
-    
-    ; Inicializar el manejador de memoria
-    
-    
-    ; Inicializar el directorio de paginas
-    call mmu_inicializar
-    
-    ; Cargar directorio de paginas
-    ;~ mov eax, 0x27000       DESCOMENTAR ESTO
-    mov cr3, eax
-    
-    ; Habilitar paginacion
-    mov eax, cr0
-    or eax, 0x80000000
-    mov cr0, eax
-    
-    xchg bx, bx
-    
-    imprimir_texto_mp nombre, nombre_len, 0x0c, 1, 80 - nombre_len
-    
-    ; Inicializar tss
-    
-    
-    ; Inicializar tss de la tarea Idle
-    
-    
-    ; Inicializar tss de las tanques
-    
-    
-    ; Inicializar el scheduler
-    
-    
-    ; Inicializar la IDT
-    call idt_inicializar
-    
-    
-    ; Inicializar Game
-    
-    
-    ; Cargar IDT
-    lidt [IDT_DESC]
-    int 19
-    
-    ; Configurar controlador de interrupciones
-    
-    
-    ; pintar posiciones inciales de tanques
-    
-    
-    ; Cargar tarea inicial
-    
-    
-    ; Habilitar interrupciones
-    
-    
-    ; Saltar a la primera tarea: Idle
-    
-    
-    ; Ciclar infinitamente (por si algo sale mal...)
-    mov eax, 0xffff
-    mov ebx, 0xffff
-    mov ecx, 0xffff
-    mov edx, 0xffff
-    jmp $
-    jmp $
+  ; Inicializar pantalla
+  call pintar_info
+  imprimir_texto_mp tag_eax, tag_eax_len, 0x70, 8, 55
+  imprimir_texto_mp tag_ebx, tag_ebx_len, 0x70, 10, 55
+  imprimir_texto_mp tag_ecx, tag_ecx_len, 0x70, 12, 55
+  imprimir_texto_mp tag_edx, tag_edx_len, 0x70, 14, 55
+  imprimir_texto_mp tag_esi, tag_esi_len, 0x70, 16, 55
+  imprimir_texto_mp tag_edi, tag_edi_len, 0x70, 18, 55
+  imprimir_texto_mp tag_ebp, tag_ebp_len, 0x70, 20, 55
+  imprimir_texto_mp tag_esp, tag_esp_len, 0x70, 22, 55
+  imprimir_texto_mp tag_eip, tag_eip_len, 0x70, 24, 55
+  imprimir_texto_mp tag_cs, tag_cs_len, 0x70, 26, 55
+  imprimir_texto_mp tag_ds, tag_ds_len, 0x70, 28, 55
+  imprimir_texto_mp tag_es, tag_es_len, 0x70, 30, 55
+  imprimir_texto_mp tag_fs, tag_fs_len, 0x70, 32, 55
+  imprimir_texto_mp tag_gs, tag_gs_len, 0x70, 34, 55
+  imprimir_texto_mp tag_ss, tag_ss_len, 0x70, 36, 55
+  imprimir_texto_mp tag_eflags, tag_eflags_len, 0x70, 36, 55
+  
+  imprimir_texto_mp tag_cr0, tag_cr0_len, 0x70, 8, 66
+  imprimir_texto_mp tag_cr2, tag_cr2_len, 0x70, 10, 66
+  imprimir_texto_mp tag_cr3, tag_cr3_len, 0x70, 12, 66
+  imprimir_texto_mp tag_cr4, tag_cr4_len, 0x70, 14, 66
+  imprimir_texto_mp tag_stack, tag_stack_len, 0x70, 25, 66
+  
+  mov ax, 0b1011000     ; index 11 | gdt 0 | rpl 00
+  mov fs, ax
+  
+  ; Inicializar el manejador de memoria
+  
+  
+  ; Inicializar el directorio de paginas
+  call mmu_inicializar
+  
+  ; Cargar directorio de paginas
+  mov eax, 0x27000       ; DESCOMENTAR ESTO
+  mov cr3, eax
+  
+  ; Habilitar paginacion
+  mov eax, cr0
+  or eax, 0x80000000
+  mov cr0, eax
+  
+  imprimir_texto_mp nombre, nombre_len, 0x0c, 1, 80 - nombre_len
+  
+  ; Inicializar tss
+  call tss_inicializar
+  
+  ; Inicializar tss de la tarea Idle
+  call tss_inicializar_tarea_idle
+  
+  ; Inicializar tss de los tanques
+  
+  
+  ; Inicializar el scheduler
+  
+  
+  ; Inicializar la IDT
+  call idt_inicializar
+  
+  
+  ; Inicializar Game
+  
+  
+  ; Cargar IDT
+  lidt [IDT_DESC]
+  ;~ int 19
+  
+  ; Configurar controlador de interrupciones
+  
+  
+  ; pintar posiciones inciales de tanques
+  
+  
+  ; Cargar tarea inicial
+  
+  
+  ; Habilitar interrupciones
+  
+  
+  ; Saltar a la primera tarea: Idle
+  xchg bx, bx
+  mov ax, 0b1111000
+  mov [selector], ax
+  jmp far [offset]
+  
+  ; Ciclar infinitamente (por si algo sale mal...)
+  mov eax, 0xffff
+  mov ebx, 0xffff
+  mov ecx, 0xffff
+  mov edx, 0xffff
+  jmp $
+  jmp $
 
 ;; -------------------------------------------------------------------------- ;;
 

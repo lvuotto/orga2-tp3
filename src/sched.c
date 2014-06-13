@@ -8,8 +8,7 @@
 #include "sched.h"
 
 
-sched_ctx_t ctx_tanques[CANT_TANQUES];
-sched_ctx_t ctx_idle;
+
 
 
 unsigned short sched_proximo_indice () {

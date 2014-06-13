@@ -12,13 +12,13 @@
 #include "tss.h"
 
 
-struct sched_ctx_s {
-  unsigned int    alive;
-  tss            *la_tss;
-};
+typedef struct nodo_sched_s nodo_sched_t;
 
-
-typedef struct sched_ctx_s sched_ctx_t;
+struct nodo_sched_s {
+  tss          *la_tss;
+  nodo_sched_t *next;
+  nodo_sched_t *prev;
+} __attribute__((__packed__, aligned (4)));
 
 
 unsigned short sched_proximo_indice ();
