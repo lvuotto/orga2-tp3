@@ -151,6 +151,9 @@ protected_mode:
   call habilitar_pic
   sti
   
+  int 0x52
+  ;~ xchg bx, bx
+  
   ; pintar posiciones inciales de tanques
   
   

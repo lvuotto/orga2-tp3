@@ -13,16 +13,6 @@
 
 
 
-//typedef struct scheduler_s {
-  //tss *sched_ctx_arr[];
-  //tss *idle_ctx;
-  //tss *tss1;
-  //tss *tss2;
-  //unsigned int tarea_actual;
-//} __attribute__((__packed__, aligned (4))) scheduler_t;
-
-
-
 tss *idle_ctx;
 void scheduler_inicializar ();
 

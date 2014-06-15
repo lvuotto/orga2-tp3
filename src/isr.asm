@@ -5,6 +5,7 @@
 ; definicion de rutinas de atencion de interrupciones
 
 %include "imprimir.mac"
+%include "registros.mac"
 
 BITS 32
 
@@ -20,9 +21,6 @@ extern sched_proximo_indice
 extern game_mover
 extern game_misil
 extern game_minar
-
-global _isr32
-global _isr0x52
 
 ;;
 ;; Definición de MACROS
@@ -78,6 +76,10 @@ global _isr%1
 _isr%1:
   imprimir_texto_mp _isr_msg_%1, _isr_len_%1, 0x4f, 0, 0
   
+  pushad
+  imprimir_registros
+  popad
+  
   .loopear:
     ; To Infinity And Beyond!!
     mov eax, 0xffff
@@ -99,6 +101,7 @@ isrClock:            db '|/-\'
 ;;
 ;; Rutina de atención de las EXCEPCIONES
 ;; -------------------------------------------------------------------------- ;;
+
 ISR  0
 ISR  1
 ISR  2
@@ -121,44 +124,78 @@ ISR 18
 ISR 19
 
 
-;~ _isr14:
-  ;~ 
-  ;~ 
-  ;~ 
-  ;~ iret
-  ;~ 
-;~ ; FIN _isr14
-
-
 ;;
 ;; Rutina de atención del RELOJ
 ;; -------------------------------------------------------------------------- ;;
+
+global _isr32
+
 _isr32:
   cli
   pushad
   
-  call fin_intr_pic1
   call proximo_reloj
+  call fin_intr_pic1
   
   popad
   sti
   iret 
+; FIN _isr32
 
 ;;
 ;; Rutina de atención del TECLADO
 ;; -------------------------------------------------------------------------- ;;
 
+global _isr33
+
+_isr33:
+  cli
+  pushad
+  
+  xor eax, eax
+  in al, 0x60
+  test al, 0x80
+  jnz .fin
+  
+  ; atiendo cuando se suelta.
+  cmp al, 0xa
+  jg .fin
+  cmp al, 0x2
+  jl .fin
+  mov bx, 0x2f00
+  add al, '0' - 1
+  or bx, ax
+  mov word [0xb8000], bx
+  
+  .fin:
+  call fin_intr_pic1
+  
+  popad
+  sti
+  iret
+; FIN _isr33
+
 ;;
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
+
 %define SYS_MOVER     0x83D
 %define SYS_MISIL     0x911
 %define SYS_MINAR     0x355
 
+global _isr0x52
+
 _isr0x52:
-  mov eax, 0x42
-  iret
+  cli
+  pushad
   
+  xchg bx, bx
+  mov eax, 0x42
+  
+  popad
+  sti
+  iret
+; FIN _isr0x52  
 
 
 ;; Funciones Auxiliares
@@ -169,12 +206,9 @@ proximo_reloj:
   cmp ebx, 0x4
   jl .ok
     mov DWORD [isrnumero], 0x0
-    mov ebx, 0
+    xor ebx, ebx
   .ok:
     add ebx, isrClock
     imprimir_texto_mp ebx, 1, 0x0f, 49, 79
   ret
   
-
-
-;~ %include "registros.asm"

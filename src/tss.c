@@ -50,7 +50,7 @@ void tss_inicializar() {
     tss_tanques[i].unused6  = 0x0;
     tss_tanques[i].ds       = 0b1100011;
     tss_tanques[i].unused7  = 0x0;
-    tss_tanques[i].fs       = 0b1101011;
+    tss_tanques[i].fs       = 0b1100011;
     tss_tanques[i].unused8  = 0x0;
     tss_tanques[i].gs       = 0b1100011;
     tss_tanques[i].unused9  = 0x0;
@@ -105,6 +105,10 @@ void tss_inicializar_tarea_idle () {
   gdt[GDT_TSS_1].base_31_24 =  (unsigned int) (&tss_idle) >> 24;
   gdt[GDT_TSS_1].base_23_16 = ((unsigned int) (&tss_idle) >> 16) & 0xff;
   gdt[GDT_TSS_1].base_0_15  =  (unsigned int) (&tss_idle)        & 0xffff;
+  
+  gdt[GDT_TSS_1].base_31_24 =  (unsigned int) (&tss_tanques[0]) >> 24;
+  gdt[GDT_TSS_1].base_23_16 = ((unsigned int) (&tss_tanques[0]) >> 16) & 0xff;
+  gdt[GDT_TSS_1].base_0_15  =  (unsigned int) (&tss_tanques[0])        & 0xffff;
 }
 
 

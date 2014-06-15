@@ -7,18 +7,9 @@
 
 #include "sched.h"
 
-scheduler_t *sched_str;
 
 void scheduler_inicializar () {
-    
-    //for (int i = 0; i < 7; i++) {
-        //sched_str->(*sched_ctx_arr)[i] = tss_get_cr3(i);
-    //}
-    //sched_str->idle_ctx     = &tss_idle;
-    //sched_str->tss1         = &tss_next_1;
-    //sched_str->tss2         = &tss_next_2;
-    //sched_str->tarea_actual = 0;
-        
+  
 }
 
 

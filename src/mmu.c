@@ -315,7 +315,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   }
  
   for (i = 0; i < 2*PAGE_SIZE; i += PAGE_SIZE) {
-    mmu_mapear_pagina(codigo_virtual, cr3, memoria_mapa + i, 3);
+    mmu_mapear_pagina(codigo_virtual + i, cr3, memoria_mapa + i, 3);
     /* 3 = 0b11 => r/w = 1, u/s = 1 */
   }
   

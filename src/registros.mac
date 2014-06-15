@@ -1,0 +1,100 @@
+
+%ifndef __IMPRIMIR_REG__
+%define __IMPRIMIR_REG__
+
+%macro imprimir_registros 0
+  
+  imprimir_valor_hex [esp +  4*7], 8, 0x7f,  8, 57   ; eax
+  imprimir_valor_hex [esp +  4*4], 8, 0x7f, 10, 57   ; ebx
+  imprimir_valor_hex [esp +  4*6], 8, 0x7f, 12, 57   ; ecx
+  imprimir_valor_hex [esp +  4*5], 8, 0x7f, 14, 57   ; edx
+  imprimir_valor_hex [esp +  4*1], 8, 0x7f, 16, 57   ; esi
+  imprimir_valor_hex [esp +  4*0], 8, 0x7f, 18, 57   ; edi
+  imprimir_valor_hex [esp +  4*2], 8, 0x7f, 20, 57   ; ebp
+  
+  
+  imprimir_valor_hex [esp +  4*9], 8, 0x7f, 24, 57   ; eip
+  
+  imprimir_valor_hex [esp + 4*10], 4, 0x7f, 26, 57   ; cs
+  imprimir_valor_hex ds,           4, 0x7f, 28, 57   ; ds
+  imprimir_valor_hex es,           4, 0x7f, 30, 57   ; es
+  imprimir_valor_hex fs,           4, 0x7f, 32, 57   ; fs
+  imprimir_valor_hex gs,           4, 0x7f, 34, 57   ; gs
+  
+  mov ax, cs
+  cmp [esp + 4*10], ax
+  jne %%cambio_privilegio
+  
+  imprimir_valor_hex [esp +  4*3], 8, 0x7f, 22, 57   ; esp
+  imprimir_valor_hex ss,           4, 0x7f, 36, 57   ; ss
+  jmp %%continuar
+  
+  %%cambio_privilegio:
+  imprimir_valor_hex [esp + 4*12], 8, 0x7f, 22, 57   ; esp
+  imprimir_valor_hex [esp + 4*13], 4, 0x7f, 36, 57
+  
+  %%continuar:
+  imprimir_valor_hex [esp + 4*11], 8, 0x7f, 38, 60   ; eflags
+  
+  imprimir_valor_hex cr0,          8, 0x7f,  8, 71   ; cr0
+  imprimir_valor_hex cr2,          8, 0x7f, 10, 71   ; cr2
+  imprimir_valor_hex cr3,          8, 0x7f, 12, 71   ; cr3
+  imprimir_valor_hex cr4,          8, 0x7f, 14, 71   ; cr4
+  
+  imprimir_valor_hex [esp +  4*8], 8, 0x7f, 27, 67   ; error code
+  
+%endmacro
+
+
+%macro imprimir_valor_hex 5
+  
+  ; %1 -> valor
+  ; %2 -> cantidad
+  ; %3 -> color
+  ; %4 -> fila
+  ; %5 -> columna
+  
+  mov eax, %4
+  mov ebx, 80
+  imul ebx
+  add eax, %5
+  shl eax, 1
+  mov ebx, eax
+  add ebx, 0xb8000
+  mov cl, 4*(%2 - 1)
+  mov dl, %3
+  shl dx, 8
+  %%ciclo:
+    mov eax, %1
+    shr eax, cl
+    and eax, 0xf
+    cmp al, 10
+    jl %%seguir
+    add al, 7
+    
+    %%seguir:
+    add al, '0'
+    or ax, dx
+    mov word [ebx], ax
+    add ebx, 2
+    
+    sub cl, 4
+    cmp cl, 0
+    jg %%ciclo
+  ; FIN %%ciclo
+  
+  mov eax, %1
+  and eax, 0xf
+  cmp al, 10
+  jl %%seguir2
+  add al, 7
+  
+  %%seguir2:
+  add al, '0'
+  or ax, dx
+  mov word [ebx], ax
+  
+%endmacro
+
+
+%endif    ; __IMPRIMIR_REG__

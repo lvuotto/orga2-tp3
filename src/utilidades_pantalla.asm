@@ -166,11 +166,11 @@ inicializar_pantalla:
   imprimir_texto_mp tag_ss,     tag_ss_len,     0x70, 36, 53
   imprimir_texto_mp tag_eflags, tag_eflags_len, 0x70, 38, 53
   
-  imprimir_texto_mp tag_cr0,    tag_cr0_len,    0x70,  8, 66
-  imprimir_texto_mp tag_cr2,    tag_cr2_len,    0x70, 10, 66
-  imprimir_texto_mp tag_cr3,    tag_cr3_len,    0x70, 12, 66
-  imprimir_texto_mp tag_cr4,    tag_cr4_len,    0x70, 14, 66
-  imprimir_texto_mp tag_stack,  tag_stack_len,  0x70, 25, 66
+  imprimir_texto_mp tag_cr0,    tag_cr0_len,    0x70,  8, 67
+  imprimir_texto_mp tag_cr2,    tag_cr2_len,    0x70, 10, 67
+  imprimir_texto_mp tag_cr3,    tag_cr3_len,    0x70, 12, 67
+  imprimir_texto_mp tag_cr4,    tag_cr4_len,    0x70, 14, 67
+  imprimir_texto_mp tag_stack,  tag_stack_len,  0x70, 25, 67
 
 ret
 
@@ -217,6 +217,6 @@ tag_cr4        db 'cr4'
 tag_cr4_len    equ $ - tag_cr4
 tag_stack      db 'stack'
 tag_stack_len  equ $ - tag_stack
-nombre:      db 'Alemania / Vollkornbrot'
-nombre_len:  equ $ - nombre
+nombre      db 'Alemania / Vollkornbrot'
+nombre_len  equ $ - nombre
 
