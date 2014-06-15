@@ -1,6 +1,9 @@
 
 BITS 32
 
+; Asume que fs apunta al comienzo del video (0xb8000).
+; Tenerlo en cuenta a la hora de utilizarse.
+
 
 limpiar_pantalla:
   

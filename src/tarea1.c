@@ -14,7 +14,7 @@ void pisar(unsigned int m);
 void task() {
     /* Tarea 1 */
   char aa[512];
-
+  
   syscall_misil(2, 2, (unsigned int)aa, 512);
   syscall_misil(3, 3, (unsigned int)aa, 512);
   syscall_misil(4, 4, (unsigned int)aa, 512);
@@ -23,7 +23,7 @@ void task() {
   syscall_misil(7, 7, (unsigned int)aa, 512);
   syscall_misil(8, 8, (unsigned int)aa, 512);
   syscall_misil(9, 9, (unsigned int)aa, 512);
-
+  
   syscall_misil( -1,  -1, (unsigned int)aa, 512);
   syscall_misil(-10, -10, (unsigned int)aa, 512);
   syscall_misil( 10, -10, (unsigned int)aa, 512);
@@ -32,7 +32,7 @@ void task() {
   syscall_misil(  8,   8, (unsigned int)aa, 512);
   syscall_misil(  8,  -8, (unsigned int)aa, 512);
   syscall_misil( -8,   8, (unsigned int)aa, 512);
-
+  
   unsigned int i;
   for(i=0;i<10;i++) {
     unsigned int mapn = syscall_mover(N);
@@ -40,14 +40,20 @@ void task() {
     unsigned int mapo = syscall_mover(O);
     pisar(mapo-0x1000+1);
   }
+  
+  breakpoint();
 
   unsigned int maps = syscall_mover(S);
   pisar(maps-0x1000+1);
+  
+  breakpoint();
 
   for(i=0;i<100;i++) {
     unsigned int mapno = syscall_mover(NO);
     pisar(mapno-0x1000+1);
   }
+  
+  breakpoint();
 
   while(1) { __asm __volatile("mov $1, %%eax":::"eax"); }
 }

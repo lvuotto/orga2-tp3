@@ -80,6 +80,12 @@ _isr%1:
   imprimir_registros
   popad
   
+  ; TODO:
+  ; - [ ] Dar de baja una tarea (remover del scheduler) ante una interrupcion.
+  ;       - Deberiamos poner ON a la tarea idle? Si.
+  ; - [ ] Remover el loop infinito y agregar un iret (no hacerlo hasta terminar
+  ;       el punto anterior).
+  
   .loopear:
     ; To Infinity And Beyond!!
     mov eax, 0xffff
@@ -189,7 +195,6 @@ _isr0x52:
   cli
   pushad
   
-  xchg bx, bx
   mov eax, 0x42
   
   popad
