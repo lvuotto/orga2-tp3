@@ -21,8 +21,7 @@
   imprimir_valor_hex fs,           4, 0x7f, 32, 57   ; fs
   imprimir_valor_hex gs,           4, 0x7f, 34, 57   ; gs
   
-  mov ax, cs
-  cmp [esp + 4*10], ax
+  test word [esp + 4*10], 0x3
   jne %%cambio_privilegio
   
   imprimir_valor_hex [esp +  4*3], 8, 0x7f, 22, 57   ; esp
@@ -31,7 +30,7 @@
   
   %%cambio_privilegio:
   imprimir_valor_hex [esp + 4*12], 8, 0x7f, 22, 57   ; esp
-  imprimir_valor_hex [esp + 4*13], 4, 0x7f, 36, 57
+  imprimir_valor_hex [esp + 4*13], 4, 0x7f, 36, 57   ; ss 'viejo'
   
   %%continuar:
   imprimir_valor_hex [esp + 4*11], 8, 0x7f, 38, 60   ; eflags
@@ -70,7 +69,7 @@
     and eax, 0xf
     cmp al, 10
     jl %%seguir
-    add al, 7
+    add al, 'A' - 10 - '0'
     
     %%seguir:
     add al, '0'
@@ -87,7 +86,7 @@
   and eax, 0xf
   cmp al, 10
   jl %%seguir2
-  add al, 7
+  add al, 'A' - 10 - '0'
   
   %%seguir2:
   add al, '0'
