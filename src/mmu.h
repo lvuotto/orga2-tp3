@@ -63,19 +63,19 @@ typedef enum task_id_e task_id_t;
 extern page_directory_entry_t *page_dir;
 
 
-void         mmu_inicializar            ();
+void          mmu_inicializar            ();
 unsigned int mmu_crear_pagina           ();
-void         mmu_inicializar_dir_kernel ();
+void          mmu_inicializar_dir_kernel ();
 unsigned int mmu_inicializar_dir_tarea  (task_id_t id_tarea);
-void         mmu_mapear_pagina          (unsigned int virtual,
-                                         unsigned int cr3,
-                                         unsigned int fisica,
-                                         unsigned int attr);
-void         mmu_unmapear_pagina        (unsigned int virtual,
-                                         unsigned int cr3);
-void         copiar_memoria             (unsigned int dst,
-                                         unsigned int src,
-                                         unsigned int size);
+void          mmu_mapear_pagina          (unsigned int virtual,
+                                          unsigned int cr3,
+                                          unsigned int fisica,
+                                          unsigned int attr);
+void         mmu_unmapear_pagina         (unsigned int virtual,
+                                          unsigned int cr3);
+void         copiar_memoria              (unsigned int dst,
+                                          unsigned int src,
+                                          unsigned int size);
 unsigned int obtener_posicion_tanque    (task_id_t tid);
 
 
