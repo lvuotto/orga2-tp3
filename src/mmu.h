@@ -71,7 +71,15 @@ void         mmu_mapear_pagina          (unsigned int virtual,
                                          unsigned int cr3,
                                          unsigned int fisica,
                                          unsigned int attr);
-/**/
+void         mmu_unmapear_pagina        (unsigned int virtual,
+                                         unsigned int cr3);
+void         copiar_memoria             (unsigned int dst,
+                                         unsigned int src,
+                                         unsigned int size);
+unsigned int obtener_posicion_tanque    (task_id_t tid);
+
+
+void desalojar_tarea (unsigned int t);
 
 #endif  /* !__MMU_H__ */
 

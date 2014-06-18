@@ -27,6 +27,7 @@
 unsigned int pagina_libre = BASE_AREA_LIBRE;
 unsigned int memoria_mapa = BASE_EL_MAPA;
 unsigned int codigo_virtual = BASE_TAREA_VIRTUAL;
+unsigned int codigo_virtual_tanques[CANT_TANQUES];
 
 
 /* ==========================================================================
@@ -161,7 +162,6 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   page_directory_entry_t *pd;
   page_table_entry_t *p;
   unsigned int i, cr3, codigo;
-  unsigned char *d, *f;
   /* cr3 y codigo funcionan como punteros. */
   
   
@@ -307,12 +307,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
    *        paginas. -> HECHO.
    **/
   
-  /* Codigo de copia. */
-  d = (unsigned char *) memoria_mapa;
-  f = (unsigned char *) codigo;
-  for (i = 0; i < 2*PAGE_SIZE; i++) {
-    *d++ = *f++;
-  }
+  copiar_memoria(memoria_mapa, codigo, 2*PAGE_SIZE);
  
   for (i = 0; i < 2*PAGE_SIZE; i += PAGE_SIZE) {
     mmu_mapear_pagina(codigo_virtual + i, cr3, memoria_mapa + i, 3);
@@ -328,6 +323,8 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
 
 void mmu_inicializar () {
   
+  unsigned int i;
+  
   mmu_inicializar_dir_kernel();
   
   /*mmu_inicializar_dir_tarea(TAREA_1);
@@ -338,6 +335,10 @@ void mmu_inicializar () {
   mmu_inicializar_dir_tarea(TAREA_6);
   mmu_inicializar_dir_tarea(TAREA_7);
   mmu_inicializar_dir_tarea(TAREA_8);*/
+  
+  for (i = 0; i < CANT_TANQUES; i++) {
+    codigo_virtual_tanques[i] = BASE_TAREA_VIRTUAL + PAGE_SIZE;
+  }
   
 }
 
@@ -398,9 +399,7 @@ void mmu_mapear_pagina (unsigned int virtual,
 
 
 
-void mmu_unmapear_pagina (unsigned int virtual,
-                          unsigned int cr3)
-{
+void mmu_unmapear_pagina (unsigned int virtual, unsigned int cr3) {
   
   unsigned int dir_idx, tabla_idx;
   page_directory_entry_t *dir;
@@ -417,4 +416,38 @@ void mmu_unmapear_pagina (unsigned int virtual,
     tlbflush();
   }
   
+}
+
+
+void copiar_memoria (unsigned int dst, unsigned int src, unsigned int size) {
+  unsigned char *d, *f;
+  unsigned int i;
+  
+  d = (unsigned char *) dst;
+  f = (unsigned char *) src;
+  
+  for (i = 0; i < size; i++) {
+    *d++ = *f++;
+  }
+}
+
+
+unsigned int obtener_posicion_tanque (task_id_t tid) {
+  unsigned int dir_idx, tabla_idx, virtual, cr3;
+  page_directory_entry_t *dir;
+  page_table_entry_t *tabla;
+  
+  virtual = codigo_virtual_tanques[tid];
+  cr3 = tss_get_cr3(tid);
+  dir = (page_directory_entry_t *) cr3;
+  dir_idx = virtual >> 22;
+  
+  tabla = (page_table_entry_t *) (dir[dir_idx].base << 12);
+  tabla_idx = (virtual & MASK_22_BAJOS) >> 12;
+  
+  return tabla[tabla_idx].base << 12;
+}
+
+void desalojar_tarea (unsigned int t) {
+  /* DUMMY. BORRAR CUANDO ESTE LISTO EL DE LA TSS. */
 }

@@ -18,5 +18,7 @@ void scheduler_inicializar ();
 
 unsigned short sched_proximo_indice ();
 
+unsigned short sched_tarea_actual ();
+
 
 #endif	/* !__SCHED_H__ */

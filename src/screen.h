@@ -13,4 +13,11 @@
 #define VIDEO_COLS 80
 
 
+#include "defines.h"
+#include "i386.h"
+
+
+void pintar_posicion_tanque (unsigned int id, unsigned int pos);
+
+
 #endif  /* !__SCREEN_H__ */

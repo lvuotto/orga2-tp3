@@ -8,7 +8,7 @@
 extern GDT_DESC
 extern IDT_DESC
 extern idt_inicializar
-extern mmu_inicializar_dir_kernel
+extern mmu_inicializar
 extern tss_inicializar
 extern tss_inicializar_tarea_idle
 extern resetear_pic
@@ -110,7 +110,7 @@ protected_mode:
   
   
   ; Inicializar el directorio de paginas
-  call mmu_inicializar_dir_kernel
+  call mmu_inicializar
   
   ; Cargar directorio de paginas
   mov eax, 0x27000

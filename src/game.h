@@ -12,17 +12,18 @@
 #include "mmu.h"
 
 
-typedef enum direccion_e { NE = 12, N  = 11, NO = 14,
-                           E  = 22, C  = 0,  O  = 44,
-                           SE = 32, S  = 33, SO = 34 } direccion;
+typedef enum direccion_e { NO = 14, N  = 11, NE = 12,
+                           O  = 44, C  = 0,  E  = 22,
+                           SO = 34, S  = 33, SE = 32 } direccion;
 
 
-void game_inicializar();
-
-unsigned int game_mover(unsigned int id, direccion d);
-
-unsigned int game_misil(unsigned int id, int val_x, int val_y, unsigned int misil, unsigned int size);
-
-unsigned int game_minar(unsigned int id, direccion d);
+void         game_inicializar ();
+unsigned int game_mover       (unsigned int id, direccion d);
+unsigned int game_misil       (unsigned int id,
+                               int val_x,
+                               int val_y,
+                               unsigned int misil,
+                               unsigned int size);
+unsigned int game_minar       (unsigned int id, direccion d);
 
 #endif  /* !__GAME_H__ */

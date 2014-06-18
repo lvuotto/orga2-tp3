@@ -17,6 +17,8 @@ extern fin_intr_pic1
 
 ;; Sched
 extern sched_proximo_indice
+extern sched_tarea_actual
+extern desalojar_tarea
 ;; Game
 extern game_mover
 extern game_misil
@@ -185,7 +187,7 @@ _isr33:
 ;; Rutinas de atención de las SYSCALLS
 ;; -------------------------------------------------------------------------- ;;
 
-%define SYS_MOVER     0x83D
+%define SYS_MOVER     0x83d
 %define SYS_MISIL     0x911
 %define SYS_MINAR     0x355
 
@@ -195,8 +197,49 @@ _isr0x52:
   cli
   pushad
   
-  mov eax, 0x42
+  mov ebx, eax
+  call sched_tarea_actual
   
+  cmp ebx, SYS_MOVER
+  je .mover
+  
+  cmp ebx, SYS_MISIL
+  je .misil
+  
+  cmp ebx, SYS_MINAR
+  je .minar
+  
+  push eax
+  call desalojar_tarea
+  pop eax
+  jmp .fin
+  
+  
+  .mover:
+  push dword [esp + 4*4 +  0] ; ebx
+  push eax
+  call game_mover
+  add esp, 2*4
+  
+  
+  .misil:
+  push dword [esp + 1*4 +  0] ; esi
+  push dword [esp + 5*4 +  4] ; edx
+  push dword [esp + 6*4 +  8] ; ecx
+  push dword [esp + 4*4 + 12] ; ebx
+  push eax
+  call game_misil
+  add esp, 5*4
+  
+  
+  .minar:
+  push dword [esp + 4*4 +  0] ; ebx
+  push eax
+  call game_minar
+  add esp, 2*4
+  
+  
+  .fin:
   popad
   sti
   iret

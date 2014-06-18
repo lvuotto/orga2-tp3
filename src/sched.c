@@ -15,6 +15,11 @@ void scheduler_inicializar () {
 
 unsigned short sched_proximo_indice () {
   
-  return r;
+  return 0;
   
+}
+
+unsigned short sched_tarea_actual () {
+  /* DUMMY. COMPLETAR CORRECTAMENTE. */
+  return 1;
 }
