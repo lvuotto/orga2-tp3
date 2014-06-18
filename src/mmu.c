@@ -447,3 +447,7 @@ unsigned int obtener_posicion_tanque (task_id_t tid) {
   
   return tabla[tabla_idx].base << 12;
 }
+
+void desalojar_tarea (unsigned int t) {
+  /* DUMMY. BORRAR CUANDO ESTE LISTO EL DE LA TSS. */
+}

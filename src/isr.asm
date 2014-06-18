@@ -9,8 +9,8 @@
 
 BITS 32
 
-sched_tarea_offset:   dd 0x00
-sched_tarea_selector: dw 0x00
+sched_tarea_offset:     dd 0x00
+sched_tarea_selector:   dw 0x00
 
 ;; PIC
 extern fin_intr_pic1
@@ -18,10 +18,9 @@ extern fin_intr_pic1
 ;; Sched
 extern sched_proximo_indice
 extern sched_tarea_actual
-extern desalojar_tarea_actual
+extern desalojar_tarea
 extern actualizar_tss
 extern sched_proxima_tarea
-extern sched_cambiar_a_idle
 
 ;; Game
 extern game_mover
@@ -86,9 +85,6 @@ _isr%1:
   imprimir_registros
   popad
   
-  ; cuando se produce una excepcion y hay un cambio de privilegio,
-  ; hay que desalojar la tarea
-  
   ; TODO:
   ; - [ ] Dar de baja una tarea (remover del scheduler) ante una interrupcion.
   ;       - Deberiamos poner ON a la tarea idle? Si.
@@ -148,7 +144,6 @@ global _isr32
 _isr32:
   cli
   pushad
-  xchg bx, bx
   
   call proximo_reloj
   call sched_proxima_tarea
@@ -157,9 +152,8 @@ _isr32:
   je .nojump
   
     call sched_proximo_indice
-    mov bx, ax
     call actualizar_tss
-    mov [sched_tarea_selector], bx
+    mov [sched_tarea_selector], ax
     call fin_intr_pic1
     jmp far [sched_tarea_offset]
     jmp .end
@@ -217,91 +211,59 @@ _isr33:
 
 global _isr0x52
 
-_isr0x52:     ; HACE MIERDA LOS REGISTROS :D
-      cli
-      ;~ pushad
-      push ebp
-      mov ebp, esp
-      push ebx
-      push ecx
-      push edx
-      push edi
-      push esi
-      ; ebx, edi, esi no tocados por convencion C.
-     
-      mov edi, eax
-      call sched_tarea_actual
-     
-      cmp edi, SYS_MOVER
-      je .mover
-     
-      cmp edi, SYS_MISIL
-      je .misil
-     
-      cmp edi, SYS_MINAR
-      je .minar
-     
-      mov edi, eax
-      jmp .desalojar
-     
-     
-      .mover:
-      mov edi, eax
-      push dword [ebp -  4] ; ebx
-      push edi
-      call game_mover
-      add esp, 2*4
-      cmp eax, 0
-      je .desalojar
-      jmp .fin
-     
-     
-      .misil:
-      mov edi, eax
-      push dword [ebp - 20] ; esi
-      push dword [ebp - 12] ; edx
-      push dword [ebp -  8] ; ecx
-      push dword [ebp -  4] ; ebx
-      push edi
-      call game_misil
-      add esp, 5*4
-      cmp eax, 0
-      je .desalojar
-      jmp .fin
-     
-     
-      .minar:
-      mov edi, eax
-      push dword [ebp -  4] ; ebx
-      push edi
-      call game_minar
-      add esp, 2*4
-      cmp eax, 0
-      je .desalojar
-      jmp .fin
-     
-     
-      .desalojar:
-      push edi
-      call desalojar_tarea_actual
-      pop edi
-     
-      .fin:
-      mov ebx, eax
-      call sched_cambiar_a_idle
-      mov eax, ebx
-      pop esi
-      pop edi
-      pop edx
-      pop ecx
-      pop ebx
-      pop ebp
-      ;~ popad
-      sti
-      iret
-; FIN _isr0x52
-
+_isr0x52:
+  cli
+  pushad
   
+  mov ebx, eax
+  call sched_tarea_actual
+  
+  cmp ebx, SYS_MOVER
+  je .mover
+  
+  cmp ebx, SYS_MISIL
+  je .misil
+  
+  cmp ebx, SYS_MINAR
+  je .minar
+  
+  push eax
+  call desalojar_tarea
+  pop eax
+  jmp .fin
+  
+  
+  .mover:
+  push dword [esp + 4*4 +  0] ; ebx
+  push eax
+  call game_mover
+  add esp, 2*4
+  jmp .fin
+  
+  
+  .misil:
+  push dword [esp + 1*4 +  0] ; esi
+  push dword [esp + 5*4 +  4] ; edx
+  push dword [esp + 6*4 +  8] ; ecx
+  push dword [esp + 4*4 + 12] ; ebx
+  push eax
+  call game_misil
+  add esp, 5*4
+  jmp .fin
+  
+  
+  .minar:
+  push dword [esp + 4*4 +  0] ; ebx
+  push eax
+  call game_minar
+  add esp, 2*4
+  
+  
+  .fin:
+  popad
+  sti
+  iret
+; FIN _isr0x52  
 
 
 ;; Funciones Auxiliares

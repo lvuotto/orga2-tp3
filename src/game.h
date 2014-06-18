@@ -10,7 +10,6 @@
 #include "defines.h"
 #include "screen.h"
 #include "mmu.h"
-#include "sched.h"
 
 
 typedef enum direccion_e { NO = 14, N  = 11, NE = 12,

@@ -107,9 +107,9 @@ void tss_inicializar_tarea_idle () {
   gdt[GDT_TSS_1].base_0_15  =  (unsigned int) (&tss_idle)        & 0xffff;
   
   /* BORRAR ESTO. TIENE QUE EMPEZAR EN LA IDLE. */
-  //~ gdt[GDT_TSS_1].base_31_24 =  (unsigned int) (&tss_tanques[0]) >> 24;
-  //~ gdt[GDT_TSS_1].base_23_16 = ((unsigned int) (&tss_tanques[0]) >> 16) & 0xff;
-  //~ gdt[GDT_TSS_1].base_0_15  =  (unsigned int) (&tss_tanques[0])        & 0xffff;
+  gdt[GDT_TSS_1].base_31_24 =  (unsigned int) (&tss_tanques[0]) >> 24;
+  gdt[GDT_TSS_1].base_23_16 = ((unsigned int) (&tss_tanques[0]) >> 16) & 0xff;
+  gdt[GDT_TSS_1].base_0_15  =  (unsigned int) (&tss_tanques[0])        & 0xffff;
 }
 
 

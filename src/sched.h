@@ -13,14 +13,18 @@
 
 
 
-void            desalojar_tarea_actual();
-void            scheduler_inicializar();
-unsigned short sched_proximo_indice();
-unsigned int   sched_proxima_tarea();
-unsigned int   sched_tarea_actual();
-void            sched_cambiar_a_idle(); 
-void            actualizar_tss();
+tss  *idle_ctx;
 
+void          desalojar_tarea_actual();
+tss           *tss_tarea_anterior();
+void          scheduler_inicializar();
+unsigned int sched_proximo_indice();
+unsigned int sched_proxima_tarea();
+void          actualizar_tss();
+ 
+
+
+unsigned short sched_tarea_actual ();
 
 
 #endif	/* !__SCHED_H__ */
