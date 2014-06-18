@@ -134,39 +134,33 @@ protected_mode:
   
   
   ; Inicializar el scheduler
-  mov ax, 0x73
-  ltr ax
-  
-  jmp 0x7B:0
   
   
   ; Inicializar la IDT
   call idt_inicializar
-  
   
   ; Inicializar Game
   
   
   ; Cargar IDT
   lidt [IDT_DESC]
-  ;~ int 19
   
   ; Configurar controlador de interrupciones
+  call deshabilitar_pic
   call resetear_pic
   call habilitar_pic
-  sti
-  
-  int 0x52
-  ;~ xchg bx, bx
   
   ; pintar posiciones inciales de tanques
   
   
   ; Cargar tarea inicial
+  mov ax, 0b1110011
+  ltr ax
   
+  ;~ jmp 0b1110011:0
   
   ; Habilitar interrupciones
-  
+  sti
   
   ; Saltar a la primera tarea: Idle
   mov ax, 0b1111000

@@ -17,14 +17,11 @@ extern fin_intr_pic1
 
 ;; Sched
 extern sched_proximo_indice
-<<<<<<< HEAD
 extern sched_tarea_actual
 extern desalojar_tarea
-=======
 extern actualizar_tss
 extern sched_proxima_tarea
 
->>>>>>> ej7
 ;; Game
 extern game_mover
 extern game_misil
@@ -241,6 +238,7 @@ _isr0x52:
   push eax
   call game_mover
   add esp, 2*4
+  jmp .fin
   
   
   .misil:
@@ -251,6 +249,7 @@ _isr0x52:
   push eax
   call game_misil
   add esp, 5*4
+  jmp .fin
   
   
   .minar:

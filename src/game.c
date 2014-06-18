@@ -20,7 +20,6 @@ void game_inicializar() {
 unsigned int game_mover (unsigned int id, direccion d) {
   unsigned int pos, coord_x, coord_y, cr3;
   
-  //~ breakpoint();
   pos = obtener_posicion_tanque(id);
   
   switch (d) {
@@ -70,8 +69,7 @@ unsigned int game_mover (unsigned int id, direccion d) {
   cr3 = tss_get_cr3(id);
   codigo_virtual_tanques[id] += PAGE_SIZE;
   mmu_mapear_pagina(codigo_virtual_tanques[id], cr3, pos, 3);
-  pintar_posicion_tanque(id, pos);
-  
+  pintar_posicion_tanque(id, coord_x, coord_y);
   
   return TRUE;
 }

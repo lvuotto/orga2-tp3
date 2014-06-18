@@ -28,96 +28,70 @@ unsigned int i             = 0;
 //~ }
 
 
-void desalojar_tarea_actual() {
-    tareas_vivas[indice_tarea_actual] = 0;
-    //"tendria que pasar a la IDLE"
-    
+void desalojar_tarea_actual () {
+  tareas_vivas[indice_tarea_actual] = 0;
 }
 
 
-tss *tss_tarea_anterior() {
-    
-    if(actual_prox == 0) {
-        return &(tss_next_1);
-    } else {
-        return &(tss_next_2);
-    }
-    
+tss * tss_tarea_anterior () {
+  if (actual_prox == 0) {
+    return &(tss_next_1);
+  } else {
+    return &(tss_next_2);
+  }
 }
 
 
-//~ tss *tss_tarea_actual() {
-    //~ 
-    //~ if(actual_prox == false) {
-        //~ return &(tss_next_2);
-    //~ } else {
-        //~ return &(tss_next_1);
-    //~ }
-    //~ 
-//~ }
+unsigned short sched_tarea_actual () {
+  return indice_tarea_actual;
+}
 
 
-void scheduler_inicializar() {
-  
-  for(i = 0; i < CANT_TANQUES; i++) {
-      tareas_vivas[i]   = 1;
+void scheduler_inicializar () {
+  for (i = 0; i < CANT_TANQUES; i++) {
+    tareas_vivas[i]   = 1;
   }
   anterior              = GDT_TSS_1;
   actual                = GDT_TSS_2;
   indice_tarea_actual   = GDT_TSS_TAREA_INICIAL;
   indice_tarea_anterior = -1;
-  
 }
 
 
-unsigned int sched_proximo_indice() {
-  
-<<<<<<< HEAD
-  return 0;
-  
-}
-
-unsigned short sched_tarea_actual () {
-  /* DUMMY. COMPLETAR CORRECTAMENTE. */
-  return 1;
-}
-=======
-  if(actual_prox) {
+unsigned int sched_proximo_indice () {
+  if (actual_prox) {
     actual_prox   = 0;
     anterior_prox = 1;
-  return actual;
+    return actual;
   } else {
     actual_prox   = 1;
     anterior_prox = 0;
     return anterior;
   }
-  
 }
 
 
-unsigned int sched_proxima_tarea() {
-  
+unsigned int sched_proxima_tarea () {
   i = actual;
-  while(tareas_vivas[i] != 0) {
-    if(i >= CANT_TANQUES) {
+  while (tareas_vivas[i] != 0) {
+    if (i >= CANT_TANQUES) {
       i = 0;
     }
     i++;
   }
   
-  if(i == indice_tarea_actual){
+  if (i == indice_tarea_actual) {
     return 69;
   }
   return i;
-    
 }
 
 
-void actualizar_tss() {
+void actualizar_tss () {
   
   /* guardamos el contexto de la tarea anterior */
   tss *contexto_anterior = tss_tarea_anterior();
-    
+  
   /* en la pos correspondiente correspondiente del array */
   if(indice_tarea_anterior != -1) {
     int j = indice_tarea_anterior;
@@ -127,14 +101,9 @@ void actualizar_tss() {
   /* calculamos cuál es la próxima tarea y la cargamos */
   i = sched_proxima_tarea();
   tss_copy(&tss_tanques[i], contexto_anterior); 
-                                                        
   indice_tarea_anterior = indice_tarea_actual;
   indice_tarea_actual   = sched_proxima_tarea();
   
   SWAP(anterior, actual);
   
 }
-
-
-
->>>>>>> ej7

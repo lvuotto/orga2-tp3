@@ -17,7 +17,7 @@
 #include "i386.h"
 
 
-void pintar_posicion_tanque (unsigned int id, unsigned int pos);
+void pintar_posicion_tanque (unsigned int id, unsigned int x, unsigned int y);
 
 
 #endif  /* !__SCREEN_H__ */
