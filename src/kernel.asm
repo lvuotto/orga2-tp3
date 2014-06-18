@@ -7,6 +7,7 @@
 
 extern GDT_DESC
 extern IDT_DESC
+
 extern idt_inicializar
 extern mmu_inicializar
 extern tss_inicializar
@@ -133,6 +134,10 @@ protected_mode:
   
   
   ; Inicializar el scheduler
+  mov ax, 0x73
+  ltr ax
+  
+  jmp 0x7B:0
   
   
   ; Inicializar la IDT

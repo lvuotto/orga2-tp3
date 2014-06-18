@@ -13,10 +13,16 @@
 
 
 
-tss *idle_ctx;
-void scheduler_inicializar ();
+tss  *idle_ctx;
 
-unsigned short sched_proximo_indice ();
+void          desalojar_tarea_actual();
+tss           *tss_tarea_anterior();
+void          scheduler_inicializar();
+unsigned int sched_proximo_indice();
+unsigned int sched_proxima_tarea();
+void          actualizar_tss();
+ 
+
 
 unsigned short sched_tarea_actual ();
 

@@ -17,8 +17,14 @@ extern fin_intr_pic1
 
 ;; Sched
 extern sched_proximo_indice
+<<<<<<< HEAD
 extern sched_tarea_actual
 extern desalojar_tarea
+=======
+extern actualizar_tss
+extern sched_proxima_tarea
+
+>>>>>>> ej7
 ;; Game
 extern game_mover
 extern game_misil
@@ -143,10 +149,25 @@ _isr32:
   pushad
   
   call proximo_reloj
-  call fin_intr_pic1
+  call sched_proxima_tarea
   
-  popad
-  sti
+  cmp ax, 69
+  je .nojump
+  
+    call sched_proximo_indice
+    call actualizar_tss
+    mov [sched_tarea_selector], ax
+    call fin_intr_pic1
+    jmp far [sched_tarea_offset]
+    jmp .end
+    
+    .nojump:
+      call fin_intr_pic1
+    
+    .end:
+      popad
+      sti
+  
   iret 
 ; FIN _isr32
 

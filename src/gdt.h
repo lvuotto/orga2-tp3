@@ -18,7 +18,6 @@
 #define GDT_TSS_1 15
 #define GDT_TSS_2 16
 
-
 #include "defines.h"
 
 
