@@ -61,7 +61,7 @@ unsigned int game_mover (unsigned int id, direccion d) {
   coord_x = ((pos - 0x400000) / PAGE_SIZE) % 50;
   
   if (campo_minado[coord_y][coord_x]) {
-    desalojar_tarea(id);
+    sched_desalojar_tarea(id);
     campo_minado[coord_y][coord_x] = FALSE;
     return FALSE;
   }
@@ -71,7 +71,7 @@ unsigned int game_mover (unsigned int id, direccion d) {
   mmu_mapear_pagina(codigo_virtual_tanques[id], cr3, pos, 3);
   pintar_posicion_tanque(id, coord_x, coord_y);
   
-  return TRUE;
+  return codigo_virtual_tanques[id];
 }
 
 unsigned int game_misil (unsigned int id,
@@ -83,17 +83,17 @@ unsigned int game_misil (unsigned int id,
   unsigned int pos;
   
   if (size > PAGE_SIZE) {
-    desalojar_tarea(id);
+    sched_desalojar_tarea(id);
     return FALSE;
   }
   
   if (val_x < -50 || val_x > 50) {
-    desalojar_tarea(id);
+    sched_desalojar_tarea(id);
     return FALSE;
   }
   
   if (val_y < -50 || val_y > 50) {
-    desalojar_tarea(id);
+    sched_desalojar_tarea(id);
     return FALSE;
   }
   

@@ -65,7 +65,7 @@ void         tss_inicializar                ();
 void         tss_inicializar_tarea_idle     ();
 void         tss_inicializar_tarea_tanque   (unsigned int id);
 void         tss_inicializar_tareas_tanques ();
-void         tss_copy                       (tss* tss_src, tss* tss_dst);
+void         tss_copy                       (tss* tss_dst, tss* tss_src);
 unsigned int tss_get_cr3                    (unsigned int id);
 
 #endif  /* !__TSS_H__ */

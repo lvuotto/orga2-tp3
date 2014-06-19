@@ -6,104 +6,136 @@
 */
 
 #include "sched.h"
-#define SWAP(a, b) a^=b;b^=a;a^=b;
+
+tss *tss_tarea_1, *tss_tarea_2, *swaaaap;
+unsigned int _tarea_actual, _tarea_anterior;
+unsigned int tareas_vivas[CANT_TANQUES + 1];
+unsigned int _esta_corriendo_la_idle;
+unsigned int tss_tarea_1_busy;
+unsigned char primera_vez;
 
 
-unsigned int anterior;                 // indice de las tarea anterior
-unsigned int actual;                   // indice de las tarea actual
-unsigned int indice_tarea_anterior;
-unsigned int indice_tarea_actual;
-unsigned int tareas_vivas[CANT_TANQUES];
-unsigned int actual_prox   = 0;        // xq nunca se ejecuta la tarea inicial
-unsigned int anterior_prox = 1;
-unsigned int i             = 0;
-
-
-//~ void swap(unsigned int a, unsigned int b) {
-  //~ 
-  //~ unsigned int temp = b;
-  //~ b = a;
-  //~ a = temp;
-  //~ 
-//~ }
-
-
-void desalojar_tarea_actual () {
-  tareas_vivas[indice_tarea_actual] = 0;
+void sched_inicializar () {
+  unsigned int i;
+  
+  for (i = 0; i < CANT_TANQUES + 1; i++) {
+    tareas_vivas[i] = TRUE;
+  }
+  tss_copy(tss_tarea_1, &tss_idle);
+  _esta_corriendo_la_idle = TRUE;
+  
+  tss_tarea_1_busy = TRUE;
+  _tarea_actual = 0;
+  _tarea_anterior = 0;
+  
+  primera_vez = TRUE;
 }
 
 
-tss * tss_tarea_anterior () {
-  if (actual_prox == 0) {
-    return &(tss_next_1);
+unsigned int esta_corriendo_la_idle () {
+  return _esta_corriendo_la_idle;
+}
+
+
+unsigned int sched_tarea_actual () {
+  return _tarea_actual;
+}
+
+
+unsigned int tarea_anterior () {
+  return _tarea_anterior;
+}
+
+
+void sched_desalojar_tarea (unsigned int id) {
+  tareas_vivas[id % CANT_TANQUES] = FALSE;
+}
+
+
+unsigned short sched_montar_idle () {
+  unsigned int r;
+  
+  if (tss_tarea_1_busy) {
+    tss_copy(&tss_tanques[_tarea_anterior], tss_tarea_2);
+    tss_copy(tss_tarea_2, &tss_idle);
+    r = GDT_TSS_2 << 3;
+    tss_tarea_1_busy = FALSE;
   } else {
-    return &(tss_next_2);
+    tss_copy(&tss_tanques[_tarea_anterior], tss_tarea_1);
+    tss_copy(tss_tarea_1, &tss_idle);
+    r = GDT_TSS_1 << 3;
+    tss_tarea_1_busy = TRUE;
   }
+  
+  swaaaap     = tss_tarea_1;
+  tss_tarea_1 = tss_tarea_2;
+  tss_tarea_2 = swaaaap;
+  
+  return r;
 }
 
 
-unsigned short sched_tarea_actual () {
-  return indice_tarea_actual;
-}
-
-
-void scheduler_inicializar () {
-  for (i = 0; i < CANT_TANQUES; i++) {
-    tareas_vivas[i]   = 1;
-  }
-  anterior              = GDT_TSS_1;
-  actual                = GDT_TSS_2;
-  indice_tarea_actual   = GDT_TSS_TAREA_INICIAL;
-  indice_tarea_anterior = -1;
-}
-
-
-unsigned int sched_proximo_indice () {
-  if (actual_prox) {
-    actual_prox   = 0;
-    anterior_prox = 1;
-    return actual;
-  } else {
-    actual_prox   = 1;
-    anterior_prox = 0;
-    return anterior;
-  }
-}
-
-
-unsigned int sched_proxima_tarea () {
-  i = actual;
-  while (tareas_vivas[i] != 0) {
-    if (i >= CANT_TANQUES) {
-      i = 0;
-    }
+unsigned int proximo_indice_vivo () {
+  unsigned int i;
+  
+  i = (_tarea_actual + 1) % CANT_TANQUES;
+  while (tareas_vivas[i] == FALSE && i != _tarea_actual) {
     i++;
+    i %= CANT_TANQUES;
   }
   
-  if (i == indice_tarea_actual) {
-    return 69;
-  }
-  return i;
+  return i == _tarea_actual ? 0xdeadc0de : i;
 }
 
 
-void actualizar_tss () {
+unsigned short sched_proxima_tarea () {
   
-  /* guardamos el contexto de la tarea anterior */
-  tss *contexto_anterior = tss_tarea_anterior();
+  unsigned int r, p;
   
-  /* en la pos correspondiente correspondiente del array */
-  if(indice_tarea_anterior != -1) {
-    int j = indice_tarea_anterior;
-    tss_copy(contexto_anterior, &tss_tanques[j]);
+  p = proximo_indice_vivo();
+  
+  if (primera_vez) {
+    primera_vez = FALSE;
+    tss_tarea_1_busy = FALSE;
+    tss_copy(tss_tarea_2, &tss_tanques[0]);
+    r = GDT_TSS_2 << 3;
+    p = 0;
+    _tarea_actual = 0;
+  } else if (tss_tarea_1_busy) {
+    p = proximo_indice_vivo();
+    if (p == 0xdeadc0de) {
+      r = 0;
+    } else {
+      tss_copy(&tss_tanques[_tarea_anterior], tss_tarea_2);
+      tss_copy(tss_tarea_2, &tss_tanques[p]);
+      r = GDT_TSS_2 << 3;
+      tss_tarea_1_busy = FALSE;
+    }
+    /*tss_tarea_1_busy = FALSE;
+    r = GDT_TSS_2 << 3;*/
+  } else {
+    if (p == 0xdeadc0de) {
+      r = 0;
+    } else {
+      tss_copy(&tss_tanques[_tarea_anterior], tss_tarea_1);
+      tss_copy(tss_tarea_1, &tss_tanques[p]);
+      r = GDT_TSS_1 << 3;
+      tss_tarea_1_busy = TRUE;
+    }
+    /*tss_tarea_1_busy = TRUE;
+    r = GDT_TSS_1 << 3;*/
   }
-                                                   
-  /* calculamos cuál es la próxima tarea y la cargamos */
-  i = sched_proxima_tarea();
-  tss_copy(&tss_tanques[i], contexto_anterior); 
-  indice_tarea_anterior = indice_tarea_actual;
-  indice_tarea_actual   = sched_proxima_tarea();
   
-  SWAP(anterior, actual);
+  _esta_corriendo_la_idle = FALSE;
+  
+  _tarea_anterior = _tarea_actual;
+  _tarea_actual = p;
+  
+  swaaaap     = tss_tarea_1;
+  tss_tarea_1 = tss_tarea_2;
+  tss_tarea_2 = swaaaap;
+  
+  return r;
   
 }
+

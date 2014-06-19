@@ -107,13 +107,13 @@ void tss_inicializar_tarea_idle () {
   gdt[GDT_TSS_1].base_0_15  =  (unsigned int) (&tss_idle)        & 0xffff;
   
   /* BORRAR ESTO. TIENE QUE EMPEZAR EN LA IDLE. */
-  gdt[GDT_TSS_1].base_31_24 =  (unsigned int) (&tss_tanques[0]) >> 24;
-  gdt[GDT_TSS_1].base_23_16 = ((unsigned int) (&tss_tanques[0]) >> 16) & 0xff;
-  gdt[GDT_TSS_1].base_0_15  =  (unsigned int) (&tss_tanques[0])        & 0xffff;
+  //~ gdt[GDT_TSS_2].base_31_24 =  (unsigned int) (&tss_tanques[1]) >> 24;
+  //~ gdt[GDT_TSS_2].base_23_16 = ((unsigned int) (&tss_tanques[1]) >> 16) & 0xff;
+  //~ gdt[GDT_TSS_2].base_0_15  =  (unsigned int) (&tss_tanques[1])        & 0xffff;
 }
 
 
-void tss_copy (tss* tss_src, tss* tss_dst) {
+void tss_copy (tss* tss_dst, tss* tss_src) {
   tss_dst->ptl      = tss_src->ptl;
   tss_dst->unused0  = tss_src->unused0;
   tss_dst->esp0     = tss_src->esp0;

@@ -9,7 +9,7 @@
 
 
 #define BASE_AREA_LIBRE    0x100000
-#define BASE_EL_MAPA       0x400000
+#define BASE_EL_MAPA       0x400000 + 50*5*PAGE_SIZE + 5*PAGE_SIZE;
 #define BASE_TAREA_VIRTUAL 0x08000000
 
 #define DIR_TAREA_1 0x10000
@@ -314,7 +314,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
     /* 3 = 0b11 => r/w = 1, u/s = 1 */
   }
   
-  memoria_mapa += 2*PAGE_SIZE;
+  memoria_mapa += 50*PAGE_SIZE + 4*PAGE_SIZE;
   
   return cr3;
   

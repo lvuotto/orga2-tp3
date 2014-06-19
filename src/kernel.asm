@@ -15,6 +15,7 @@ extern tss_inicializar_tarea_idle
 extern resetear_pic
 extern habilitar_pic
 extern deshabilitar_pic
+extern sched_inicializar
 
 
 global start
@@ -134,7 +135,7 @@ protected_mode:
   
   
   ; Inicializar el scheduler
-  
+  call sched_inicializar
   
   ; Inicializar la IDT
   call idt_inicializar
@@ -154,7 +155,7 @@ protected_mode:
   
   
   ; Cargar tarea inicial
-  mov ax, 0b1110011
+  mov ax, 0b1110000
   ltr ax
   
   ;~ jmp 0b1110011:0

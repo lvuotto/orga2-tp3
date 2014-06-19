@@ -16,11 +16,10 @@ sched_tarea_selector:   dw 0x00
 extern fin_intr_pic1
 
 ;; Sched
-extern sched_proximo_indice
-extern sched_tarea_actual
-extern desalojar_tarea
-extern actualizar_tss
 extern sched_proxima_tarea
+extern sched_montar_idle
+extern sched_tarea_actual
+extern sched_desalojar_tarea
 
 ;; Game
 extern game_mover
@@ -108,6 +107,8 @@ _isr%1:
 ; Scheduler
 isrnumero:           dd 0x00000000
 isrClock:            db '|/-\'
+isrnumero_t2:        dd 0x00000000
+isrClock_t2:         db '|/-\'
 
 ;;
 ;; Rutina de atención de las EXCEPCIONES
@@ -145,26 +146,25 @@ _isr32:
   cli
   pushad
   
+  xchg bx, bx
+  
   call proximo_reloj
   call sched_proxima_tarea
   
-  cmp ax, 69
-  je .nojump
+  cmp ax, 0
+  je .no_salto
   
-    call sched_proximo_indice
-    call actualizar_tss
-    mov [sched_tarea_selector], ax
-    call fin_intr_pic1
-    jmp far [sched_tarea_offset]
-    jmp .end
-    
-    .nojump:
-      call fin_intr_pic1
-    
-    .end:
-      popad
-      sti
+  mov [sched_tarea_selector], ax
+  call fin_intr_pic1
+  jmp far [sched_tarea_offset]
+  jmp .fin
   
+  .no_salto:
+  call fin_intr_pic1
+  
+  .fin:
+  popad
+  sti
   iret 
 ; FIN _isr32
 
@@ -211,59 +211,93 @@ _isr33:
 
 global _isr0x52
 
-_isr0x52:
-  cli
-  pushad
-  
-  mov ebx, eax
+_isr0x52:     ; HACE MIERDA LOS REGISTROS :D
+  ;~ cli
+  ;~ pushad
+  push ebp
+  mov ebp, esp
+  push ebx
+  push ecx
+  push edx
+  push edi
+  push esi
+  ; ebx, edi, esi no tocados por convencion C.
+ 
+  mov edi, eax
   call sched_tarea_actual
-  
-  cmp ebx, SYS_MOVER
+ 
+  cmp edi, SYS_MOVER
   je .mover
-  
-  cmp ebx, SYS_MISIL
+ 
+  cmp edi, SYS_MISIL
   je .misil
-  
-  cmp ebx, SYS_MINAR
+ 
+  cmp edi, SYS_MINAR
   je .minar
-  
-  push eax
-  call desalojar_tarea
-  pop eax
-  jmp .fin
-  
-  
+ 
+  mov edi, eax
+  jmp .desalojar
+ 
+ 
   .mover:
-  push dword [esp + 4*4 +  0] ; ebx
-  push eax
+  mov edi, eax
+  push dword [ebp -  4] ; ebx
+  push edi
   call game_mover
   add esp, 2*4
+  cmp eax, 0
+  je .desalojar
   jmp .fin
-  
-  
+ 
+ 
   .misil:
-  push dword [esp + 1*4 +  0] ; esi
-  push dword [esp + 5*4 +  4] ; edx
-  push dword [esp + 6*4 +  8] ; ecx
-  push dword [esp + 4*4 + 12] ; ebx
-  push eax
+  mov edi, eax
+  push dword [ebp - 20] ; esi
+  push dword [ebp - 12] ; edx
+  push dword [ebp -  8] ; ecx
+  push dword [ebp -  4] ; ebx
+  push edi
   call game_misil
   add esp, 5*4
+  cmp eax, 0
+  je .desalojar
   jmp .fin
-  
-  
+ 
+ 
   .minar:
-  push dword [esp + 4*4 +  0] ; ebx
-  push eax
+  mov edi, eax
+  push dword [ebp -  4] ; ebx
+  push edi
   call game_minar
   add esp, 2*4
-  
-  
+  cmp eax, 0
+  je .desalojar
+  jmp .fin
+ 
+ 
+  .desalojar:
+  push edi
+  call sched_desalojar_tarea
+  pop edi
+ 
   .fin:
-  popad
-  sti
+  mov ebx, eax
+  
+  call sched_montar_idle
+  mov [sched_tarea_selector], ax
+  jmp far [sched_tarea_offset]
+  
+  mov eax, ebx
+  pop esi
+  pop edi
+  pop edx
+  pop ecx
+  pop ebx
+  pop ebp
+  ;~ popad
+  ;~ sti
   iret
-; FIN _isr0x52  
+; FIN _isr0x52
 
 
 ;; Funciones Auxiliares
@@ -278,5 +312,17 @@ proximo_reloj:
   .ok:
     add ebx, isrClock
     imprimir_texto_mp ebx, 1, 0x0f, 49, 79
+  ret
+  
+proximo_reloj_t2:
+  inc DWORD [isrnumero_t2]
+  mov ebx, [isrnumero_t2]
+  cmp ebx, 0x4
+  jl .ok
+    mov DWORD [isrnumero_t2], 0x0
+    xor ebx, ebx
+  .ok:
+    add ebx, isrClock_t2
+    imprimir_texto_mp ebx, 1, 0x70, 49, 60
   ret
   

@@ -41,20 +41,14 @@ void task() {
     pisar(mapo-0x1000+1);
   }
   
-  breakpoint();
-
   unsigned int maps = syscall_mover(S);
   pisar(maps-0x1000+1);
   
-  breakpoint();
-
   for(i=0;i<100;i++) {
     unsigned int mapno = syscall_mover(NO);
     pisar(mapno-0x1000+1);
   }
   
-  breakpoint();
-
   while(1) { __asm __volatile("mov $1, %%eax":::"eax"); }
 }
 
