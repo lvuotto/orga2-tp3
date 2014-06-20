@@ -1,8 +1,15 @@
 
+%include "imprimir.mac"
+
 BITS 32
 
 ; Asume que fs apunta al comienzo del video (0xb8000).
 ; Tenerlo en cuenta a la hora de utilizarse.
+
+global limpiar_pantalla
+global limpiar_buffer_video
+global inicializar_pantalla
+global pintar_pantalla
 
 
 limpiar_pantalla:
@@ -220,6 +227,4 @@ tag_cr4        db 'cr4'
 tag_cr4_len    equ $ - tag_cr4
 tag_stack      db 'stack'
 tag_stack_len  equ $ - tag_stack
-nombre      db 'Alemania / Vollkornbrot'
-nombre_len  equ $ - nombre
 

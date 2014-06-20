@@ -15,9 +15,14 @@
 
 #include "defines.h"
 #include "i386.h"
+#include "mmu.h"
 
 
-void pintar_posicion_tanque (unsigned int id, unsigned int x, unsigned int y);
+void pintar_posicion_tanque      (unsigned int id,
+                                  unsigned int x,
+                                  unsigned int y,
+                                  unsigned char c);
+void pintar_posiciones_iniciales ();
 
 
 #endif  /* !__SCREEN_H__ */

@@ -59,6 +59,18 @@ void tss_inicializar() {
     tss_tanques[i].dtrap    = 0x0;  /* ??? */
     tss_tanques[i].iomap    = 0xffff;
   }
+  
+  gdt[GDT_TSS_TAREA_INICIAL].base_31_24 =  (unsigned int) (&tss_inicial) >> 24;
+  gdt[GDT_TSS_TAREA_INICIAL].base_23_16 = ((unsigned int) (&tss_inicial) >> 16) & 0xff;
+  gdt[GDT_TSS_TAREA_INICIAL].base_0_15  =  (unsigned int) (&tss_inicial)        & 0xffff;
+  
+  gdt[GDT_TSS_1].base_31_24 =  (unsigned int) (&tss_next_1) >> 24;
+  gdt[GDT_TSS_1].base_23_16 = ((unsigned int) (&tss_next_1) >> 16) & 0xff;
+  gdt[GDT_TSS_1].base_0_15  =  (unsigned int) (&tss_next_1)        & 0xffff;
+  
+  gdt[GDT_TSS_2].base_31_24 =  (unsigned int) (&tss_next_2) >> 24;
+  gdt[GDT_TSS_2].base_23_16 = ((unsigned int) (&tss_next_2) >> 16) & 0xff;
+  gdt[GDT_TSS_2].base_0_15  =  (unsigned int) (&tss_next_2)        & 0xffff;
 }
 
 
@@ -102,14 +114,8 @@ void tss_inicializar_tarea_idle () {
   tss_idle.dtrap    = 0x0;  /* ??? */
   tss_idle.iomap    = 0xffff;
   
-  gdt[GDT_TSS_1].base_31_24 =  (unsigned int) (&tss_idle) >> 24;
-  gdt[GDT_TSS_1].base_23_16 = ((unsigned int) (&tss_idle) >> 16) & 0xff;
-  gdt[GDT_TSS_1].base_0_15  =  (unsigned int) (&tss_idle)        & 0xffff;
-  
-  /* BORRAR ESTO. TIENE QUE EMPEZAR EN LA IDLE. */
-  //~ gdt[GDT_TSS_2].base_31_24 =  (unsigned int) (&tss_tanques[1]) >> 24;
-  //~ gdt[GDT_TSS_2].base_23_16 = ((unsigned int) (&tss_tanques[1]) >> 16) & 0xff;
-  //~ gdt[GDT_TSS_2].base_0_15  =  (unsigned int) (&tss_tanques[1])        & 0xffff;
+  tss_copy(&tss_next_1, &tss_idle);
+  tss_copy(&tss_inicial, &tss_idle);
 }
 
 

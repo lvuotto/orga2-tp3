@@ -16,6 +16,15 @@ extern resetear_pic
 extern habilitar_pic
 extern deshabilitar_pic
 extern sched_inicializar
+extern game_inicializar
+extern pintar_posiciones_iniciales
+
+extern limpiar_buffer_video
+extern limpiar_pantalla
+extern pintar_info
+extern pintar_pantalla
+extern inicializar_pantalla
+
 
 
 global start
@@ -98,7 +107,7 @@ protected_mode:
   call pintar_pantalla
   
   ; Imprimir mensaje de bienvenida
-  imprimir_texto_mp iniciando_mp_msg, iniciando_mp_len, 0x27, 0, 0
+  ;imprimir_texto_mp iniciando_mp_msg, iniciando_mp_len, 0x27, 0, 0
   
   ; Limpiar buffer de video
   call limpiar_buffer_video
@@ -123,7 +132,7 @@ protected_mode:
   or eax, 0x80000000
   mov cr0, eax
   
-  imprimir_texto_mp nombre, nombre_len, 0x0c, 1, 80 - nombre_len
+  ;imprimir_texto_mp nombre, nombre_len, 0x0c, 1, 80 - nombre_len
   
   ; Inicializar tss
   call tss_inicializar
@@ -141,7 +150,7 @@ protected_mode:
   call idt_inicializar
   
   ; Inicializar Game
-  
+  call game_inicializar
   
   ; Cargar IDT
   lidt [IDT_DESC]
@@ -152,13 +161,11 @@ protected_mode:
   call habilitar_pic
   
   ; pintar posiciones inciales de tanques
-  
+  call pintar_posiciones_iniciales
   
   ; Cargar tarea inicial
   mov ax, 0b1110000
   ltr ax
-  
-  ;~ jmp 0b1110011:0
   
   ; Habilitar interrupciones
   sti
@@ -178,6 +185,7 @@ protected_mode:
 
 ;; -------------------------------------------------------------------------- ;;
 
+nombre      db 'Alemania / Vollkornbrot'
+nombre_len  equ $ - nombre
 
-%include "utilidades_pantalla.asm"
 %include "a20.asm"

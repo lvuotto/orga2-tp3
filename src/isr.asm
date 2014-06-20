@@ -80,9 +80,10 @@ global _isr%1
 _isr%1:
   imprimir_texto_mp _isr_msg_%1, _isr_len_%1, 0x4f, 0, 0
   
-  pushad
-  imprimir_registros
-  popad
+  call imprimir_registros
+  
+  ;~ test word [esp + 4*2], 0x3
+  ;~ jne .fin
   
   ; TODO:
   ; - [ ] Dar de baja una tarea (remover del scheduler) ante una interrupcion.
@@ -97,6 +98,10 @@ _isr%1:
     mov ecx, 0xffff
     mov edx, 0xffff
     jmp $
+  
+  ;~ .fin:
+  ;~ iret
+  
 ; FIN _isr%1
 
 %endmacro
@@ -146,7 +151,7 @@ _isr32:
   cli
   pushad
   
-  xchg bx, bx
+  xchg bx, bx 
   
   call proximo_reloj
   call sched_proxima_tarea
@@ -212,6 +217,7 @@ _isr33:
 global _isr0x52
 
 _isr0x52:     ; HACE MIERDA LOS REGISTROS :D
+  ;~ xchg bx, bx
   ;~ cli
   ;~ pushad
   push ebp
@@ -296,6 +302,7 @@ _isr0x52:     ; HACE MIERDA LOS REGISTROS :D
   pop ebp
   ;~ popad
   ;~ sti
+  ;~ xchg bx, bx
   iret
 ; FIN _isr0x52
 

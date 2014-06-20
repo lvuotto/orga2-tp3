@@ -21,6 +21,10 @@ void sched_inicializar () {
   for (i = 0; i < CANT_TANQUES + 1; i++) {
     tareas_vivas[i] = TRUE;
   }
+  
+  tss_tarea_1 = &tss_next_1;
+  tss_tarea_2 = &tss_next_2;
+  
   tss_copy(tss_tarea_1, &tss_idle);
   _esta_corriendo_la_idle = TRUE;
   
@@ -90,7 +94,8 @@ unsigned int proximo_indice_vivo () {
 
 unsigned short sched_proxima_tarea () {
   
-  unsigned int r, p;
+  unsigned int p;
+  unsigned short r;
   
   p = proximo_indice_vivo();
   

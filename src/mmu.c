@@ -95,6 +95,7 @@ void mmu_inicializar_dir_kernel () {
     p[i].disponible = 0;
     p[i].base = i;
   }
+  //~ p[0].rw = 0;
   
   p = (page_table_entry_t *) (pd[1].base << 12);
   for (i = 0; i < 1024; i++) {
@@ -153,7 +154,6 @@ void mmu_inicializar_dir_kernel () {
     p[i].disponible = 0;
     p[i].base = 1024*3 + i;
   }
-  
 }
 
 

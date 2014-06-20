@@ -69,7 +69,7 @@ unsigned int game_mover (unsigned int id, direccion d) {
   cr3 = tss_get_cr3(id);
   codigo_virtual_tanques[id] += PAGE_SIZE;
   mmu_mapear_pagina(codigo_virtual_tanques[id], cr3, pos, 3);
-  pintar_posicion_tanque(id, coord_x, coord_y);
+  pintar_posicion_tanque(id, coord_x, coord_y, 0x70);
   
   return codigo_virtual_tanques[id];
 }

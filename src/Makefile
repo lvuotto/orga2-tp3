@@ -10,14 +10,14 @@ KERNEL_OBJ=kernel.o
 KERNEL_BIN=kernel.bin
 
 DEPEND = Makefile \
-	kernel.asm isr.asm \
+	kernel.asm isr.asm utilidades_pantalla.asm\
 	imprimir.mac \
 	defines.h \
 	gdt.c gdt.h pic.c pic.h idt.c idt.h isr.h tss.c tss.h mmu.c mmu.h \
 	sched.c sched.h screen.c screen.h \
 	game.c game.h syscall.h
 
-OBJ=$(KERNEL_OBJ) gdt.o pic.o idt.o isr.o mmu.o sched.o tss.o screen.o game.o
+OBJ=$(KERNEL_OBJ) gdt.o pic.o idt.o isr.o mmu.o sched.o tss.o screen.o game.o utilidades_pantalla.o
 DISK_IMG=diskette.img
 DISK_IMG_BZ=diskette.img.bz2
 
