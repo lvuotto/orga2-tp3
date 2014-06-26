@@ -16,9 +16,12 @@
 #include "defines.h"
 #include "i386.h"
 #include "mmu.h"
+#include "game.h"
 
 
-void pintar_posicion_tanque      (unsigned int id,
+extern unsigned char posiciones_ocupadas[CAMPO_SIZE][CAMPO_SIZE];
+
+void pintar_posicion             (char id,
                                   unsigned int x,
                                   unsigned int y,
                                   unsigned char c);

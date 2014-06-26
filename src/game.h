@@ -11,6 +11,7 @@
 #include "screen.h"
 #include "mmu.h"
 #include "sched.h"
+#include "colors.h"
 
 
 typedef enum direccion_e { NO = 14, N  = 11, NE = 12,
@@ -18,13 +19,14 @@ typedef enum direccion_e { NO = 14, N  = 11, NE = 12,
                            SO = 34, S  = 33, SE = 32 } direccion;
 
 
-void         game_inicializar ();
-unsigned int game_mover       (unsigned int id, direccion d);
-unsigned int game_misil       (unsigned int id,
-                               int val_x,
-                               int val_y,
-                               unsigned int misil,
-                               unsigned int size);
-unsigned int game_minar       (unsigned int id, direccion d);
+void           game_inicializar        ();
+unsigned int   game_mover              (unsigned int id, direccion d);
+unsigned int   game_misil              (unsigned int id,
+                                        int val_x,
+                                        int val_y,
+                                        unsigned int misil,
+                                        unsigned int size);
+unsigned int   game_minar              (unsigned int id, direccion d);
+unsigned short obtener_posicion_tanque (unsigned int i);
 
 #endif  /* !__GAME_H__ */

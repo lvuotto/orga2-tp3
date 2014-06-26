@@ -108,8 +108,7 @@ e interrumpir la ejecución.
 \vspace*{0.3cm}
 
 Completamos las entradas de la \verb|IDT| utilizando un \textit{macro} provisto por la c\'atedra, con 
-algunas modificaciones. El \verb|dpl| fue seteado en 0.
-Las mismas est\'an definidas como \verb|Interrupt Gates|, y el selector de segmento es el de 
+algunas modificaciones. Las mismas est\'an definidas como \verb|Interrupt Gates|, y el selector de segmento es el de 
 c\'odigo, utilizado por el kernel (entrada 9 de la \verb|GDT|, \verb|GDT_IDX_CD_0|). Una \verb|Interrupt Gate| se 
 utiliza para especificar una rutina de interrupci\'on de servicio, deshabilita el llamado a futuras rutinas de 
 atenci\'on de interrupciones, haci\'endola especialmente \'util, por ejemplo, para atender interrupciones de hardware.
@@ -264,27 +263,25 @@ c) Escribir dos rutinas encargadas de mapear y desmapear páginas de memoria.
 
 \begin{itemize}
   
-  \item \verb|mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica, unsigned int attr)|:
-  Mediante el \verb|cr3| recibido por par\'ametro, accedemos al \'indice de la tabla del directorio correspondiente
-  en base a la direcci\'on virtual. Si dicha entrada no se encuentra presente, creamos una nueva tabla. Cualquiera
-  sea el caso, al tener la tabla, nuevamente accedemos al \'indice correcto mediante la direcci\'on virtual. Esta
-  p\'agina se marca como presente, se le asignan los atributos de lectura/escritura y usuario/supervisor recibidos
-  como par\'ametros y le asignamos como base la direcci\'on f\'isica que queremos mapear. Finalmente se ejecuta
-  \verb|tlbflush| para invalidar la cach\'e de la \verb|TLB|.   
+  \item \verb|mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica)|:  
 
-  \item \verb|mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3)|: Funciona en manera an\'aloga a
-  \verb|mmu_mapear_pagina|. Una vez determinado el \'indice de la tabla de directorios en base al \verb|cr3| 
-  recibido como par\'ametro y la direcci\'on virtual, si la entrada \textbf{no} est\'a presente, no se hace nada. 
-  Sino, se procede acceder al \'indice correcto de la tabla, de nuevo en base a la direcci\'on virtual, y se marca dicha 
-  p\'agina como no presente, independientemente de su estado. De nuevo, se ejecuta \verb|tlbflush| con el mismo fin 
-  que en \verb|mmu_mapear_pagina|.
-  
+  \item \verb|mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3)|:
 
 \end{itemize}
 
 
 \vspace*{0.5cm} \noindent
 
+
+
+\noindent
+d) Construir un mapa de memoria para tareas e intercambiarlo con el del \textit{kernel}, luego cambiar el color del fondo del primer caracter de la pantalla y volver a la normalidad.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
 
 
 
@@ -304,8 +301,7 @@ del reloj, otra a la interrupci\'on del teclado y por \'ultimo, una a la interru
 
 \vspace*{0.3cm}
 
-Al igual que en el \textbf{ejercicio 2.a}, agregamos 3 nuevas entradas en la \verb|IDT|, asociando las interrupciones 
-de reloj y teclado, asign\'andoles los mismos valores. La interrupci\'on de software \verb|(0x52)|, en cambio, se carga igual exceptuando el \verb|dpl|, que esta vez es seteado en nivel 3, de usuario.
+\textbf{completar.}
 
 \vspace*{0.5cm} \noindent
 
@@ -318,7 +314,7 @@ animaci\'on de un cursor rotando en la esquina inferior derecha de la pantalla.
 
 \vspace*{0.3cm}
 
-
+\textbf{completar.}
 
 \vspace*{0.5cm} \noindent
 

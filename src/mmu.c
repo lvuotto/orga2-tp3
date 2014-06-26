@@ -314,7 +314,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
     /* 3 = 0b11 => r/w = 1, u/s = 1 */
   }
   
-  memoria_mapa += 50*PAGE_SIZE + 4*PAGE_SIZE;
+  memoria_mapa += 50*5*PAGE_SIZE + 5*PAGE_SIZE;
   
   return cr3;
   
@@ -432,7 +432,7 @@ void copiar_memoria (unsigned int dst, unsigned int src, unsigned int size) {
 }
 
 
-unsigned int obtener_posicion_tanque (task_id_t tid) {
+/*unsigned int obtener_posicion_tanque (task_id_t tid) {
   unsigned int dir_idx, tabla_idx, virtual, cr3;
   page_directory_entry_t *dir;
   page_table_entry_t *tabla;
@@ -446,8 +446,5 @@ unsigned int obtener_posicion_tanque (task_id_t tid) {
   tabla_idx = (virtual & MASK_22_BAJOS) >> 12;
   
   return tabla[tabla_idx].base << 12;
-}
+}*/
 
-void desalojar_tarea (unsigned int t) {
-  /* DUMMY. BORRAR CUANDO ESTE LISTO EL DE LA TSS. */
-}

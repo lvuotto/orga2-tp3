@@ -140,9 +140,19 @@ pintar_info:
       or  dword [fs:ecx + 2*esi], 0x70007000
       
       add esi, 2
-      cmp esi, 71
+      cmp esi, 69
       jl .ciclo_columna3
-      
+    
+    and word [fs:eax + 2*esi], 0xff00
+    or  word [fs:eax + 2*esi], 0x7000
+    
+    mov ecx, eax
+    add ecx, 80*2
+    and word [fs:ecx + 2*esi], 0xff00
+    or  word [fs:ecx + 2*esi], 0x7000
+    add ecx, 80*2
+    and word [fs:ecx + 2*esi], 0xff00
+    or  word [fs:ecx + 2*esi], 0x7000
   
   ret
 

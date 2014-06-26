@@ -20,6 +20,7 @@ extern sched_proxima_tarea
 extern sched_montar_idle
 extern sched_tarea_actual
 extern sched_desalojar_tarea
+extern primera_vez
 
 ;; Game
 extern game_mover
@@ -80,10 +81,21 @@ global _isr%1
 _isr%1:
   imprimir_texto_mp _isr_msg_%1, _isr_len_%1, 0x4f, 0, 0
   
+  pushad
   call imprimir_registros
   
-  ;~ test word [esp + 4*2], 0x3
-  ;~ jne .fin
+  mov ax, cs
+  cmp word [esp + 4*2], ax    ; [esp + 4*2] <- cs antes de la interrupcion.
+  jne .loopear
+  
+  call sched_tarea_actual
+  push eax
+  call sched_desalojar_tarea
+  pop eax
+  call sched_montar_idle
+  mov [sched_tarea_selector], ax
+  jmp far [sched_tarea_offset]
+  jmp .fin
   
   ; TODO:
   ; - [ ] Dar de baja una tarea (remover del scheduler) ante una interrupcion.
@@ -99,8 +111,9 @@ _isr%1:
     mov edx, 0xffff
     jmp $
   
-  ;~ .fin:
-  ;~ iret
+  .fin:
+  popad
+  iret
   
 ; FIN _isr%1
 
@@ -112,8 +125,7 @@ _isr%1:
 ; Scheduler
 isrnumero:           dd 0x00000000
 isrClock:            db '|/-\'
-isrnumero_t2:        dd 0x00000000
-isrClock_t2:         db '|/-\'
+relojes:             dd 0, 0, 0, 0, 0, 0, 0, 0
 
 ;;
 ;; Rutina de atención de las EXCEPCIONES
@@ -148,13 +160,13 @@ ISR 19
 global _isr32
 
 _isr32:
-  cli
   pushad
   
-  xchg bx, bx 
-  
   call proximo_reloj
+  call proximo_reloj_tarea_actual
   call sched_proxima_tarea
+  
+  ;~ xchg bx, bx
   
   cmp ax, 0
   je .no_salto
@@ -169,7 +181,6 @@ _isr32:
   
   .fin:
   popad
-  sti
   iret 
 ; FIN _isr32
 
@@ -217,9 +228,7 @@ _isr33:
 global _isr0x52
 
 _isr0x52:     ; HACE MIERDA LOS REGISTROS :D
-  ;~ xchg bx, bx
-  ;~ cli
-  ;~ pushad
+  
   push ebp
   mov ebp, esp
   push ebx
@@ -231,7 +240,9 @@ _isr0x52:     ; HACE MIERDA LOS REGISTROS :D
  
   mov edi, eax
   call sched_tarea_actual
- 
+  
+  ;~ xchg bx, bx
+  
   cmp edi, SYS_MOVER
   je .mover
  
@@ -291,6 +302,7 @@ _isr0x52:     ; HACE MIERDA LOS REGISTROS :D
   
   call sched_montar_idle
   mov [sched_tarea_selector], ax
+  ;~ xchg bx, bx
   jmp far [sched_tarea_offset]
   
   mov eax, ebx
@@ -300,10 +312,9 @@ _isr0x52:     ; HACE MIERDA LOS REGISTROS :D
   pop ecx
   pop ebx
   pop ebp
-  ;~ popad
-  ;~ sti
-  ;~ xchg bx, bx
+  
   iret
+  
 ; FIN _isr0x52
 
 
@@ -320,16 +331,23 @@ proximo_reloj:
     add ebx, isrClock
     imprimir_texto_mp ebx, 1, 0x0f, 49, 79
   ret
+
+proximo_reloj_tarea_actual:
   
-proximo_reloj_t2:
-  inc DWORD [isrnumero_t2]
-  mov ebx, [isrnumero_t2]
-  cmp ebx, 0x4
-  jl .ok
-    mov DWORD [isrnumero_t2], 0x0
-    xor ebx, ebx
-  .ok:
-    add ebx, isrClock_t2
-    imprimir_texto_mp ebx, 1, 0x70, 49, 60
+  cmp dword [primera_vez], 0
+  jnz .fin
+  
+  call sched_tarea_actual
+  
+  inc dword [relojes + 4*eax]
+  and dword [relojes + 4*eax], 0x3
+  mov ebx, [relojes + 4*eax]
+  add ebx, isrClock
+  shl eax, 1
+  add eax, 54
+  imprimir_texto_mp ebx, 1, 0x70, 48, eax
+  
+  .fin:
   ret
   
+; FIN proximo_reloj_tarea_actual

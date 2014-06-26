@@ -10,7 +10,30 @@ para declarar los segmentos, es el 9 (contando desde cero).
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+En \verb|gdt.c|, creamos un arreglo \verb|gdt|, el cual contiene 13 elementos (en este instante del tp). La 
+cantidad total de entradas ascender\'a luego a 17. 
+Las entradas de este arreglo son las siguientes: 
+
+\begin{itemize}
+
+  \item \verb|GDT_IDX_NULL_DESC|: Esta es la entrada nula, 
+necesaria para el funcionamiento del mecanismo de la \verb|GDT|.
+
+  \item Las entradas 1 a 8 est\'an reservadas para uso de Intel. El tama\~no de las entradas GDT_IDX_CD_0, 
+  GDT_IDX_CD_1, GDT_IDX_DD_0, GDT_IDX_DD_1 y GDT_IDX_SD es m\'ultiplo de 4KB, valiendo 733MB, salvo la de 
+  GDT_IDX_SD, que vale 773MB.
+
+  \item \verb|GDT_IDX_CD_0|: Esta entrada contiene la descripci\'on del segmento de c\'odigo de nivel 0,
+  que ser\'a utilizado para ejecutar el c\'odigo del \textit{kernel}. 
+
+  \item \verb|GDT_IDX_CD_1|: Esta entrada contiene la descripci\'on del segmento de c\'odigo de nivel 3. 
+
+  \item \verb|GDT_IDX_DD_0|: Esta entrada contiene la descripci\'on del segmento de datos de nivel 0.
+
+  \item \verb|GDT_IDX_DD_1|: Esta entrada contiene la descripci\'on del segmento de datos de nivel 1.
+
+\end{itemize}
+
 
 \vspace*{0.5cm} \noindent
 
@@ -22,7 +45,9 @@ en la dirección \verb|0x27000|.
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+Para entrar en modo protegido, activamos el bit correspondiente del \verb|cr0|, y luego ejecutamos
+la instrucci\'on \verb|jmp 0b1001000:protected_mode|. Para setear la pila del \verb|kernel|, ejecutamos 
+la instrucci\'on \verb|mov esp, 0x27000|.
 
 \vspace*{0.5cm} \noindent
 
@@ -34,7 +59,10 @@ utilizado sólo por el \textit{kernel}.
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+Agregamos la entrada \verb|GDT_IDX_SD|, que contiene la descripci\'on del segmento de video, del nivel 0, 
+utilizado para la pantalla del juego.
+
+
 
 \vspace*{0.5cm} \noindent
 
@@ -43,12 +71,21 @@ utilizado sólo por el \textit{kernel}.
 \noindent
 d) Escribir una rutina que se encargue de limpiar la pantalla y pintar en el área de \textit{el_mapa} un 
 fondo de color (sugerido verde). Para este ejercicio se debe escribir en la pantalla usando el segmento 
-declarado en el punto anterior (para los próximos ejercicios se accederá a la memoria de video por medio del 
-segmento de datos de 733MB).
+declarado en el punto anterior.
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+\begin{itemize}
+  
+  \item \verb|limpiar_pantalla|: Esta rutina se basa en que el selector \verb|fs| apunta al comienzo del segmento de video (0xb8000). Recorremos el \'area de 80x50 por fila y escribimos de a 2 caracteres vac\'ios (para optimizar la 
+  implementaci\'on).
+
+  \item \verb|pintar_pantalla|: Utilizamos un algoritmo muy similar al de \item \verb|pintar_pantalla|, s\'olo 
+  que esta vez, en vez de escribir caracteres, pintamos el fondo (background) de verde.
+ 
+\end{itemize}
+
+
 
 \vspace*{0.5cm} \noindent
 
@@ -66,24 +103,31 @@ segmento de datos de 733MB).
 \noindent
 a) Completar las entradas necesarias en la \verb|IDT| para asociar diferentes rutinas a todas las
 excepciones del procesador. Cada rutina de excepción debe indicar en pantalla qué problema se produjo
-e interrumpir la ejecución. Posteriormente se modificarán estas rutinas para que se continúe la ejecución,
-resolviendo el problema y desalojando a la tarea que lo produjo.
+e interrumpir la ejecución.
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+Completamos las entradas de la \verb|IDT| utilizando un \textit{macro} provisto por la c\'atedra, con 
+algunas modificaciones. El \verb|dpl| fue seteado en 0.
+Las mismas est\'an definidas como \verb|Interrupt Gates|, y el selector de segmento es el de 
+c\'odigo, utilizado por el kernel (entrada 9 de la \verb|GDT|, \verb|GDT_IDX_CD_0|). Una \verb|Interrupt Gate| se 
+utiliza para especificar una rutina de interrupci\'on de servicio, deshabilita el llamado a futuras rutinas de 
+atenci\'on de interrupciones, haci\'endola especialmente \'util, por ejemplo, para atender interrupciones de hardware.
+
+Cada rutina muestra un mensaje alusivo al tipo de excepci\'on generada. Adem\'as, de producirse dicha 
+excepci\'on, muestra por pantalla el estado de los registros. 
 
 \vspace*{0.5cm} \noindent
 
 
 
 \noindent
-b) Hacer lo necesario para que el procesador utilice la \verb|IDT| creada anteriormente. Generar una
-excepción para probarla.
+b) Hacer lo necesario para que el procesador utilice la \verb|IDT| creada anteriormente.
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+Para que el procesador utilice la \verb|IDT|, ejecutamos primero la instrucci\'on \verb|call idt_inicializar|, 
+para inicializar la tabla, y luego \verb|lidt [IDT_DESC]|, para cargarla en el registro correspondiente.
 
 \vspace*{0.5cm} \noindent
 
@@ -100,13 +144,10 @@ excepción para probarla.
 
 \noindent
 a) Escribir una rutina que se encargue de limpiar el \textit{buffer} de video y pintarlo como indica la figura 8.
-Tener en cuenta que deben ser escritos de forma genérica para, posteriormente, ser completados con información del
-sistema. Además, considerar estas imágenes como sugerencias, ya que pueden ser modificadas a gusto según cada grupo,
-mostrando siempre la misma información.
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+Esta rutina simplemente escribe caracteres nulos en el segmento de video.
 
 \vspace*{0.5cm} \noindent
 
@@ -120,7 +161,11 @@ el directorio de páginas en la dirección \verb|0x27000| y las tablas de págin
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+Para inicializar el directorio de p\'aginas, utilizamos la funci\'on \verb|mmu_inicializar_dir_kernel|, la cual, 
+primero crea las 1024 entradas del directorio, con permisos de lectura/escritura y nivel de privilegio 0. Las 4 
+primeras entradas se marcan como presentes. Adem\'as, en estas 4, se cambian las bases, apuntando a \verb|0x28, 0x29, 0x2a, 0x2b|,  respectivamente. Luego, inicializamos las tablas correspondientes a cada una de las entradas del directorio, marcando 
+las primeras 3524 como presentes y dejando las 572 restantes como ausentes. El directorio es cargado en la direcci\'on 
+\verb|0x2700|, mediante \textit{identity mapping}.
 
 \vspace*{0.5cm} \noindent
 
@@ -131,7 +176,21 @@ c) Completar el código necesario para activar paginación.
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+Primero cargamos el directorio de p\'aginas, utilizando las instrucciones 
+
+\begin{verbatim}
+mov eax, 0x27000
+mov cr3, eax 
+\end{verbatim}
+
+de manera que quede ubicado en la direcci\'on \verb|0x27000|. Luego, activamos el bit de paginaci\'on en \verb|cr0|
+
+\begin{verbatim}
+mov eax, cr0
+or eax, 0x80000000
+mov cr0, eax 
+\end{verbatim}
+
 
 \vspace*{0.5cm} \noindent
 
@@ -143,7 +202,12 @@ de la pantalla, alineado a la derecha.
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+Utilizamos una rutina provista por la c\'atedra, para imprimir en modo protegido
+
+\verb|imprimir_texto_mp|
+
+que recibe como par\'ametros: un puntero al string a imprimir, la longitud del string, el color del texto y fondo, 
+y por \'ultimo las coordenadas fila y columna, respectivamente.
 
 \vspace*{0.5cm} \noindent
 
@@ -156,13 +220,15 @@ de la pantalla, alineado a la derecha.
 
 
 \subsection*{Ejercicio 4}
+\vspace*{0.5cm}
 
 \noindent
 a) Escribir una rutina (\verb|inicializar_mmu|), que se encargue de inicializar las estructuras necesarias para administrar la memoria en el área libre.
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+\verb|mmu_inicializar| llama a \verb|mmu_inicializar_dir_kernel| y luego, por motivos organizativos, implementamos 
+un ciclo for, que utilizamos posteriormente para la implementaci\'on de los \textit{syscalls}.
 
 \vspace*{0.5cm} \noindent
 
@@ -173,7 +239,11 @@ b) Escribir una rutina (\verb|mmu_inicializar_dir_tarea|), encargada de iniciali
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+\verb|mmu_inicializar_dir_tarea| opera de manera similar a \verb|mmu_inicializar_dir_kernel|, pero, a diferencia 
+de esta \'ultima, los directorios no comienzan en posiciones arbitrarias, sino que \verb|mmu_inicializar_dir_tarea| 
+obtiene posiciones de memoria libre del \textit{\'area libre}. Luego, se copia el c\'odigo de las tareas a alguna 
+posici\'on del mapa, y mapeamos a la direcci\'on \verb|0x8000000| a dicha direcci\'on del mapa. Esta funci\'on adem\'as 
+devuelve el \verb|cr3| para poder utilizar la estructura de directorios creada.
 
 \vspace*{0.5cm} \noindent
 
@@ -183,29 +253,38 @@ b) Escribir una rutina (\verb|mmu_inicializar_dir_tarea|), encargada de iniciali
 c) Escribir dos rutinas encargadas de mapear y desmapear páginas de memoria.
 
 \begin{enumerate}
-  \item \verb|mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica)|
+  \item \verb|mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica)| \newline
   Permite mapear la página física correspondiente a \verb|fisica| en la dirección virtual \verb|virtual| utilizando \verb|cr3|.
   
-  \item \verb|mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3)|
+  \item \verb|mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3)| \newline
   Borra el mapeo creado en la dirección virtual \verb|virtual| utilizando \verb|cr3|.
 \end{enumerate}
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+\begin{itemize}
+  
+  \item \verb|mmu_mapear_pagina(unsigned int virtual, unsigned int cr3, unsigned int fisica, unsigned int attr)|:
+  Mediante el \verb|cr3| recibido por par\'ametro, accedemos al \'indice de la tabla del directorio correspondiente
+  en base a la direcci\'on virtual. Si dicha entrada no se encuentra presente, creamos una nueva tabla. Cualquiera
+  sea el caso, al tener la tabla, nuevamente accedemos al \'indice correcto mediante la direcci\'on virtual. Esta
+  p\'agina se marca como presente, se le asignan los atributos de lectura/escritura y usuario/supervisor recibidos
+  como par\'ametros y le asignamos como base la direcci\'on f\'isica que queremos mapear. Finalmente se ejecuta
+  \verb|tlbflush| para invalidar la cach\'e de la \verb|TLB|.   
+
+  \item \verb|mmu_unmapear_pagina(unsigned int virtual, unsigned int cr3)|: Funciona en manera an\'aloga a
+  \verb|mmu_mapear_pagina|. Una vez determinado el \'indice de la tabla de directorios en base al \verb|cr3| 
+  recibido como par\'ametro y la direcci\'on virtual, si la entrada \textbf{no} est\'a presente, no se hace nada. 
+  Sino, se procede acceder al \'indice correcto de la tabla, de nuevo en base a la direcci\'on virtual, y se marca dicha 
+  p\'agina como no presente, independientemente de su estado. De nuevo, se ejecuta \verb|tlbflush| con el mismo fin 
+  que en \verb|mmu_mapear_pagina|.
+  
+
+\end{itemize}
+
 
 \vspace*{0.5cm} \noindent
 
-
-
-\noindent
-d) Construir un mapa de memoria para tareas e intercambiarlo con el del \textit{kernel}, luego cambiar el color del fondo del primer caracter de la pantalla y volver a la normalidad.
-
-\vspace*{0.3cm}
-
-\textbf{completar.}
-
-\vspace*{0.5cm} \noindent
 
 
 
@@ -217,9 +296,59 @@ d) Construir un mapa de memoria para tareas e intercambiarlo con el del \textit{
 
 \subsection*{Ejercicio 5}
 
-\vspace*{0.3cm} \noindent
+\vspace*{0.5cm}
 
-completar.
+\noindent
+a) Completar las entradas necesarias en la \verb|IDT| para asociar una rutina a la interupci\'on 
+del reloj, otra a la interrupci\'on del teclado y por \'ultimo, una a la interrupci\'on de software \verb|0x52|.
+
+\vspace*{0.3cm}
+
+Al igual que en el \textbf{ejercicio 2.a}, agregamos 3 nuevas entradas en la \verb|IDT|, asociando las interrupciones 
+de reloj y teclado, asign\'andoles los mismos valores. La interrupci\'on de software \verb|(0x52)|, en cambio, se carga igual exceptuando el \verb|dpl|, que esta vez es seteado en nivel 3, de usuario.
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+b) Escribir la rutina asociada a la interrucpi\'on del reloj, para que por cada \textit{tick} llame a
+la funci\'on \verb|screen_proximo_reloj|. La misma se encarga de mostrar, cada vez que se llame la
+animaci\'on de un cursor rotando en la esquina inferior derecha de la pantalla.
+
+\vspace*{0.3cm}
+
+
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+c) Escribir la rutina asociada a la interrucpi\'on de teclado de forma que si se presiona cualquier
+n\'umero, se presente el mismo en la esquina superior derecha de la pantalla. El n\'umero debe ser
+escrito en color blanco con fondo de color aleatorio por cada tecla que sea presionada.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+d) Escribir la rutina asociada a la interrupci\'on \verb|0x52| para que modifique el valor de \verb|eax| por \verb|0x42|. Posteriormente, este comportamiento va a ser modificado para atender los servicios del sistema.
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+
 
 \newpage
 
@@ -229,29 +358,57 @@ completar.
 
 \subsection*{Ejercicio 6}
 
-\vspace*{0.3cm} \noindent
+\vspace*{0.5cm}
 
-completar.
+\noindent
+a) Definir 3 entradas en la \verb|GDT| para ser usadas como descriptores de \verb|TSS|. Una ser\'a reservada 
+para la \verb|tarea_inicial| y otras dos para realizar el intercambio entre tareas, denominadas \verb|TSS1| 
+y \verb|TSS2| respectivamente.
 
-\newpage
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+b) .
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+c) .
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+d) .
+
+\vspace*{0.3cm}
+
+\textbf{completar.}
+
+\vspace*{0.5cm} \noindent
 
 
 
 
 
 \subsection*{Ejercicio 7}
-
-\vspace*{0.3cm} \noindent
-
-completar.
-
-\newpage
-
-
-
-
-
-\subsection*{Ejercicio 8 (optativo)}
 
 \vspace*{0.3cm} \noindent
 

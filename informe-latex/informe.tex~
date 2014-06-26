@@ -65,8 +65,11 @@
     \includegraphics[scale=2]{imagenes/bart-tank.jpg}
     \end{center}
   \end{figure}
+
   
-\textbf{completar.}
+Una computadora, al iniciar, comienza con la ejecución del POST y luego el BIOS, el cual se encarga de reconocer el primer dispositivo de booteo. En lo que concierne a este trabajo práctico, disponemos de un floppy disk como unidad booteable. En el primer sector de dicha unidad se encuentra el \textit{boot-sector}. El BIOS se encarga de copiar a memoria 512 bytes de este sector, a partir de la dirección \verb|0x7c00|. Luego, se comienza a ejecutar el código a partir de esta dirección. El boot-sector debe encontrar en el \textit{floppy} el archivo \verb|kernel.bin| y copiarlo a memoria. Éste se copia a partir de la direción \verb|0x1200|, y luego se ejecuta a partir de esa misma dirección. En la figura 1 se presenta el mapa de organización de la memoria utilizada por el \textit{kernel}.
+Es importante tener en cuenta que el código del \textit{boot-sector} se encarga exclusivamente de copiar el \textit{kernel} y dar el control al mismo, es decir, no cambia el modo del procesador. El código del \textit{boot-sector}, como así todo el esquema de trabajo para armar el \textit{kernel} y ejecutar tareas, es provisto por la cátedra.
+
 
 \end{abstract}
 
@@ -82,20 +85,50 @@
 
 \section{Objetivos generales}
 
+El objetivo de este trabajo práctico consiste en realizar una serie de ejercicios en los que aplicamos, 
+gradualmente, los conceptos de programación de sistemas, que vimos durante la segunda parte de la cursada. 
+El sistema desarrollado debe ser capaz de capturar cualquier problema generado por las tareas (exactamente 8, a nivel de usuario) 
+y tomar las medidas necesarias para neutralizar las mismas y quitarlas, utilizando los mecanismos propios
+del procesador, desde el punto de vista del sistema operativo, enfocándonos esencialmente en dos aspectos:
+el sistema de protección y la ejecución concurrente de tareas.
 
-\textbf{completar.}
+
+\section{Plataforma de pruebas}
+
+Como entorno de pruebas, utilizamos el software \textit{\textbf{Bochs}}.
+Este programa, de código abierto, nos permite emular una \textit{IBM-PC}, con arquitectura \textit{Intel x86}, dispositivos comunes de E/S, 
+y un BIOS. También puede ser compilado para emular 386, 486, Pentium/Pentium II/Pentium III/Pentium 4 o una CPU con arquitectura x86-64, incluyendo instrucciones adicionales, como las MMX, SSEx y 3DNow!. Es capaz de ejecutar la mayoría de los sistemas operativos, incluyendo Linux, DOS o Windows NT/2000/XP/Vista/Seven. \newline
+Su uso típico es el de proveer una emulación completa de una PC x86, incluyendo al procesador y el resto del hardware y periféricos (memoria, discos duros, teclado, unidad de cdrom, disquetes, etc.), pero también es muy utilizado para la depuración de sistemas (\textit{debugging}), ya que, si el sistema operativo huésped cae, por alguna razón, el sistema operativo anfitrión no cae también. Además, lleva un registro de errores y volcado de archivos. De esta forma, tenemos una \textit{máquina dentro de la máquina}. \newline
+
+\noindent \textbf{Fuente:} \textit{Bochs User Manual,} http://bochs.sourceforge.net/doc/docbook/user/index.html
 
 
-\newpage 
+\vspace{1cm}
+
+
+\noindent El desarrollo de este trabajo práctico fue realizado, principalmente, en la \textbf{máquina 17 del laboratorio 5 del DC}. \newline
+
+\begin{itemize}
+  \item \textbf{Sistema Operativo:} Ubuntu Linux 12.04 x86_64, kernel 3.2.0-30-generic
+
+  \item \textbf{Especificaciones del Software:} Bochs IA-32 Emulator Project, versión 2.6.2. \footnote{\textbf{Descarga y changelog:} http://sourceforge.net/projects/bochs/files/bochs/2.6.2/}
+
+  \item \textbf{Especificaciones del Hardware:} Intel ® Core(TM) 2 Quad CPU Q9650 @3.00 Ghz, 4GB de RAM, memoria caché de 6144 KB.
+\end{itemize}
+
+
+
+\newpage
+
+
+
+ 
 
 \section{Enunciado y soluci\'on} 
 \input{ejercicios}
 
 
-\section{Conclusiones}
 
-
-\textbf{completar.}
 
 
 \end{document}

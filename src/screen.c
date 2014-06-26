@@ -8,30 +8,31 @@
 #include "screen.h"
 
 
-void pintar_posicion_tanque (unsigned int id,
-                             unsigned int x,
-                             unsigned int y,
-                             unsigned char c)
+void pintar_posicion (char id,
+                      unsigned int x,
+                      unsigned int y,
+                      unsigned char c)
 {
   unsigned short *p;
   
   p = (unsigned short *) 0xb8000 + (80*y + x);
-  *p = (c << 8) | ((char) id + '1');
+  *p = (c << 8) | id;
 }
 
 
 void pintar_posiciones_iniciales () {
-  unsigned int i, pos, coord_x, coord_y;
-  
-  pos = 0x400000 + 0x1000;
+  unsigned short i, pos, coord_x, coord_y; 
   
   for (i = 0; i < CANT_TANQUES; i++) {
     pos = obtener_posicion_tanque(i);
-    coord_y = ((pos - 0x400000) / PAGE_SIZE) / 50;
-    coord_x = ((pos - 0x400000) / PAGE_SIZE) % 50;
+    coord_y = pos >> 8;
+    coord_x = pos & 0xff;
     
-    pintar_posicion_tanque(i, coord_x - 1, coord_y, 0x7f);
-    pintar_posicion_tanque(i, coord_x    , coord_y, 0x7f);
+    posiciones_ocupadas[coord_y][coord_x    ] = TRUE;
+    posiciones_ocupadas[coord_y][coord_x - 1] = TRUE;
+    
+    pintar_posicion(i + '1', coord_x - 1, coord_y, 0x7f);
+    pintar_posicion(i + '1', coord_x    , coord_y, 0x7f);
   }
 }
 

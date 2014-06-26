@@ -132,7 +132,7 @@ protected_mode:
   or eax, 0x80000000
   mov cr0, eax
   
-  ;imprimir_texto_mp nombre, nombre_len, 0x0c, 1, 80 - nombre_len
+  imprimir_texto_mp nombre, nombre_len, 0x0c, 1, 80 - nombre_len
   
   ; Inicializar tss
   call tss_inicializar
