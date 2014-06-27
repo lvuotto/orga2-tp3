@@ -84,18 +84,19 @@ _isr%1:
   pushad
   call imprimir_registros
   
-  mov ax, cs
-  cmp word [esp + 4*2], ax    ; [esp + 4*2] <- cs antes de la interrupcion.
+  mov ax, word [esp + 4*2]
+  test ax, 0x3    ; [esp + 4*2] <- cs antes de la interrupcion.
   jne .loopear
   
   call sched_tarea_actual
+  xchg bx, bx
   push eax
   call sched_desalojar_tarea
   pop eax
   call sched_montar_idle
   mov [sched_tarea_selector], ax
   jmp far [sched_tarea_offset]
-  jmp .fin
+  ;jmp .fin
   
   ; TODO:
   ; - [ ] Dar de baja una tarea (remover del scheduler) ante una interrupcion.
@@ -160,7 +161,9 @@ ISR 19
 global _isr32
 
 _isr32:
+  cli
   pushad
+  call fin_intr_pic1
   
   call proximo_reloj
   call proximo_reloj_tarea_actual
@@ -173,11 +176,13 @@ _isr32:
   
   mov [sched_tarea_selector], ax
   call fin_intr_pic1
+  sti
   jmp far [sched_tarea_offset]
   jmp .fin
   
   .no_salto:
   call fin_intr_pic1
+  sti
   
   .fin:
   popad
@@ -268,6 +273,7 @@ _isr0x52:     ; HACE MIERDA LOS REGISTROS :D
  
  
   .misil:
+  ;~ xchg bx, bx
   mov edi, eax
   push dword [ebp - 20] ; esi
   push dword [ebp - 12] ; edx
@@ -302,7 +308,6 @@ _isr0x52:     ; HACE MIERDA LOS REGISTROS :D
   
   call sched_montar_idle
   mov [sched_tarea_selector], ax
-  ;~ xchg bx, bx
   jmp far [sched_tarea_offset]
   
   mov eax, ebx

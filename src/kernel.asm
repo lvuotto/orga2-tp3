@@ -25,10 +25,10 @@ extern pintar_info
 extern pintar_pantalla
 extern inicializar_pantalla
 
+extern tss_idle
 
 
 global start
-
 
 
 ;; Saltear seccion de datos
@@ -167,6 +167,10 @@ protected_mode:
   mov ax, 0b1110000
   ltr ax
   
+  mov eax, tss_idle
+  mov dword [eax+32], ricardomontaner
+  ;~ xchg bx, bx
+  
   ; Habilitar interrupciones
   sti
   
@@ -182,6 +186,11 @@ protected_mode:
   mov edx, 0xffff
   jmp $
   jmp $
+
+
+ricardomontaner:
+                xchg bx,bx
+                jmp ricardomontaner
 
 ;; -------------------------------------------------------------------------- ;;
 

@@ -10,12 +10,12 @@
 
 #define NULL 0
 #define SWAAAAP()               \
-  swaaaap      = tss_actual;    \
-  tss_actual   = tss_anterior;  \
-  tss_anterior = swaaaap
+  swaaaap      = tss_tarea_1;    \
+  tss_tarea_1   = tss_tarea_2;  \
+  tss_tarea_2 = swaaaap
 
 
-tss *tss_actual, *tss_anterior, *swaaaap;
+tss *tss_tarea_1, *tss_tarea_2, *swaaaap;
 unsigned int _tarea_actual;
 unsigned int tareas_vivas[CANT_TANQUES];
 unsigned int _esta_corriendo_la_idle,
@@ -31,11 +31,12 @@ void sched_inicializar () {
     tareas_vivas[i] = TRUE;
   }
   
-  tss_actual = &tss_next_1;
-  tss_anterior = &tss_next_2;
+  tss_tarea_1 = &tss_next_1;
+  tss_tarea_2 = &tss_next_2;
   
-  tss_copy(tss_actual, &tss_idle);
+  tss_copy(tss_tarea_1, &tss_idle);
   _esta_corriendo_la_idle = TRUE;
+  guardar_tanquecito = TRUE;
   
   gdt_tss_1_busy = TRUE;
   _tarea_actual = CANT_TANQUES - 1;
@@ -55,7 +56,7 @@ unsigned int sched_tarea_actual () {
 
 
 void sched_desalojar_tarea (unsigned int id) {
-  tareas_vivas[id % CANT_TANQUES] = FALSE;
+  tareas_vivas[id] = FALSE;
 }
 
 
@@ -72,21 +73,12 @@ unsigned int proximo_indice_vivo () {
 }
 
 
-tss * estructura_de_resguardo () {
-  tss *r;
-  
-  r = guardar_tanquecito ? &tss_tanques[_tarea_actual] : &tss_idle;
-  guardar_tanquecito = !_esta_corriendo_la_idle;
-  
-  return r;
-}
-
-
 tss * proxima_tarea () {
   unsigned int p;
   tss *r;
   
   p = proximo_indice_vivo();
+  //~ breakpoint();
   
   if (p == 0xdeadc0de) {
     r = NULL;
@@ -101,20 +93,20 @@ tss * proxima_tarea () {
 
 unsigned short sched_montar_idle () {
   unsigned short r;
-  tss *backup;
+  tss *anterior;
   
-  backup = estructura_de_resguardo();
-  r = gdt_tss_1_busy ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
+  anterior = guardar_tanquecito ? &tss_tanques[_tarea_actual] : &tss_idle;
   
-  if (!gdt_tss_1_busy) {
-    SWAAAAP();
+  if (gdt_tss_1_busy) {
+    tss_copy(anterior, tss_tarea_2);
+    tss_copy(tss_tarea_2, &tss_idle);
+  } else {
+    tss_copy(anterior, tss_tarea_1);
+    tss_copy(tss_tarea_1, &tss_idle);
   }
   
-  tss_copy(backup, tss_anterior);
-  tss_copy(tss_anterior, &tss_idle);
-  
-  gdt_tss_1_busy = !gdt_tss_1_busy;
-  
+  r = gdt_tss_1_busy ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
+  gdt_tss_1_busy = 1 - gdt_tss_1_busy;
   _esta_corriendo_la_idle = TRUE;
   
   return r;
@@ -124,29 +116,36 @@ unsigned short sched_montar_idle () {
 unsigned short sched_proxima_tarea () {
   
   unsigned short r;
-  tss *proximo;
+  tss *proximo, *anterior;
   
+  anterior = guardar_tanquecito ? &tss_tanques[_tarea_actual] : &tss_idle;
   proximo = proxima_tarea();
   
-  primera_vez = FALSE;
-  
-  if (proximo == NULL) {
+  if (proximo == NULL && !primera_vez) {
     return 0;
   }
   
-  breakpoint();
-  if (!primera_vez) {
-    if (guardar_tanquecito)
-      tss_copy(&tss_tanques[_tarea_actual], tss_anterior);
-    else
-      tss_copy(&tss_idle, tss_anterior);
+  if (gdt_tss_1_busy) {
+    if (primera_vez) {
+      tss_copy(tss_tarea_2, &tss_tanques[0]);
+    } else {
+      tss_copy(anterior, tss_tarea_2);
+      tss_copy(tss_tarea_2, proximo);
+    }
+  } else {
+    if (primera_vez) {
+      tss_copy(tss_tarea_1, &tss_tanques[0]);
+    } else {
+      tss_copy(anterior, tss_tarea_1);
+      tss_copy(tss_tarea_1, proximo);
+    }
   }
-  tss_copy(tss_anterior, proximo);
-  SWAAAAP();
   
   r = gdt_tss_1_busy ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
-  gdt_tss_1_busy = !gdt_tss_1_busy;
-  guardar_tanquecito = !_esta_corriendo_la_idle;
+  gdt_tss_1_busy = 1 - gdt_tss_1_busy;
+  guardar_tanquecito = 1 - _esta_corriendo_la_idle;
+  _esta_corriendo_la_idle = FALSE;
+  primera_vez = FALSE;
   
   return r;
   

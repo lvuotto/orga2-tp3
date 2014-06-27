@@ -29,6 +29,7 @@ idle:
     mov ebx, chirimbolo_close
     imprimir_texto_mp ebx, 1, 0x0f, 49, 76+1
 
+
   jmp .loopear
 
 numero:   dd 0x00000000
