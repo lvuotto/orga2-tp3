@@ -27,7 +27,7 @@ unsigned int _esta_corriendo_la_idle,
 void sched_inicializar () {
   unsigned int i;
   
-  for (i = 0; i < CANT_TANQUES + 1; i++) {
+  for (i = 0; i < CANT_TANQUES; i++) {
     tareas_vivas[i] = TRUE;
   }
   
