@@ -11,7 +11,7 @@
 
 void task() {
     /* Tarea 2 */
-  unsigned int i,j;
+  /*unsigned int i,j;
   direccion dir[4] = { N, E, S, O };
   int d = 0;
   int counter = 3;
@@ -20,6 +20,6 @@ void task() {
           syscall_mover(dir[d]);
       counter = counter + 2;
       d = (d + 1) % 4; 
-  }
+  }*/
   while(1) { __asm __volatile("mov $2, %%eax":::"eax"); }
 }

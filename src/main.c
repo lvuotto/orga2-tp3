@@ -109,19 +109,19 @@ unsigned short sched_montar_idle () {
     tss_tarea_1 = &tss_idle;
   }
   
+  r = gdt_tss_1_busy ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
+  gdt_tss_1_busy = 1 - gdt_tss_1_busy;
+  _esta_corriendo_la_idle = 1;
+  
   printf("~ tss_tarea_1 = %d, tss_tarea_2 = %d\n", *tss_tarea_1, *tss_tarea_2);
   printf("~ anterior = %d\n", *anterior);
+  printf("~ anterior = %p, &tss_idle = %p\n", (void *) anterior, (void *) &tss_idle);
   printf("~ guardar_tanquecito = %d, _esta_corriendo_la_idle = %d\n",
          guardar_tanquecito,
          _esta_corriendo_la_idle);
   printf("~ gtd_tss_1_busy = %d, primera_vez = %d\n",
          gdt_tss_1_busy,
          primera_vez);
-  
-  r = gdt_tss_1_busy ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
-  gdt_tss_1_busy = 1 - gdt_tss_1_busy;
-  _esta_corriendo_la_idle = 1;
-  printf("[_esta_corriendo_la_idle ? %d]\n", _esta_corriendo_la_idle);
   
   return r;
 }
@@ -155,6 +155,12 @@ unsigned short sched_proxima_tarea () {
     }
   }
   
+  r = gdt_tss_1_busy ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
+  gdt_tss_1_busy = 1 - gdt_tss_1_busy;
+  guardar_tanquecito = 1 - _esta_corriendo_la_idle;
+  _esta_corriendo_la_idle = 0;
+  primera_vez = 0;
+  
   printf("~ tss_tarea_1 = %d, tss_tarea_2 = %d\n", *tss_tarea_1, *tss_tarea_2);
   printf("~ anterior = %d, proximo = %d\n", *anterior, *proximo);
   printf("~ anterior = %p, &tss_idle = %p\n", (void *) anterior, (void *) &tss_idle);
@@ -164,12 +170,6 @@ unsigned short sched_proxima_tarea () {
   printf("~ gtd_tss_1_busy = %d, primera_vez = %d\n",
          gdt_tss_1_busy,
          primera_vez);
-  
-  r = gdt_tss_1_busy ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
-  gdt_tss_1_busy = 1 - gdt_tss_1_busy;
-  guardar_tanquecito = 1 - _esta_corriendo_la_idle;
-  _esta_corriendo_la_idle = 0;
-  primera_vez = 0;
   
   return r;
   
@@ -183,24 +183,29 @@ unsigned short sched_proxima_tarea () {
 int main () {
   
   int c;
-  unsigned short i, t = 0;
+  unsigned short i;
   
   sched_inicializar();
   srand(time(NULL));
   
   while (1) {
-    t = rand() % CANT_TANQUES;
     printf("> ");
     c = getchar();
     
     if (c == 'q') break;
     
     i = sched_proxima_tarea();
-    printf("Proximo indice: %#x\n", i >> 3);
-    if (t == 7) {
+    printf("~ Proximo indice: %#x\n", i >> 3);
+    if (rand() % CANT_TANQUES == 7) {
       printf("\n--- IDLE ---\n");
       i = sched_montar_idle();
-      printf("Proximo indice: %#x\n", i >> 3);
+      printf("~ Proximo indice: %#x\n", i >> 3);
+    }
+    
+    if (rand() % 64 == 0) {
+      printf("\n--- Se muere la tarea actual [%u] ---\n", sched_tarea_actual());
+      sched_desalojar_tarea(sched_tarea_actual());
+      sched_montar_idle();
     }
   }
   
