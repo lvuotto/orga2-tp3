@@ -41,7 +41,6 @@ unsigned int game_mover (unsigned int id, direccion d) {
   posicion_t *pos;
   
   pos = OBTENER_POSICION_TANQUE(id);
-  breakpoint();
   pos->x += CAMPO_SIZE;
   pos->y += CAMPO_SIZE;
   
@@ -144,7 +143,7 @@ unsigned int game_misil (unsigned int id,
     pintar_posicion(id + '1',
                     pos->x,
                     pos->y,
-                    C_BLINK | C_BG_MAGENTA | C_FG_LIGHT_RED);
+                    C_BG_BLACK | C_FG_LIGHT_RED);
   }
   
   return TRUE;
@@ -154,6 +153,8 @@ unsigned int game_minar (unsigned int id, direccion d) {
   posicion_t *pos;
   
   pos = OBTENER_POSICION_TANQUE(id);
+  pos->x += 50;
+  pos->y += 50;
   
   switch (d) {
     case NO:
@@ -190,11 +191,11 @@ unsigned int game_minar (unsigned int id, direccion d) {
       break;
   }
   
-  pos->y %= CAMPO_SIZE;
   pos->x %= CAMPO_SIZE;
+  pos->y %= CAMPO_SIZE;
   
   campo_minado[pos->y][pos->x] = (id << 1) | TRUE;
-  pintar_posicion('X', pos->x, pos->y, C_BG_GREEN | C_FG_RED);
+  pintar_posicion('X', pos->x, pos->y, C_BLINK | C_BG_GREEN | C_FG_RED);
   
   return TRUE;
 }

@@ -8,6 +8,7 @@
 #include "sched.h"
 
 
+#define GDT_TSS_1_BUSY() ((gdt[GDT_TSS_1].type >> 1) & 1)
 #define NULL 0
 #define SWAAAAP()               \
   swaaaap      = tss_tarea_1;    \
@@ -16,10 +17,10 @@
 
 
 tss *tss_tarea_1, *tss_tarea_2, *swaaaap;
+extern gdt_entry gdt[GDT_COUNT];
 unsigned int _tarea_actual;
 unsigned int tareas_vivas[CANT_TANQUES];
 unsigned int _esta_corriendo_la_idle,
-             gdt_tss_1_busy,
              guardar_tanquecito,
              primera_vez;
 
@@ -38,7 +39,6 @@ void sched_inicializar () {
   _esta_corriendo_la_idle = TRUE;
   guardar_tanquecito = TRUE;
   
-  gdt_tss_1_busy = TRUE;
   _tarea_actual = CANT_TANQUES - 1;
   
   primera_vez = TRUE;
@@ -52,6 +52,11 @@ unsigned int esta_corriendo_la_idle () {
 
 unsigned int sched_tarea_actual () {
   return _tarea_actual;
+}
+
+
+unsigned int sched_estado_tarea (unsigned int id) {
+  return tareas_vivas[id];
 }
 
 
@@ -102,7 +107,7 @@ unsigned short sched_montar_idle () {
   
   anterior = guardar_tanquecito ? &tss_tanques[_tarea_actual] : &tss_idle;
   
-  if (gdt_tss_1_busy) {
+  if (GDT_TSS_1_BUSY()) {
     tss_copy(anterior, tss_tarea_2);
     tss_copy(tss_tarea_2, &tss_idle);
   } else {
@@ -110,8 +115,7 @@ unsigned short sched_montar_idle () {
     tss_copy(tss_tarea_1, &tss_idle);
   }
   
-  r = gdt_tss_1_busy ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
-  gdt_tss_1_busy = 1 - gdt_tss_1_busy;
+  r = GDT_TSS_1_BUSY() ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
   _esta_corriendo_la_idle = TRUE;
   
   return r;
@@ -130,7 +134,7 @@ unsigned short sched_proxima_tarea () {
     return 0;
   }
   
-  if (gdt_tss_1_busy) {
+  if (GDT_TSS_1_BUSY()) {
     if (primera_vez) {
       tss_copy(tss_tarea_2, &tss_tanques[0]);
     } else {
@@ -146,8 +150,7 @@ unsigned short sched_proxima_tarea () {
     }
   }
   
-  r = gdt_tss_1_busy ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
-  gdt_tss_1_busy = 1 - gdt_tss_1_busy;
+  r = GDT_TSS_1_BUSY() ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
   guardar_tanquecito = 1 - _esta_corriendo_la_idle;
   _esta_corriendo_la_idle = FALSE;
   primera_vez = FALSE;

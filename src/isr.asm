@@ -19,6 +19,7 @@ extern fin_intr_pic1
 extern sched_proxima_tarea
 extern sched_montar_idle
 extern sched_tarea_actual
+extern sched_estado_tarea
 extern sched_desalojar_tarea
 extern primera_vez
 
@@ -126,6 +127,7 @@ _isr%1:
 ; Scheduler
 isrnumero:           dd 0x00000000
 isrClock:            db '|/-\'
+tarea_muerta:        db 'X'
 relojes:             dd 0, 0, 0, 0, 0, 0, 0, 0
 
 ;;
@@ -195,23 +197,23 @@ _isr32:
 global _isr33
 
 _isr33:
-  ;~ cli
+  cli
   pushad
   
   xor eax, eax
   in al, 0x60
-  ;~ test al, 0x80
-  ;~ jnz .fin
+  test al, 0x80
+  jnz .fin
   
   ; atiendo cuando se suelta.
-  ;~ cmp al, 0xa
-  ;~ jg .fin
-  ;~ cmp al, 0x2
-  ;~ jl .fin
-  ;~ mov bx, 0x2f00
-  ;~ add al, '0' - 1
-  ;~ or bx, ax
-  ;~ mov word [0xb8000], bx
+  cmp al, 0xa
+  jg .fin
+  cmp al, 0x2
+  jl .fin
+  mov bx, 0x2f00
+  add al, '0' - 1
+  or bx, ax
+  mov word [0xb8000], bx
   
   .fin:
   call fin_intr_pic1
@@ -343,13 +345,30 @@ proximo_reloj_tarea_actual:
   
   call sched_tarea_actual
   
-  inc dword [relojes + 4*eax]
-  and dword [relojes + 4*eax], 0x3
-  mov ebx, [relojes + 4*eax]
-  add ebx, isrClock
-  shl eax, 1
-  add eax, 54
-  imprimir_texto_mp ebx, 1, 0x0b, 48, eax
+  mov ebx, eax
+  push ebx
+  call sched_estado_tarea
+  add esp, 4
+  
+  cmp eax, 0
+  je .murio
+  
+  inc dword [relojes + 4*ebx]
+  and dword [relojes + 4*ebx], 0x3
+  mov edx, [relojes + 4*ebx]
+  add edx, isrClock
+  shl ebx, 1
+  add ebx, 54
+  
+  imprimir_texto_mp edx, 1, 0x0b, 48, ebx
+  jmp .fin
+  
+  .murio:
+  shl ebx, 1
+  add ebx, 54
+  mov edx, tarea_muerta
+  
+  imprimir_texto_mp edx, 1, 0x0b, 48, ebx
   
   .fin:
   ret

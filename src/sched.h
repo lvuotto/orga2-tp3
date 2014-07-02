@@ -15,6 +15,7 @@
 
 void           sched_inicializar      ();
 unsigned short sched_proxima_tarea    ();
+unsigned int   sched_estado_tarea     (unsigned int id);
 unsigned int   sched_tarea_actual     ();
 unsigned int   sched_tarea_anterior   ();
 unsigned int   esta_corriendo_la_idle ();
