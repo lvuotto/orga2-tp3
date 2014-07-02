@@ -89,7 +89,7 @@ _isr%1:
   jne .loopear
   
   call sched_tarea_actual
-  xchg bx, bx
+  ;~ xchg bx, bx
   push eax
   call sched_desalojar_tarea
   pop eax
@@ -163,7 +163,6 @@ global _isr32
 _isr32:
   cli
   pushad
-  call fin_intr_pic1
   
   call proximo_reloj
   call proximo_reloj_tarea_actual
@@ -196,29 +195,29 @@ _isr32:
 global _isr33
 
 _isr33:
-  cli
+  ;~ cli
   pushad
   
   xor eax, eax
   in al, 0x60
-  test al, 0x80
-  jnz .fin
+  ;~ test al, 0x80
+  ;~ jnz .fin
   
   ; atiendo cuando se suelta.
-  cmp al, 0xa
-  jg .fin
-  cmp al, 0x2
-  jl .fin
-  mov bx, 0x2f00
-  add al, '0' - 1
-  or bx, ax
-  mov word [0xb8000], bx
+  ;~ cmp al, 0xa
+  ;~ jg .fin
+  ;~ cmp al, 0x2
+  ;~ jl .fin
+  ;~ mov bx, 0x2f00
+  ;~ add al, '0' - 1
+  ;~ or bx, ax
+  ;~ mov word [0xb8000], bx
   
   .fin:
   call fin_intr_pic1
   
   popad
-  sti
+  ;~ sti
   iret
 ; FIN _isr33
 
@@ -350,7 +349,7 @@ proximo_reloj_tarea_actual:
   add ebx, isrClock
   shl eax, 1
   add eax, 54
-  imprimir_texto_mp ebx, 1, 0x70, 48, eax
+  imprimir_texto_mp ebx, 1, 0x0b, 48, eax
   
   .fin:
   ret

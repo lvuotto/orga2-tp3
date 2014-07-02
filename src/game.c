@@ -36,6 +36,7 @@ unsigned int game_mover (unsigned int id, direccion d) {
   unsigned short pos, coord_x, coord_y;
   
   pos = posicion[id];
+  breakpoint();
   coord_x = (pos & 0xff) + 50;
   coord_y = (pos >> 8) + 50;
   
@@ -95,7 +96,7 @@ unsigned int game_mover (unsigned int id, direccion d) {
     posiciones_ocupadas[coord_y][coord_x] = TRUE;
   }
   
-  posicion[id] = (coord_y << 8) | coord_x;
+  posicion[id] = ((coord_y&0xFF) << 8) | (coord_x & 0xFF);
   
   return codigo_virtual_tanques[id];
 }
@@ -134,7 +135,9 @@ unsigned int game_misil (unsigned int id,
     campo_minado[coord_y][coord_x] = FALSE;
     pintar_posicion(0, coord_x, coord_y, C_BG_GREEN | C_FG_BLACK);
   } else {
-    copiar_memoria(pos, misil, size);
+    copiar_memoria(0x400000 + coord_x*PAGE_SIZE + 50*coord_y*PAGE_SIZE,
+                   misil,
+                   size);
     pintar_posicion(id + '1',
                     coord_x,
                     coord_y,

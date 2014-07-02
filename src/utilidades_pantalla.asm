@@ -166,31 +166,38 @@ limpiar_buffer_video
   jl .ciclo
   ret
 
+
+
+%define COLOR_TAG_REG       0x0e
+%define COLOR_FONDO_TITULO  0x00
+%define COLOR_FONDO_SECCION 0x00
+
+
 inicializar_pantalla:
   
-  call pintar_info
-  imprimir_texto_mp tag_eax,    tag_eax_len,    0x70,  8, 53
-  imprimir_texto_mp tag_ebx,    tag_ebx_len,    0x70, 10, 53
-  imprimir_texto_mp tag_ecx,    tag_ecx_len,    0x70, 12, 53
-  imprimir_texto_mp tag_edx,    tag_edx_len,    0x70, 14, 53
-  imprimir_texto_mp tag_esi,    tag_esi_len,    0x70, 16, 53
-  imprimir_texto_mp tag_edi,    tag_edi_len,    0x70, 18, 53
-  imprimir_texto_mp tag_ebp,    tag_ebp_len,    0x70, 20, 53
-  imprimir_texto_mp tag_esp,    tag_esp_len,    0x70, 22, 53
-  imprimir_texto_mp tag_eip,    tag_eip_len,    0x70, 24, 53
-  imprimir_texto_mp tag_cs,     tag_cs_len,     0x70, 26, 53
-  imprimir_texto_mp tag_ds,     tag_ds_len,     0x70, 28, 53
-  imprimir_texto_mp tag_es,     tag_es_len,     0x70, 30, 53
-  imprimir_texto_mp tag_fs,     tag_fs_len,     0x70, 32, 53
-  imprimir_texto_mp tag_gs,     tag_gs_len,     0x70, 34, 53
-  imprimir_texto_mp tag_ss,     tag_ss_len,     0x70, 36, 53
-  imprimir_texto_mp tag_eflags, tag_eflags_len, 0x70, 38, 53
+  ;~ call pintar_info
+  imprimir_texto_mp tag_eax,    tag_eax_len,    COLOR_TAG_REG,  8, 52
+  imprimir_texto_mp tag_ebx,    tag_ebx_len,    COLOR_TAG_REG, 10, 52
+  imprimir_texto_mp tag_ecx,    tag_ecx_len,    COLOR_TAG_REG, 12, 52
+  imprimir_texto_mp tag_edx,    tag_edx_len,    COLOR_TAG_REG, 14, 52
+  imprimir_texto_mp tag_esi,    tag_esi_len,    COLOR_TAG_REG, 16, 52
+  imprimir_texto_mp tag_edi,    tag_edi_len,    COLOR_TAG_REG, 18, 52
+  imprimir_texto_mp tag_ebp,    tag_ebp_len,    COLOR_TAG_REG, 20, 52
+  imprimir_texto_mp tag_esp,    tag_esp_len,    COLOR_TAG_REG, 22, 52
+  imprimir_texto_mp tag_eip,    tag_eip_len,    COLOR_TAG_REG, 24, 52
+  imprimir_texto_mp tag_cs,     tag_cs_len,     COLOR_TAG_REG, 26, 52
+  imprimir_texto_mp tag_ds,     tag_ds_len,     COLOR_TAG_REG, 28, 52
+  imprimir_texto_mp tag_es,     tag_es_len,     COLOR_TAG_REG, 30, 52
+  imprimir_texto_mp tag_fs,     tag_fs_len,     COLOR_TAG_REG, 32, 52
+  imprimir_texto_mp tag_gs,     tag_gs_len,     COLOR_TAG_REG, 34, 52
+  imprimir_texto_mp tag_ss,     tag_ss_len,     COLOR_TAG_REG, 36, 52
+  imprimir_texto_mp tag_eflags, tag_eflags_len, COLOR_TAG_REG, 38, 52
   
-  imprimir_texto_mp tag_cr0,    tag_cr0_len,    0x70,  8, 67
-  imprimir_texto_mp tag_cr2,    tag_cr2_len,    0x70, 10, 67
-  imprimir_texto_mp tag_cr3,    tag_cr3_len,    0x70, 12, 67
-  imprimir_texto_mp tag_cr4,    tag_cr4_len,    0x70, 14, 67
-  imprimir_texto_mp tag_stack,  tag_stack_len,  0x70, 25, 67
+  imprimir_texto_mp tag_cr0,    tag_cr0_len,    COLOR_TAG_REG,  8, 66
+  imprimir_texto_mp tag_cr2,    tag_cr2_len,    COLOR_TAG_REG, 10, 66
+  imprimir_texto_mp tag_cr3,    tag_cr3_len,    COLOR_TAG_REG, 12, 66
+  imprimir_texto_mp tag_cr4,    tag_cr4_len,    COLOR_TAG_REG, 14, 66
+  imprimir_texto_mp tag_stack,  tag_stack_len,  COLOR_TAG_REG, 25, 66
 
 ret
 
