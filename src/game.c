@@ -6,9 +6,13 @@
 
 #include "game.h"
 
+
+#define OBTENER_POSICION_TANQUE(id) &posicion[id];
+
+
 char campo_minado[CAMPO_SIZE][CAMPO_SIZE];
 unsigned char posiciones_ocupadas[CAMPO_SIZE][CAMPO_SIZE];
-unsigned short posicion[CANT_TANQUES];
+posicion_t posicion[CANT_TANQUES];
 extern unsigned int codigo_virtual_tanques[CANT_TANQUES];
 
 
@@ -21,82 +25,84 @@ void game_inicializar() {
   }
   
   for (i = 0; i < CANT_TANQUES; i++) {
-    posicion[i] = ((3 + 6*i) << 8) | (3 + 6*i);
+    posicion[i].x = 5 + 5*i;
+    posicion[i].y = 5 + 5*i;
   }
 }
 
 
-unsigned short obtener_posicion_tanque (unsigned int id) {
-  return posicion[id % CANT_TANQUES];
+posicion_t obtener_posicion_tanque (unsigned int id) {
+  return posicion[id];
 }
 
 
 unsigned int game_mover (unsigned int id, direccion d) {
   unsigned int cr3;
-  unsigned short pos, coord_x, coord_y;
+  posicion_t *pos;
   
-  pos = posicion[id];
+  pos = OBTENER_POSICION_TANQUE(id);
   breakpoint();
-  coord_x = (pos & 0xff) + 50;
-  coord_y = (pos >> 8) + 50;
+  pos->x += CAMPO_SIZE;
+  pos->y += CAMPO_SIZE;
   
   switch (d) {
     case NO:
-      coord_y--;
-      coord_x--;
+      pos->y--;
+      pos->x--;
       break;
     case N:
-      coord_y--;
+      pos->y--;
       break;
     case NE:
-      coord_y--;
-      coord_x++;
+      pos->y--;
+      pos->x++;
       break;
     case O:
-      coord_x--;
+      pos->x--;
       break;
     case C:
       break;
     case E:
-      coord_x++;
+      pos->x++;
       break;
     case SO:
-      coord_y++;
-      coord_x--;
+      pos->y++;
+      pos->x--;
       break;
     case S:
-      coord_y++;
+      pos->y++;
       break;
     case SE:
-      coord_y++;
-      coord_x++;
+      pos->y++;
+      pos->x++;
       break;
     default:
       break;
   }
   
-  coord_y %= CAMPO_SIZE;
-  coord_x %= CAMPO_SIZE;
+  pos->y %= CAMPO_SIZE;
+  pos->x %= CAMPO_SIZE;
   
-  if (campo_minado[coord_y][coord_x] &&
-      (campo_minado[coord_y][coord_x] >> 1) != id)
+  if (campo_minado[pos->y][pos->x] &&
+      (campo_minado[pos->y][pos->x] >> 1) != id)
   {
     sched_desalojar_tarea(id);
-    campo_minado[coord_y][coord_x] = FALSE;
+    campo_minado[pos->y][pos->x] = FALSE;
     return FALSE;
   }
   
-  if (posiciones_ocupadas[coord_y][coord_x]) {
-    pintar_posicion('X', coord_x, coord_y, C_BG_BROWN | C_FG_BLACK);
+  if (posiciones_ocupadas[pos->y][pos->x]) {
+    pintar_posicion('X', pos->x, pos->y, C_BG_BROWN | C_FG_BLACK);
   } else {
     cr3 = tss_get_cr3(id);
     codigo_virtual_tanques[id] += PAGE_SIZE;
-    mmu_mapear_pagina(codigo_virtual_tanques[id], cr3, pos, 3);
-    pintar_posicion(id + '1', coord_x, coord_y, C_BG_LIGHT_GREY | C_FG_BLACK);
-    posiciones_ocupadas[coord_y][coord_x] = TRUE;
+    mmu_mapear_pagina(codigo_virtual_tanques[id],
+                      cr3,
+                      0x400000 + CAMPO_SIZE*pos->y*PAGE_SIZE + pos->x*PAGE_SIZE,
+                      3);
+    pintar_posicion(id + '1', pos->x, pos->y, C_BG_LIGHT_GREY | C_FG_BLACK);
+    posiciones_ocupadas[pos->y][pos->x] = TRUE;
   }
-  
-  posicion[id] = ((coord_y&0xFF) << 8) | (coord_x & 0xFF);
   
   return codigo_virtual_tanques[id];
 }
@@ -107,40 +113,37 @@ unsigned int game_misil (unsigned int id,
                          unsigned int misil,
                          unsigned int size)
 {
-  unsigned short pos, coord_x, coord_y;
+  posicion_t *pos;
   
   if (size > PAGE_SIZE) {
     sched_desalojar_tarea(id);
     return FALSE;
   }
   
-  if (val_x < -50 || val_x > 50) {
+  if (val_x < -CAMPO_SIZE || val_x > CAMPO_SIZE) {
     sched_desalojar_tarea(id);
     return FALSE;
   }
   
-  if (val_y < -50 || val_y > 50) {
+  if (val_y < -CAMPO_SIZE || val_y > CAMPO_SIZE) {
     sched_desalojar_tarea(id);
     return FALSE;
   }
   
-  pos = obtener_posicion_tanque(id);
-  coord_x = pos & 0xff;
-  coord_y = pos >> 8;
+  pos = OBTENER_POSICION_TANQUE(id);
+  pos->x = (pos->x + CAMPO_SIZE + val_x) % CAMPO_SIZE;
+  pos->y = (pos->y + CAMPO_SIZE + val_y) % CAMPO_SIZE;
   
-  coord_x = (coord_x + 50 + val_x) % CAMPO_SIZE;
-  coord_y = (coord_y + 50 + val_y) % CAMPO_SIZE;
-  
-  if (campo_minado[coord_y][coord_x]) {
-    campo_minado[coord_y][coord_x] = FALSE;
-    pintar_posicion(0, coord_x, coord_y, C_BG_GREEN | C_FG_BLACK);
+  if (campo_minado[pos->y][pos->x]) {
+    campo_minado[pos->y][pos->x] = FALSE;
+    pintar_posicion(0, pos->x, pos->y, C_BG_GREEN | C_FG_BLACK);
   } else {
-    copiar_memoria(0x400000 + coord_x*PAGE_SIZE + 50*coord_y*PAGE_SIZE,
+    copiar_memoria(0x400000 + CAMPO_SIZE*pos->y*PAGE_SIZE + pos->x*PAGE_SIZE,
                    misil,
                    size);
     pintar_posicion(id + '1',
-                    coord_x,
-                    coord_y,
+                    pos->x,
+                    pos->y,
                     C_BLINK | C_BG_MAGENTA | C_FG_LIGHT_RED);
   }
   
@@ -148,52 +151,50 @@ unsigned int game_misil (unsigned int id,
 }
 
 unsigned int game_minar (unsigned int id, direccion d) {
-  unsigned short pos, coord_x, coord_y;
+  posicion_t *pos;
   
-  pos = posicion[id];
-  coord_x = (pos & 0xff) + 50;
-  coord_y = (pos >> 8) + 50;
+  pos = OBTENER_POSICION_TANQUE(id);
   
   switch (d) {
     case NO:
-      coord_y--;
-      coord_x--;
+      pos->y--;
+      pos->x--;
       break;
     case N:
-      coord_y--;
+      pos->y--;
       break;
     case NE:
-      coord_y--;
-      coord_x++;
+      pos->y--;
+      pos->x++;
       break;
     case O:
-      coord_x--;
+      pos->x--;
       break;
     case C:
       break;
     case E:
-      coord_x++;
+      pos->x++;
       break;
     case SO:
-      coord_y++;
-      coord_x--;
+      pos->y++;
+      pos->x--;
       break;
     case S:
-      coord_y++;
+      pos->y++;
       break;
     case SE:
-      coord_y++;
-      coord_x++;
+      pos->y++;
+      pos->x++;
       break;
     default:
       break;
   }
   
-  coord_y %= CAMPO_SIZE;
-  coord_x %= CAMPO_SIZE;
+  pos->y %= CAMPO_SIZE;
+  pos->x %= CAMPO_SIZE;
   
-  campo_minado[coord_y][coord_x] = (id << 1) | TRUE;
-  pintar_posicion('X', coord_x, coord_y, C_BG_GREEN | C_FG_RED);
+  campo_minado[pos->y][pos->x] = (id << 1) | TRUE;
+  pintar_posicion('X', pos->x, pos->y, C_BG_GREEN | C_FG_RED);
   
   return TRUE;
 }

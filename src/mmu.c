@@ -9,7 +9,7 @@
 
 
 #define BASE_AREA_LIBRE    0x100000
-#define BASE_EL_MAPA       0x400000 + 50*5*PAGE_SIZE + 5*PAGE_SIZE;
+#define BASE_EL_MAPA       0x400000 + CAMPO_SIZE*5*PAGE_SIZE + 5*PAGE_SIZE
 #define BASE_TAREA_VIRTUAL 0x08000000
 
 #define DIR_TAREA_1 0x10000
@@ -314,7 +314,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
     /* 3 = 0b11 => r/w = 1, u/s = 1 */
   }
   
-  memoria_mapa += 50*5*PAGE_SIZE + 5*PAGE_SIZE;
+  memoria_mapa += CAMPO_SIZE*5*PAGE_SIZE + 5*PAGE_SIZE;
   
   return cr3;
   
@@ -326,15 +326,6 @@ void mmu_inicializar () {
   unsigned int i;
   
   mmu_inicializar_dir_kernel();
-  
-  /*mmu_inicializar_dir_tarea(TAREA_1);
-  mmu_inicializar_dir_tarea(TAREA_2);
-  mmu_inicializar_dir_tarea(TAREA_3);
-  mmu_inicializar_dir_tarea(TAREA_4);
-  mmu_inicializar_dir_tarea(TAREA_5);
-  mmu_inicializar_dir_tarea(TAREA_6);
-  mmu_inicializar_dir_tarea(TAREA_7);
-  mmu_inicializar_dir_tarea(TAREA_8);*/
   
   for (i = 0; i < CANT_TANQUES; i++) {
     codigo_virtual_tanques[i] = BASE_TAREA_VIRTUAL + PAGE_SIZE;
@@ -430,21 +421,3 @@ void copiar_memoria (unsigned int dst, unsigned int src, unsigned int size) {
     *d++ = *f++;
   }
 }
-
-
-/*unsigned int obtener_posicion_tanque (task_id_t tid) {
-  unsigned int dir_idx, tabla_idx, virtual, cr3;
-  page_directory_entry_t *dir;
-  page_table_entry_t *tabla;
-  
-  virtual = codigo_virtual_tanques[tid];
-  cr3 = tss_get_cr3(tid);
-  dir = (page_directory_entry_t *) cr3;
-  dir_idx = virtual >> 22;
-  
-  tabla = (page_table_entry_t *) (dir[dir_idx].base << 12);
-  tabla_idx = (virtual & MASK_22_BAJOS) >> 12;
-  
-  return tabla[tabla_idx].base << 12;
-}*/
-

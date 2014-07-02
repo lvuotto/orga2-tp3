@@ -14,6 +14,14 @@
 #include "colors.h"
 
 
+struct posicion_s {
+  unsigned char x;
+  unsigned char y;
+};
+
+typedef struct posicion_s posicion_t;
+
+
 typedef enum direccion_e { NO = 14, N  = 11, NE = 12,
                            O  = 44, C  = 0,  E  = 22,
                            SO = 34, S  = 33, SE = 32 } direccion;
@@ -27,6 +35,6 @@ unsigned int   game_misil              (unsigned int id,
                                         unsigned int misil,
                                         unsigned int size);
 unsigned int   game_minar              (unsigned int id, direccion d);
-unsigned short obtener_posicion_tanque (unsigned int i);
+posicion_t     obtener_posicion_tanque (unsigned int id);
 
 #endif  /* !__GAME_H__ */

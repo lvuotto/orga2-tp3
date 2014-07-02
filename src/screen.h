@@ -21,10 +21,10 @@
 
 extern unsigned char posiciones_ocupadas[CAMPO_SIZE][CAMPO_SIZE];
 
-void pintar_posicion             (char id,
+void pintar_posicion             (char c,
                                   unsigned int x,
                                   unsigned int y,
-                                  unsigned char c);
+                                  unsigned char color);
 void pintar_posiciones_iniciales ();
 
 

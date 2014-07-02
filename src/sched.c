@@ -56,7 +56,12 @@ unsigned int sched_tarea_actual () {
 
 
 void sched_desalojar_tarea (unsigned int id) {
+  posicion_t pos;
+  
   tareas_vivas[id] = FALSE;
+  pos = obtener_posicion_tanque(id);
+  
+  pintar_posicion('X', pos.x, pos.y, C_BG_RED | C_FG_WHITE);
 }
 
 

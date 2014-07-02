@@ -76,7 +76,6 @@ void         mmu_unmapear_pagina        (unsigned int virtual,
 void         copiar_memoria             (unsigned int dst,
                                          unsigned int src,
                                          unsigned int size);
-//~ unsigned int obtener_posicion_tanque    (task_id_t tid);
 
 
 void desalojar_tarea (unsigned int t);
