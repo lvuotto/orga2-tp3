@@ -93,7 +93,7 @@ tss * proxima_tarea () {
   if (p == 0xdeadc0de) {
     r = NULL;
   } else {
-    r = &tss_tanques[p];
+    r = &(tss_tanques[p]);
     _tarea_actual = p;
   }
   
@@ -116,6 +116,7 @@ unsigned short sched_montar_idle () {
   }
   
   r = GDT_TSS_1_BUSY() ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
+  guardar_tanquecito = 1 - _esta_corriendo_la_idle;
   _esta_corriendo_la_idle = TRUE;
   
   return r;
@@ -127,7 +128,7 @@ unsigned short sched_proxima_tarea () {
   unsigned short r;
   tss *proximo, *anterior;
   
-  anterior = guardar_tanquecito ? &tss_tanques[_tarea_actual] : &tss_idle;
+  anterior = guardar_tanquecito ? &(tss_tanques[_tarea_actual]) : &tss_idle;
   proximo = proxima_tarea();
   
   if (proximo == NULL && !primera_vez) {
@@ -137,6 +138,7 @@ unsigned short sched_proxima_tarea () {
   if (GDT_TSS_1_BUSY()) {
     if (primera_vez) {
       tss_copy(tss_tarea_2, &tss_tanques[0]);
+      primera_vez = FALSE;
     } else {
       tss_copy(anterior, tss_tarea_2);
       tss_copy(tss_tarea_2, proximo);
@@ -144,6 +146,7 @@ unsigned short sched_proxima_tarea () {
   } else {
     if (primera_vez) {
       tss_copy(tss_tarea_1, &tss_tanques[0]);
+      primera_vez = FALSE;
     } else {
       tss_copy(anterior, tss_tarea_1);
       tss_copy(tss_tarea_1, proximo);
@@ -153,7 +156,6 @@ unsigned short sched_proxima_tarea () {
   r = GDT_TSS_1_BUSY() ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;
   guardar_tanquecito = 1 - _esta_corriendo_la_idle;
   _esta_corriendo_la_idle = FALSE;
-  primera_vez = FALSE;
   
   return r;
   

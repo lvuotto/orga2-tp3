@@ -9,7 +9,7 @@
 
 
 #define BASE_AREA_LIBRE    0x100000
-#define BASE_EL_MAPA       0x400000 + CAMPO_SIZE*5*PAGE_SIZE + 5*PAGE_SIZE
+#define BASE_EL_MAPA       0x400000
 #define BASE_TAREA_VIRTUAL 0x08000000
 
 #define DIR_TAREA_1 0x10000
@@ -293,7 +293,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
       codigo = DIR_TAREA_8;
       break;
     default:
-      codigo = 0xdead0000;
+      codigo = 0xdeadc0de;
       break;
   }
   
@@ -313,8 +313,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
     mmu_mapear_pagina(codigo_virtual + i, cr3, memoria_mapa + i, 3);
     /* 3 = 0b11 => r/w = 1, u/s = 1 */
   }
-  
-  memoria_mapa += CAMPO_SIZE*5*PAGE_SIZE + 5*PAGE_SIZE;
+  memoria_mapa += 2*PAGE_SIZE;
   
   return cr3;
   

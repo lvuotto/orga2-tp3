@@ -27,6 +27,7 @@ extern primera_vez
 extern game_mover
 extern game_misil
 extern game_minar
+extern poner_pausa
 
 ;;
 ;; Definición de MACROS
@@ -163,11 +164,25 @@ ISR 19
 global _isr32
 
 _isr32:
+  ;~ xchg bx,bx
   cli
   pushad
   
   call proximo_reloj
   call proximo_reloj_tarea_actual
+  
+  cmp byte [poner_pausa], 1
+  jne .saltar_a_tarea
+  
+  call sched_montar_idle
+  mov [sched_tarea_selector], ax
+  call fin_intr_pic1
+  sti
+  jmp far [sched_tarea_offset]
+  jmp .fin
+  
+  
+  .saltar_a_tarea:
   call sched_proxima_tarea
   
   ;~ xchg bx, bx
@@ -206,6 +221,9 @@ _isr33:
   jnz .fin
   
   ; atiendo cuando se suelta.
+  cmp al, 0x19
+  je .pausar
+  
   cmp al, 0xa
   jg .fin
   cmp al, 0x2
@@ -214,12 +232,16 @@ _isr33:
   add al, '0' - 1
   or bx, ax
   mov word [0xb8000], bx
+  jmp .fin
+  
+  .pausar:
+  xor byte [poner_pausa], 1
   
   .fin:
   call fin_intr_pic1
   
   popad
-  ;~ sti
+  sti
   iret
 ; FIN _isr33
 
