@@ -8,21 +8,18 @@
 #include "sched.h"
 
 
-#define GDT_TSS_1_BUSY() ((gdt[GDT_TSS_1].type >> 1) & 1)
+#define GDT_TSS_1_BUSY() (gdt[GDT_TSS_1].type == 0b1011)
 #define NULL 0
-#define SWAAAAP()               \
-  swaaaap      = tss_tarea_1;    \
-  tss_tarea_1   = tss_tarea_2;  \
-  tss_tarea_2 = swaaaap
 
 
-tss *tss_tarea_1, *tss_tarea_2, *swaaaap;
+tss *tss_tarea_1, *tss_tarea_2;
 extern gdt_entry gdt[GDT_COUNT];
 unsigned int _tarea_actual;
 unsigned int tareas_vivas[CANT_TANQUES];
 unsigned int _esta_corriendo_la_idle,
              guardar_tanquecito,
              primera_vez;
+extern char poner_pausa;
 
 
 void sched_inicializar () {
@@ -127,6 +124,10 @@ unsigned short sched_proxima_tarea () {
   
   unsigned short r;
   tss *proximo, *anterior;
+  
+  if (poner_pausa) {
+    return 0;
+  }
   
   anterior = guardar_tanquecito ? &(tss_tanques[_tarea_actual]) : &tss_idle;
   proximo = proxima_tarea();

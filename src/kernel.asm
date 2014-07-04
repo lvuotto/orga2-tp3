@@ -141,7 +141,7 @@ protected_mode:
   call tss_inicializar_tarea_idle
   
   ; Inicializar tss de los tanques
-  
+  ; Se realiza en game_inicializar
   
   ; Inicializar el scheduler
   call sched_inicializar
@@ -169,7 +169,6 @@ protected_mode:
   
   mov eax, tss_idle
   mov dword [eax+32], ricardomontaner
-  ;~ xchg bx, bx
   
   ; Habilitar interrupciones
   sti

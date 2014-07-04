@@ -174,6 +174,8 @@ _isr32:
   cmp byte [poner_pausa], 1
   jne .saltar_a_tarea
   
+  xchg bx, bx
+  
   call sched_montar_idle
   mov [sched_tarea_selector], ax
   call fin_intr_pic1
@@ -220,7 +222,7 @@ _isr33:
   test al, 0x80
   jnz .fin
   
-  ; atiendo cuando se suelta.
+  ; atiendo cuando se presiona.
   cmp al, 0x19
   je .pausar
   

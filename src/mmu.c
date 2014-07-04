@@ -197,7 +197,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   for (i = 0; i < 1024; i++) {
     p[i].p = 1;
     p[i].rw = 1;
-    p[i].us = 1;
+    p[i].us = 0;
     p[i].pwt = 0;
     p[i].pcd = 0;
     p[i].a = 0;
@@ -212,7 +212,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   for (i = 0; i < 1024; i++) {
     p[i].p = 1;
     p[i].rw = 1;
-    p[i].us = 1;
+    p[i].us = 0;
     p[i].pwt = 0;
     p[i].pcd = 0;
     p[i].a = 0;
@@ -227,7 +227,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   for (i = 0; i < 1024; i++) {
     p[i].p = 1;
     p[i].rw = 1;
-    p[i].us = 1;
+    p[i].us = 0;
     p[i].pwt = 0;
     p[i].pcd = 0;
     p[i].a = 0;
@@ -242,7 +242,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   for (i = 0; i < 452; i++) {
     p[i].p = 1;
     p[i].rw = 1;
-    p[i].us = 1;
+    p[i].us = 0;
     p[i].pwt = 0;
     p[i].pcd = 0;
     p[i].a = 0;
@@ -255,7 +255,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   for (i = 452; i < 1024; i++) {
     p[i].p = 0;
     p[i].rw = 1;
-    p[i].us = 1;
+    p[i].us = 0;
     p[i].pwt = 0;
     p[i].pcd = 0;
     p[i].a = 0;
