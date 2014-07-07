@@ -10,6 +10,7 @@ extern IDT_DESC
 
 extern idt_inicializar
 extern mmu_inicializar
+extern srand
 extern tss_inicializar
 extern tss_inicializar_tarea_idle
 extern resetear_pic
@@ -107,7 +108,7 @@ protected_mode:
   call pintar_pantalla
   
   ; Imprimir mensaje de bienvenida
-  ;imprimir_texto_mp iniciando_mp_msg, iniciando_mp_len, 0x27, 0, 0
+  imprimir_texto_mp iniciando_mp_msg, iniciando_mp_len, 0x27, 0, 0
   
   ; Limpiar buffer de video
   call limpiar_buffer_video
@@ -117,8 +118,13 @@ protected_mode:
   mov ax, 0b1011000     ; index 11 | gdt 0 | rpl 00
   mov fs, ax
   
-  ; Inicializar el manejador de memoria
-  
+  ; Inicializar el generador de numeros pseudoaleatorios
+  ;~ xchg bx, bx
+  lfence
+  rdtsc 
+  push eax
+  call srand
+  add esp, 4
   
   ; Inicializar el directorio de paginas
   call mmu_inicializar
@@ -167,13 +173,12 @@ protected_mode:
   mov ax, 0b1110000
   ltr ax
   
-  mov eax, tss_idle
-  mov dword [eax+32], ricardomontaner
-  
   ; Habilitar interrupciones
   sti
   
   ; Saltar a la primera tarea: Idle
+  xchg bx, bx
+  
   mov ax, 0b1111000
   mov [selector], ax
   jmp far [offset]
@@ -185,11 +190,6 @@ protected_mode:
   mov edx, 0xffff
   jmp $
   jmp $
-
-
-ricardomontaner:
-                xchg bx,bx
-                jmp ricardomontaner
 
 ;; -------------------------------------------------------------------------- ;;
 

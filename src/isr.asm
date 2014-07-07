@@ -164,7 +164,6 @@ ISR 19
 global _isr32
 
 _isr32:
-  ;~ xchg bx,bx
   cli
   pushad
   

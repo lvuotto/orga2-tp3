@@ -14,6 +14,9 @@
 #include "game.h"
 
 
+#include "screen.h"
+
+
 enum task_id_e {
   TAREA_1,
   TAREA_2,

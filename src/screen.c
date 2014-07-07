@@ -8,6 +8,10 @@
 #include "screen.h"
 
 
+extern unsigned char posiciones_ocupadas_tanques[CANT_TANQUES][CAMPO_SIZE][CAMPO_SIZE];
+extern unsigned char posiciones_ocupadas[CAMPO_SIZE][CAMPO_SIZE];
+
+
 void pintar_posicion (char c,
                       unsigned int x,
                       unsigned int y,
@@ -26,6 +30,9 @@ void pintar_posiciones_iniciales () {
   
   for (i = 0; i < CANT_TANQUES; i++) {
     pos = obtener_posicion_tanque(i);
+    
+    posiciones_ocupadas_tanques[i][pos.y][pos.x                        ] = TRUE;
+    posiciones_ocupadas_tanques[i][pos.y][(pos.x + 50 - 1) % CAMPO_SIZE] = TRUE;
     
     posiciones_ocupadas[pos.y][pos.x                        ] = TRUE;
     posiciones_ocupadas[pos.y][(pos.x + 50 - 1) % CAMPO_SIZE] = TRUE;

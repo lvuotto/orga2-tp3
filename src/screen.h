@@ -19,8 +19,6 @@
 #include "game.h"
 
 
-extern unsigned char posiciones_ocupadas[CAMPO_SIZE][CAMPO_SIZE];
-
 void pintar_posicion             (char c,
                                   unsigned int x,
                                   unsigned int y,

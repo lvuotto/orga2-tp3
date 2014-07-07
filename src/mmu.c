@@ -31,6 +31,24 @@ unsigned int codigo_virtual_tanques[CANT_TANQUES];
 
 
 /* ==========================================================================
+ * RANDOMNEEEESSSS!!
+ * ========================================================================== */
+
+unsigned int _x = 1;
+const unsigned int _a = 0x41c64e6d,
+                   _c = 0x00003039,
+                   _m = 0x7fffffff;
+
+void srand (unsigned int seed) {
+  _x = seed;
+}
+
+unsigned int rand () {
+  _x = (_a*_x + _c) & _m;
+  return _x;
+}
+
+/* ==========================================================================
  * FUNCIONES AUXILIARES PARA MMU
  * ========================================================================== */
 
@@ -307,13 +325,17 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
    *        paginas. -> HECHO.
    **/
   
+  unsigned int n = rand() % (CAMPO_SIZE*CAMPO_SIZE);
+  
+  pintar_posicion(tid + '1', n % CAMPO_SIZE, n / CAMPO_SIZE, C_BG_GREEN | C_FG_MAGENTA);
+  
+  memoria_mapa = BASE_EL_MAPA + PAGE_SIZE*(rand() % CAMPO_SIZE*CAMPO_SIZE);
   copiar_memoria(memoria_mapa, codigo, 2*PAGE_SIZE);
  
   for (i = 0; i < 2*PAGE_SIZE; i += PAGE_SIZE) {
     mmu_mapear_pagina(codigo_virtual + i, cr3, memoria_mapa + i, 3);
     /* 3 = 0b11 => r/w = 1, u/s = 1 */
   }
-  memoria_mapa += 2*PAGE_SIZE;
   
   return cr3;
   
