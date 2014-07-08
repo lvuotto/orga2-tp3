@@ -8,26 +8,22 @@
 #include "mmu.h"
 
 
-#define BASE_AREA_LIBRE    0x100000
-#define BASE_EL_MAPA       0x400000
-#define BASE_TAREA_VIRTUAL 0x08000000
-
-#define DIR_TAREA_1 0x10000
-#define DIR_TAREA_2 0x12000
-#define DIR_TAREA_3 0x14000
-#define DIR_TAREA_4 0x16000
-#define DIR_TAREA_5 0x18000
-#define DIR_TAREA_6 0x1a000
-#define DIR_TAREA_7 0x1c000
-#define DIR_TAREA_8 0x1e000
-
 #define MASK_22_BAJOS 0x3fffff
+#define ESTA_OCUPADA(p)  \
+  codigo_mapa[0] == p || \
+  codigo_mapa[1] == p || \
+  codigo_mapa[2] == p || \
+  codigo_mapa[3] == p || \
+  codigo_mapa[4] == p || \
+  codigo_mapa[5] == p || \
+  codigo_mapa[6] == p || \
+  codigo_mapa[7] == p
 
 
 unsigned int pagina_libre = BASE_AREA_LIBRE;
-unsigned int memoria_mapa = BASE_EL_MAPA;
 unsigned int codigo_virtual = BASE_TAREA_VIRTUAL;
 unsigned int codigo_virtual_tanques[CANT_TANQUES];
+unsigned int codigo_mapa[CANT_TANQUES];
 
 
 /* ==========================================================================
@@ -179,7 +175,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   
   page_directory_entry_t *pd;
   page_table_entry_t *p;
-  unsigned int i, cr3, codigo;
+  unsigned int i, cr3, codigo, pos;
   /* cr3 y codigo funcionan como punteros. */
   
   
@@ -318,24 +314,36 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   /**
    * TODO:
    *  - [X] Consultar el tema de copiado.
-   *        Si, hay que copiar, a algun lado de _el_mapa_, en principio, lo
+   *        Si, hay que copiar, a algun lado de _el_mapa_. En principio, lo
    *        hacemos lineal, despues se va randomizar.
    *  - [X] Consultar si el mapeo esta todo liso.
    *        No. Estamos mapeando solo una pagina. Debe mapear tooooodas las
-   *        paginas. -> HECHO.
+   *        paginas.
    **/
   
-  unsigned int n = rand() % (CAMPO_SIZE*CAMPO_SIZE);
-  
-  pintar_posicion(tid + '1', n % CAMPO_SIZE, n / CAMPO_SIZE, C_BG_GREEN | C_FG_MAGENTA);
-  
-  memoria_mapa = BASE_EL_MAPA + PAGE_SIZE*(rand() % CAMPO_SIZE*CAMPO_SIZE);
-  copiar_memoria(memoria_mapa, codigo, 2*PAGE_SIZE);
+  do {
+    pos = rand() % (CAMPO_SIZE*CAMPO_SIZE);
+  } while (ESTA_OCUPADA(pos));
+  codigo_mapa[tid] = pos;
+  pintar_posicion(tid + '1',
+                  pos % CAMPO_SIZE,
+                  pos / CAMPO_SIZE,
+                  C_BG_GREEN | C_FG_LIGHT_BLUE);
+  pintar_posicion(tid + '1',
+                  (pos + 1) % CAMPO_SIZE,
+                  (pos + 1) / CAMPO_SIZE,
+                  C_BG_GREEN | C_FG_LIGHT_BLUE);
+  copiar_memoria(BASE_EL_MAPA + PAGE_SIZE*pos, codigo, 2*PAGE_SIZE);
  
-  for (i = 0; i < 2*PAGE_SIZE; i += PAGE_SIZE) {
-    mmu_mapear_pagina(codigo_virtual + i, cr3, memoria_mapa + i, 3);
-    /* 3 = 0b11 => r/w = 1, u/s = 1 */
-  }
+  mmu_mapear_pagina(codigo_virtual,
+                    cr3,
+                    BASE_EL_MAPA + PAGE_SIZE*pos,
+                    3);
+  mmu_mapear_pagina(codigo_virtual + PAGE_SIZE,
+                    cr3,
+                    BASE_EL_MAPA + PAGE_SIZE*(pos + 1),
+                    3);
+  /* 3 = 0b11 => r/w = 1, u/s = 1 */
   
   return cr3;
   
@@ -349,7 +357,8 @@ void mmu_inicializar () {
   mmu_inicializar_dir_kernel();
   
   for (i = 0; i < CANT_TANQUES; i++) {
-    codigo_virtual_tanques[i] = BASE_TAREA_VIRTUAL + PAGE_SIZE;
+    codigo_virtual_tanques[i] = BASE_TAREA_VIRTUAL + 2*PAGE_SIZE;
+    codigo_mapa[i] = 0;
   }
   
 }
@@ -397,11 +406,10 @@ void mmu_mapear_pagina (unsigned int virtual,
   
   tabla_idx = (virtual & MASK_22_BAJOS) >> 12;
   
-  if (!tabla[tabla_idx].p) {
-    tabla[tabla_idx].p = 1;
-    tabla[tabla_idx].rw = rw;
-    tabla[tabla_idx].us = us;
-  }
+  /* CONSULTAR */
+  tabla[tabla_idx].p = 1;
+  tabla[tabla_idx].rw = rw;
+  tabla[tabla_idx].us = us;
   
   tabla[tabla_idx].base = fisica >> 12;
   
@@ -433,12 +441,10 @@ void mmu_unmapear_pagina (unsigned int virtual, unsigned int cr3) {
 
 void copiar_memoria (unsigned int dst, unsigned int src, unsigned int size) {
   unsigned char *d, *f;
-  unsigned int i;
   
   d = (unsigned char *) dst;
   f = (unsigned char *) src;
   
-  for (i = 0; i < size; i++) {
+  while (size--)
     *d++ = *f++;
-  }
 }

@@ -177,8 +177,6 @@ protected_mode:
   sti
   
   ; Saltar a la primera tarea: Idle
-  xchg bx, bx
-  
   mov ax, 0b1111000
   mov [selector], ax
   jmp far [offset]

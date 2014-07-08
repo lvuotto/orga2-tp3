@@ -28,6 +28,7 @@ extern game_mover
 extern game_misil
 extern game_minar
 extern poner_pausa
+extern pausa_on
 
 ;;
 ;; Definición de MACROS
@@ -173,8 +174,11 @@ _isr32:
   cmp byte [poner_pausa], 1
   jne .saltar_a_tarea
   
-  xchg bx, bx
+  xor byte [pausa_on], 1      ; cambia segun la pausa estaba on u off.
+  cmp byte [pausa_on], 1      ; si esta on, me quedo en la idle.
+  je .no_salto
   
+  xor byte [poner_pausa], 1   ; desactivo la pausa (aca ya vale 1).
   call sched_montar_idle
   mov [sched_tarea_selector], ax
   call fin_intr_pic1
@@ -350,11 +354,11 @@ _isr0x52:     ; HACE MIERDA LOS REGISTROS :D
 ;; Funciones Auxiliares
 ;; -------------------------------------------------------------------------- ;;
 proximo_reloj:
-  inc DWORD [isrnumero]
+  inc dword [isrnumero]
   mov ebx, [isrnumero]
   cmp ebx, 0x4
   jl .ok
-    mov DWORD [isrnumero], 0x0
+    mov dword [isrnumero], 0x0
     xor ebx, ebx
   .ok:
     add ebx, isrClock

@@ -13,6 +13,7 @@ unsigned char posiciones_ocupadas[CAMPO_SIZE][CAMPO_SIZE];
 posicion_t posicion[CANT_TANQUES];
 extern unsigned int codigo_virtual_tanques[CANT_TANQUES];
 char poner_pausa;
+char pausa_on;
 
 
 void game_inicializar() {
@@ -37,6 +38,7 @@ void game_inicializar() {
   }
   
   poner_pausa = 0;
+  pausa_on = 0;
 }
 
 
@@ -100,12 +102,12 @@ unsigned int game_mover (unsigned int id, direccion d) {
   }
   
   cr3 = tss_get_cr3(id);
-  codigo_virtual_tanques[id] += PAGE_SIZE;
   if (!posiciones_ocupadas_tanques[id][pos->y][pos->x]) {
     mmu_mapear_pagina(codigo_virtual_tanques[id],
                       cr3,
-                      0x400000 + CAMPO_SIZE*pos->y*PAGE_SIZE + pos->x*PAGE_SIZE,
+                      BASE_EL_MAPA + CAMPO_SIZE*pos->y*PAGE_SIZE + pos->x*PAGE_SIZE,
                       3);
+    codigo_virtual_tanques[id] += PAGE_SIZE;
   }
   if (posiciones_ocupadas[pos->y][pos->x]) {
     pintar_posicion('X', pos->x, pos->y, C_BG_BROWN | C_FG_BLACK);
@@ -115,7 +117,7 @@ unsigned int game_mover (unsigned int id, direccion d) {
     posiciones_ocupadas[pos->y][pos->x] = TRUE;
   }
   
-  return codigo_virtual_tanques[id];
+  return codigo_virtual_tanques[id] - 1;
 }
 
 unsigned int game_misil (unsigned int id,
@@ -147,16 +149,13 @@ unsigned int game_misil (unsigned int id,
   
   if (campo_minado[pos.y][pos.x]) {
     campo_minado[pos.y][pos.x] = FALSE;
-    pintar_posicion(0, pos.x, pos.y, C_BG_RED | C_FG_BLACK);
   } else {
-    copiar_memoria(0x400000 + CAMPO_SIZE*pos.y*PAGE_SIZE + pos.x*PAGE_SIZE,
+    copiar_memoria(BASE_EL_MAPA + CAMPO_SIZE*pos.y*PAGE_SIZE + pos.x*PAGE_SIZE,
                    misil,
                    size);
-    pintar_posicion(id + '1',
-                    pos.x,
-                    pos.y,
-                    C_BG_BLACK | C_FG_LIGHT_RED);
   }
+  
+  pintar_posicion('X', pos.x, pos.y, C_BG_BROWN | C_FG_GREEN);
   
   return TRUE;
 }
