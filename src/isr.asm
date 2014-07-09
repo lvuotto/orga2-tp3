@@ -192,8 +192,6 @@ _isr32:
   call proximo_reloj_tarea_actual
   call sched_proxima_tarea
   
-  ;~ xchg bx, bx
-  
   cmp ax, 0
   je .no_salto
   
@@ -368,9 +366,6 @@ proximo_reloj:
   ret
 
 proximo_reloj_tarea_actual:
-  
-  cmp dword [primera_vez], 0
-  jnz .fin
   
   call sched_tarea_actual
   
