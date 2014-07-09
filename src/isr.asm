@@ -21,6 +21,7 @@ extern sched_montar_idle
 extern sched_tarea_actual
 extern sched_estado_tarea
 extern sched_desalojar_tarea
+extern esta_corriendo_la_idle
 extern primera_vez
 
 ;; Game
@@ -82,6 +83,8 @@ _isr_len_19: equ $ - _isr_msg_19
 global _isr%1
 
 _isr%1:
+  ;~ xchg bx, bx
+  
   imprimir_texto_mp _isr_msg_%1, _isr_len_%1, 0x4f, 0, 0
   
   pushad
@@ -92,7 +95,6 @@ _isr%1:
   jne .loopear
   
   call sched_tarea_actual
-  ;~ xchg bx, bx
   push eax
   call sched_desalojar_tarea
   pop eax
@@ -102,10 +104,11 @@ _isr%1:
   ;jmp .fin
   
   ; TODO:
-  ; - [ ] Dar de baja una tarea (remover del scheduler) ante una interrupcion.
+  ; - [X] Dar de baja una tarea (remover del scheduler) ante una interrupcion.
   ;       - Deberiamos poner ON a la tarea idle? Si.
-  ; - [ ] Remover el loop infinito y agregar un iret (no hacerlo hasta terminar
+  ; - [X] Remover el loop infinito y agregar un iret (no hacerlo hasta terminar
   ;       el punto anterior).
+  ;       - Falso. No hay que hacer eso.
   
   .loopear:
     ; To Infinity And Beyond!!
@@ -169,16 +172,14 @@ _isr32:
   pushad
   
   call proximo_reloj
-  call proximo_reloj_tarea_actual
   
   cmp byte [poner_pausa], 1
   jne .saltar_a_tarea
   
-  xor byte [pausa_on], 1      ; cambia segun la pausa estaba on u off.
-  cmp byte [pausa_on], 1      ; si esta on, me quedo en la idle.
+  call esta_corriendo_la_idle
+  cmp eax, 1
   je .no_salto
   
-  xor byte [poner_pausa], 1   ; desactivo la pausa (aca ya vale 1).
   call sched_montar_idle
   mov [sched_tarea_selector], ax
   call fin_intr_pic1
@@ -188,6 +189,7 @@ _isr32:
   
   
   .saltar_a_tarea:
+  call proximo_reloj_tarea_actual
   call sched_proxima_tarea
   
   ;~ xchg bx, bx

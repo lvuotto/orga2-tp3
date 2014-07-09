@@ -10,7 +10,7 @@ KERNEL_OBJ=kernel.o
 KERNEL_BIN=kernel.bin
 
 DEPEND = Makefile \
-	kernel.asm isr.asm utilidades_pantalla.asm\
+	kernel.asm isr.asm utilidades_pantalla.asm \
 	imprimir.mac \
 	defines.h \
 	gdt.c gdt.h pic.c pic.h idt.c idt.h isr.h tss.c tss.h mmu.c mmu.h \
