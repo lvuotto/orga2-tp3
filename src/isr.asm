@@ -22,7 +22,7 @@ extern sched_tarea_actual
 extern sched_estado_tarea
 extern sched_desalojar_tarea
 extern esta_corriendo_la_idle
-extern primera_vez
+extern mostrar_contexto
 
 ;; Game
 extern game_mover
@@ -230,13 +230,14 @@ _isr33:
   je .pausar
   
   cmp al, 0xa
-  jg .fin
+  jge .fin
   cmp al, 0x2
   jl .fin
-  mov bx, 0x2f00
-  add al, '0' - 1
-  or bx, ax
-  mov word [0xb8000], bx
+  
+  sub al, 2
+  push eax
+  call mostrar_contexto
+  add esp, 4
   jmp .fin
   
   .pausar:

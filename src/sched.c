@@ -18,6 +18,9 @@
 #define NULL 0
 
 
+extern void actualizar_contexto ();
+
+
 tss *tss_tarea_1, *tss_tarea_2;     /* Necesario para context switch. */
 extern gdt_entry gdt[GDT_COUNT];    /* Referencia a la gdt,
                                        para GDT_TSS_1_BUSY */
@@ -130,12 +133,14 @@ unsigned short sched_montar_idle () {
 unsigned short sched_proxima_tarea () {
   
   unsigned short r;
-  tss *proximo, *anterior;
+  unsigned int indice_anterior;
+  static tss *proximo, *anterior;
   
   /**
    * Si hay que guardar el contexto de un tanque, lo hacemos.
    * Si no, hay que guardar el contexto de la idle.
    **/
+  indice_anterior = _tarea_actual;
   anterior = guardar_tanquecito ? &(tss_tanques[_tarea_actual]) : &tss_idle;
   
   proximo = proxima_tarea();
@@ -196,6 +201,8 @@ unsigned short sched_proxima_tarea () {
   
   /* Como cambie de tarea, _NO_ esta corriendo la idle. */
   _esta_corriendo_la_idle = FALSE;
+  
+  actualizar_contexto(indice_anterior);
   
   return r;
   

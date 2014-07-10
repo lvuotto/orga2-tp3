@@ -23,5 +23,4 @@ void           sched_desalojar_tarea  (unsigned int id);
 unsigned short sched_montar_idle      ();
 
 
-
 #endif	/* !__SCHED_H__ */

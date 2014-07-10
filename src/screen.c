@@ -8,8 +8,28 @@
 #include "screen.h"
 
 
+#define C2H(x) ( (x) < 10 ? '0' + (x) : 'A' - 10 + (x) )
+#define IMPRIMER_HEX_8(v, col, fila)                                      \
+  video = (unsigned short *) 0xb8000 + (80*(col) + (fila));               \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(( (v) >> 28) & 0xf);  \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(( (v) >> 24) & 0xf);  \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(( (v) >> 20) & 0xf);  \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(( (v) >> 16) & 0xf);  \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(( (v) >> 12) & 0xf);  \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(( (v) >>  8) & 0xf);  \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(( (v) >>  4) & 0xf);  \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(  (v)        & 0xf)
+#define IMPRIMER_HEX_4(v, col, fila)                                      \
+  video = (unsigned short *) 0xb8000 + (80*(col) + (fila));               \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(( (v) >> 12) & 0xf);  \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(( (v) >>  8) & 0xf);  \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(( (v) >>  4) & 0xf);  \
+  *video++ = ((C_BG_BLACK | C_FG_WHITE) << 8) | C2H(  (v)        & 0xf)
+
+
 extern unsigned char posiciones_ocupadas_tanques[CANT_TANQUES][CAMPO_SIZE][CAMPO_SIZE];
 extern unsigned char posiciones_ocupadas[CAMPO_SIZE][CAMPO_SIZE];
+extern contexto_desalojo_t ctx_tanques[CANT_TANQUES];
 
 
 void pintar_posicion (char c,
@@ -40,5 +60,28 @@ void pintar_posiciones_iniciales () {
     pintar_posicion(i + '1', (pos.x + CAMPO_SIZE - 1) % CAMPO_SIZE, pos.y, 0x7f);
     pintar_posicion(i + '1', pos.x                                , pos.y, 0x7f);
   }
+}
+
+
+void mostrar_contexto (task_id_t tid) {
+  static unsigned short *video;
+  
+  IMPRIMER_HEX_8(ctx_tanques[tid].eax   ,  8, 57);
+  IMPRIMER_HEX_8(ctx_tanques[tid].ebx   , 10, 57);
+  IMPRIMER_HEX_8(ctx_tanques[tid].ecx   , 12, 57);
+  IMPRIMER_HEX_8(ctx_tanques[tid].edx   , 14, 57);
+  IMPRIMER_HEX_8(ctx_tanques[tid].esi   , 16, 57);
+  IMPRIMER_HEX_8(ctx_tanques[tid].edi   , 18, 57);
+  IMPRIMER_HEX_8(ctx_tanques[tid].ebp   , 20, 57);
+  IMPRIMER_HEX_8(ctx_tanques[tid].esp   , 22, 57);
+  IMPRIMER_HEX_8(ctx_tanques[tid].eip   , 24, 57);
+  IMPRIMER_HEX_4(ctx_tanques[tid].cs    , 26, 57);
+  IMPRIMER_HEX_4(ctx_tanques[tid].ds    , 28, 57);
+  IMPRIMER_HEX_4(ctx_tanques[tid].es    , 30, 57);
+  IMPRIMER_HEX_4(ctx_tanques[tid].fs    , 32, 57);
+  IMPRIMER_HEX_4(ctx_tanques[tid].gs    , 34, 57);
+  IMPRIMER_HEX_4(ctx_tanques[tid].ss    , 36, 57);
+  IMPRIMER_HEX_8(ctx_tanques[tid].eflags, 38, 60);
+  IMPRIMER_HEX_8(ctx_tanques[tid].cr3   , 12, 71);
 }
 

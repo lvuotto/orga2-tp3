@@ -13,7 +13,7 @@ unsigned char posiciones_ocupadas[CAMPO_SIZE][CAMPO_SIZE];
 posicion_t posicion[CANT_TANQUES];
 extern unsigned int codigo_virtual_tanques[CANT_TANQUES];
 char poner_pausa;
-char pausa_on;
+contexto_desalojo_t ctx_tanques[CANT_TANQUES];
 
 
 void game_inicializar() {
@@ -35,10 +35,25 @@ void game_inicializar() {
   for (i = 0; i < CANT_TANQUES; i++) {
     posicion[i].x = 5 + 5*i;
     posicion[i].y = 5 + 5*i;
+    ctx_tanques[i].eax   = tss_tanques[i].eax;
+    ctx_tanques[i].ebx   = tss_tanques[i].ebx;
+    ctx_tanques[i].ecx   = tss_tanques[i].ecx;
+    ctx_tanques[i].edx   = tss_tanques[i].edx;
+    ctx_tanques[i].esi   = tss_tanques[i].esi;
+    ctx_tanques[i].edi   = tss_tanques[i].edi;
+    ctx_tanques[i].ebp   = tss_tanques[i].ebp;
+    ctx_tanques[i].esp   = tss_tanques[i].esp;
+    ctx_tanques[i].eip   = tss_tanques[i].eip;
+    ctx_tanques[i].cs    = tss_tanques[i].cs;
+    ctx_tanques[i].ds    = tss_tanques[i].ds;
+    ctx_tanques[i].es    = tss_tanques[i].es;
+    ctx_tanques[i].fs    = tss_tanques[i].fs;
+    ctx_tanques[i].gs    = tss_tanques[i].gs;
+    ctx_tanques[i].ss    = tss_tanques[i].ss;
+    ctx_tanques[i].cr3   = tss_tanques[i].cr3;
   }
   
   poner_pausa = 0;
-  pausa_on = 0;
 }
 
 
@@ -160,6 +175,7 @@ unsigned int game_misil (unsigned int id,
   return TRUE;
 }
 
+
 unsigned int game_minar (unsigned int id, direccion d) {
   posicion_t pos;
   
@@ -212,4 +228,21 @@ unsigned int game_minar (unsigned int id, direccion d) {
 }
 
 
-
+void actualizar_contexto (unsigned int i) {
+  ctx_tanques[i].eax   = tss_tanques[i].eax;
+  ctx_tanques[i].ebx   = tss_tanques[i].ebx;
+  ctx_tanques[i].ecx   = tss_tanques[i].ecx;
+  ctx_tanques[i].edx   = tss_tanques[i].edx;
+  ctx_tanques[i].esi   = tss_tanques[i].esi;
+  ctx_tanques[i].edi   = tss_tanques[i].edi;
+  ctx_tanques[i].ebp   = tss_tanques[i].ebp;
+  ctx_tanques[i].esp   = tss_tanques[i].esp;
+  ctx_tanques[i].eip   = tss_tanques[i].eip;
+  ctx_tanques[i].cs    = tss_tanques[i].cs;
+  ctx_tanques[i].ds    = tss_tanques[i].ds;
+  ctx_tanques[i].es    = tss_tanques[i].es;
+  ctx_tanques[i].fs    = tss_tanques[i].fs;
+  ctx_tanques[i].gs    = tss_tanques[i].gs;
+  ctx_tanques[i].ss    = tss_tanques[i].ss;
+  ctx_tanques[i].cr3   = tss_tanques[i].cr3;
+}

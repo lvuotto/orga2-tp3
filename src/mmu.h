@@ -80,9 +80,6 @@ void         copiar_memoria             (unsigned int dst,
                                          unsigned int src,
                                          unsigned int size);
 
-
-void desalojar_tarea (unsigned int t);
-
 #endif  /* !__MMU_H__ */
 
 
