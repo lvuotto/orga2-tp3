@@ -74,6 +74,8 @@ void sched_desalojar_tarea (unsigned int id) {
   pos = obtener_posicion_tanque(id);
   
   pintar_posicion('X', pos.x, pos.y, C_BG_RED | C_FG_WHITE);
+  
+  /* Poner X en el clock. */
 }
 
 
@@ -86,7 +88,7 @@ unsigned int proximo_indice_vivo () {
     i %= CANT_TANQUES;
   }
   
-  return i == _tarea_actual ? 0xdeadc0de : i;
+  return i == _tarea_actual && !_esta_corriendo_la_idle ? 0xdeadc0de : i;
 }
 
 
@@ -133,14 +135,12 @@ unsigned short sched_montar_idle () {
 unsigned short sched_proxima_tarea () {
   
   unsigned short r;
-  unsigned int indice_anterior;
   static tss *proximo, *anterior;
   
   /**
    * Si hay que guardar el contexto de un tanque, lo hacemos.
    * Si no, hay que guardar el contexto de la idle.
    **/
-  indice_anterior = _tarea_actual;
   anterior = guardar_tanquecito ? &(tss_tanques[_tarea_actual]) : &tss_idle;
   
   proximo = proxima_tarea();
@@ -201,8 +201,6 @@ unsigned short sched_proxima_tarea () {
   
   /* Como cambie de tarea, _NO_ esta corriendo la idle. */
   _esta_corriendo_la_idle = FALSE;
-  
-  actualizar_contexto(indice_anterior);
   
   return r;
   

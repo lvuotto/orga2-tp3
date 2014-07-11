@@ -189,8 +189,8 @@ _isr32:
   
   
   .saltar_a_tarea:
-  call proximo_reloj_tarea_actual
   call sched_proxima_tarea
+  call proximo_reloj_tarea_actual   ; conserva eax.
   
   cmp ax, 0
   je .no_salto
@@ -368,6 +368,7 @@ proximo_reloj:
 
 proximo_reloj_tarea_actual:
   
+  push eax
   call sched_tarea_actual
   
   mov ebx, eax
@@ -396,6 +397,7 @@ proximo_reloj_tarea_actual:
   imprimir_texto_mp edx, 1, 0x0b, 48, ebx
   
   .fin:
+  pop eax
   ret
   
 ; FIN proximo_reloj_tarea_actual

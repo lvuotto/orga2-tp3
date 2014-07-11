@@ -175,7 +175,6 @@ limpiar_buffer_video
 
 inicializar_pantalla:
   
-  ;~ call pintar_info
   imprimir_texto_mp tag_eax,    tag_eax_len,    COLOR_TAG_REG,  8, 52
   imprimir_texto_mp tag_ebx,    tag_ebx_len,    COLOR_TAG_REG, 10, 52
   imprimir_texto_mp tag_ecx,    tag_ecx_len,    COLOR_TAG_REG, 12, 52

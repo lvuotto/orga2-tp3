@@ -12,6 +12,7 @@
 #include "mmu.h"
 #include "sched.h"
 #include "colors.h"
+#include "i386.h"
 
 
 struct posicion_s {
@@ -65,6 +66,6 @@ unsigned int   game_misil              (unsigned int id,
                                         unsigned int size);
 unsigned int   game_minar              (unsigned int id, direccion d);
 posicion_t     obtener_posicion_tanque (unsigned int id);
-void           actualizar_contexto     ();
+
 
 #endif  /* !__GAME_H__ */

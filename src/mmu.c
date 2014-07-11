@@ -10,14 +10,14 @@
 
 #define MASK_22_BAJOS 0x3fffff
 #define ESTA_OCUPADA(p)  \
-  codigo_mapa[0] == p || \
-  codigo_mapa[1] == p || \
-  codigo_mapa[2] == p || \
-  codigo_mapa[3] == p || \
-  codigo_mapa[4] == p || \
-  codigo_mapa[5] == p || \
-  codigo_mapa[6] == p || \
-  codigo_mapa[7] == p
+  codigo_mapa[0] == p || codigo_mapa[0] + 1 == p || \
+  codigo_mapa[1] == p || codigo_mapa[1] + 1 == p || \
+  codigo_mapa[2] == p || codigo_mapa[2] + 1 == p || \
+  codigo_mapa[3] == p || codigo_mapa[3] + 1 == p || \
+  codigo_mapa[4] == p || codigo_mapa[4] + 1 == p || \
+  codigo_mapa[5] == p || codigo_mapa[5] + 1 == p || \
+  codigo_mapa[6] == p || codigo_mapa[6] + 1 == p || \
+  codigo_mapa[7] == p || codigo_mapa[7] + 1 == p
 
 
 unsigned int pagina_libre = BASE_AREA_LIBRE;

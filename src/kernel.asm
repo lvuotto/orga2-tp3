@@ -120,8 +120,7 @@ protected_mode:
   
   ; Inicializar el generador de numeros pseudoaleatorios
   ;~ xchg bx, bx
-  lfence
-  rdtsc 
+  rdtsc
   push eax
   call srand
   add esp, 4

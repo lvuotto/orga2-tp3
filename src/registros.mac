@@ -55,7 +55,7 @@ BITS 32
 %endmacro
 
 
-%define COLOR_REG 0x0c
+%define COLOR_REG 0x0f
 
 
 imprimir_registros:
