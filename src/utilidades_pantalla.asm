@@ -22,9 +22,9 @@ limpiar_pantalla:
     xor esi, esi
     .ciclo_columna:
       
-      and dword [fs:eax + 2*esi], 0xff00ff00
-      add esi, 2
-      cmp esi, 80
+      and dword [fs:eax + 2*esi], 0xff00ff00 ; eax <- fila
+      add esi, 2                     
+      cmp esi, 80                            ; esi <- columna
       jl .ciclo_columna
       
     ; FIN .ciclo_columna
@@ -67,95 +67,6 @@ pintar_pantalla:
   
 ; FIN pintar_pantalla
 
-pintar_info:
-  
-  mov eax, 80*10
-  mov ecx, 35
-  
-  mov esi, 52
-  .ciclo_columna0:
-      
-      and dword [fs:eax + 2*esi], 0xff00ff00
-      or  dword [fs:eax + 2*esi], 0x40004000
-      add esi, 2
-      cmp esi, 80
-      jl .ciclo_columna0
-  
-  add eax, 80*2
-  .ciclo_fila:
-    
-    mov esi, 52
-    .ciclo_columna:
-      
-      and dword [fs:eax + 2*esi], 0xff00ff00
-      or  dword [fs:eax + 2*esi], 0x70007000
-      add esi, 2
-      cmp esi, 80
-      jl .ciclo_columna
-      
-      ; FIN .ciclo_columna
-    
-    add eax, 80*2
-    loop .ciclo_fila
-    
-    ; FIN .ciclo_fila
-    
-    
-    add eax, 80*2
-    mov ecx, 3
-    mov esi, 52
-    
-    .ciclo_columna2:
-      
-      and dword [fs:eax + 2*esi], 0xff00ff00
-      or  dword [fs:eax + 2*esi], 0x40004000
-      
-      mov ecx, eax
-      add ecx, 80*2
-      and dword [fs:ecx + 2*esi], 0xff00ff00
-      or  dword [fs:ecx + 2*esi], 0x40004000
-      add ecx, 80*2
-      and dword [fs:ecx + 2*esi], 0xff00ff00
-      or  dword [fs:ecx + 2*esi], 0x40004000
-      
-      add esi, 2
-      cmp esi, 80
-      jl .ciclo_columna2
-     
-    add eax, 80*10
-    mov ecx, 3
-    mov esi, 53
-    
-    .ciclo_columna3:
-      
-      and dword [fs:eax + 2*esi], 0xff00ff00
-      or  dword [fs:eax + 2*esi], 0x70007000
-      
-      mov ecx, eax
-      add ecx, 80*2
-      and dword [fs:ecx + 2*esi], 0xff00ff00
-      or  dword [fs:ecx + 2*esi], 0x70007000
-      add ecx, 80*2
-      and dword [fs:ecx + 2*esi], 0xff00ff00
-      or  dword [fs:ecx + 2*esi], 0x70007000
-      
-      add esi, 2
-      cmp esi, 69
-      jl .ciclo_columna3
-    
-    and word [fs:eax + 2*esi], 0xff00
-    or  word [fs:eax + 2*esi], 0x7000
-    
-    mov ecx, eax
-    add ecx, 80*2
-    and word [fs:ecx + 2*esi], 0xff00
-    or  word [fs:ecx + 2*esi], 0x7000
-    add ecx, 80*2
-    and word [fs:ecx + 2*esi], 0xff00
-    or  word [fs:ecx + 2*esi], 0x7000
-  
-  ret
-
 
 limpiar_buffer_video
   mov ecx, 0xa0000
@@ -169,8 +80,6 @@ limpiar_buffer_video
 
 
 %define COLOR_TAG_REG       0x0e
-%define COLOR_FONDO_TITULO  0x00
-%define COLOR_FONDO_SECCION 0x00
 
 
 inicializar_pantalla:

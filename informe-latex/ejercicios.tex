@@ -10,18 +10,22 @@ para declarar los segmentos, es el 9 (contando desde cero).
 
 \vspace*{0.3cm}
 
-En \verb|gdt.c|, creamos un arreglo \verb|gdt|, el cual contiene 13 elementos (en este instante del tp). La 
-cantidad total de entradas ascender\'a luego a 17. 
+En \verb|gdt.c|, creamos un arreglo \verb|gdt|, el cual contiene 13 elementos (en este instante del tp, ya 
+que más adelante agregaremos otras entradas para la TSS y la cantidad total ascender\'a a 17).  
 Las entradas de este arreglo son las siguientes: 
 
 \begin{itemize}
 
   \item \verb|GDT_IDX_NULL_DESC|: Esta es la entrada nula, 
-necesaria para el funcionamiento del mecanismo de la \verb|GDT|.
+necesaria para el correcto funcionamiento del mecanismo de la \verb|GDT|.
 
-  \item Las entradas 1 a 8 est\'an reservadas para uso de Intel. El tama\~no de las entradas GDT_IDX_CD_0, 
-  GDT_IDX_CD_1, GDT_IDX_DD_0, GDT_IDX_DD_1 y GDT_IDX_SD es m\'ultiplo de 4KB, valiendo 733MB, salvo la de 
-  GDT_IDX_SD, que vale 773MB.
+  \item Las entradas 1 a 8 est\'an reservadas por restricciones propias del enunciado del tp. 
+  El tama\~no de las entradas GDT_IDX_CD_0, GDT_IDX_CD_1, GDT_IDX_DD_0, GDT_IDX_DD_1 y es 
+  m\'ultiplo de 4KB, valiendo 733MB.
+  
+  Para los segmentos mencionado anteriormente, usamos \verb|0x0000| como base y \verb|0xdcff|, es 
+  decir, direccionamos 733MB utilizando segmentación \textit{flat}, de manera que los mismos se solapan. 
+  Además, seteamos el bit de \textit{granularity} en 1, ya que todos estos segmentos van a ocupar más de 1MB.
 
   \item \verb|GDT_IDX_CD_0|: Esta entrada contiene la descripci\'on del segmento de c\'odigo de nivel 0,
   que ser\'a utilizado para ejecutar el c\'odigo del \textit{kernel}. 
@@ -30,7 +34,7 @@ necesaria para el funcionamiento del mecanismo de la \verb|GDT|.
 
   \item \verb|GDT_IDX_DD_0|: Esta entrada contiene la descripci\'on del segmento de datos de nivel 0.
 
-  \item \verb|GDT_IDX_DD_1|: Esta entrada contiene la descripci\'on del segmento de datos de nivel 1.
+  \item \verb|GDT_IDX_DD_1|: Esta entrada contiene la descripci\'on del segmento de datos de nivel 3.
 
 \end{itemize}
 
@@ -45,8 +49,10 @@ en la dirección \verb|0x27000|.
 
 \vspace*{0.3cm}
 
-Para entrar en modo protegido, activamos el bit correspondiente del \verb|cr0|, y luego ejecutamos
-la instrucci\'on \verb|jmp 0b1001000:protected_mode|. Para setear la pila del \verb|kernel|, ejecutamos 
+Para entrar en modo protegido, deshabilitamos las interrupciones \textit{(cli)}, habilitamos la 
+\textit{(A20 Gate)}, creamos y cargamos la \textit{GDT} (previamente cargamos en el registro GDTR la 
+dirección base y el límite de la GDT). Luego, activamos el bit correspondiente del \verb|cr0|, y 
+ejecutamos la instrucci\'on \verb|jmp 0b1001000:protected_mode|. Para setear la pila del \verb|kernel|, ejecutamos 
 la instrucci\'on \verb|mov esp, 0x27000|.
 
 \vspace*{0.5cm} \noindent
@@ -60,7 +66,9 @@ utilizado sólo por el \textit{kernel}.
 \vspace*{0.3cm}
 
 Agregamos la entrada \verb|GDT_IDX_SD|, que contiene la descripci\'on del segmento de video, del nivel 0, 
-utilizado para la pantalla del juego.
+utilizado para la pantalla del juego. Este descriptor de segmento posee \textit{granularity} 0, ya que 
+sólamente ocupa 32KB en memoria. Para que pueda ser utilizado \textit{sólo por el kernel}, seteamos el 
+\textit{descriptor privilege level (dpl)} en 0.
 
 
 
@@ -77,7 +85,8 @@ declarado en el punto anterior.
 
 \begin{itemize}
   
-  \item \verb|limpiar_pantalla|: Esta rutina se basa en que el selector \verb|fs| apunta al comienzo del segmento de video (0xb8000). Recorremos el \'area de 80x50 por fila y escribimos de a 2 caracteres vac\'ios (para optimizar la 
+  \item \verb|limpiar_pantalla|: Esta rutina se basa en que el selector \verb|fs| apunta al comienzo del segmento de video \verb|0xb8000|. 
+  Recorremos el \'area de 80x50 por fila y escribimos de a 2 caracteres vac\'ios (para optimizar la 
   implementaci\'on).
 
   \item \verb|pintar_pantalla|: Utilizamos un algoritmo muy similar al de \item \verb|pintar_pantalla|, s\'olo 
@@ -109,7 +118,7 @@ e interrumpir la ejecución.
 
 Completamos las entradas de la \verb|IDT| utilizando un \textit{macro} provisto por la c\'atedra, con 
 algunas modificaciones. El \verb|dpl| fue seteado en 0.
-Las mismas est\'an definidas como \verb|Interrupt Gates|, y el selector de segmento es el de 
+Las entradas est\'an definidas como \verb|Interrupt Gates|, y el selector de segmento es el de 
 c\'odigo, utilizado por el kernel (entrada 9 de la \verb|GDT|, \verb|GDT_IDX_CD_0|). Una \verb|Interrupt Gate| se 
 utiliza para especificar una rutina de interrupci\'on de servicio, deshabilita el llamado a futuras rutinas de 
 atenci\'on de interrupciones, haci\'endola especialmente \'util, por ejemplo, para atender interrupciones de hardware.

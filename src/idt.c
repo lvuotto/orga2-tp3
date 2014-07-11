@@ -11,27 +11,12 @@
 
 #include "tss.h"
 
-idt_entry idt[255] = { };
+idt_entry idt[255] = {};
 
 idt_descriptor IDT_DESC = {
   sizeof(idt) - 1,
   (unsigned int) &idt
 };
-
-/*
-    La siguiente es una macro de EJEMPLO para ayudar a armar entradas de
-    interrupciones. Para usar, descomentar y completar CORRECTAMENTE los
-    atributos y el registro de segmento. Invocarla desde idt_inicializar() de
-    la siguiene manera:
-
-    void idt_inicializar() {
-        IDT_ENTRY(0);
-        ...
-        IDT_ENTRY(19);
-
-        ...
-    }
-*/
 
 
 #define IDT_ENTRY(numero, _segsel, _attr)                                                                      \

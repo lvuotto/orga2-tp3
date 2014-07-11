@@ -61,7 +61,7 @@ start:
   ; Deshabilitar interrupciones
   cli
 
-  ; Cambiar modo de video a 80 X 50
+  ; Cambiar modo de video a 80x50
   mov ax, 0x0003
   int 0x10 ; set mode 0x03
   xor bx, bx
@@ -75,7 +75,6 @@ start:
   call habilitar_A20
   
   ; Cargar la GDT
-  cli
   lgdt [GDT_DESC]
   
   ; Setear el bit PE del registro CR0
