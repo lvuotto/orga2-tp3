@@ -19,7 +19,7 @@ void task() {
       for(j=0;j<counter;j++)
          syscall_mover(dir[d]);
       counter = counter + 2;
-      d = (d + 1) % 4;   
+      d = (d + 1) % 4;
   }
   while(1) { __asm __volatile("mov $5, %%eax":::"eax"); }
 }

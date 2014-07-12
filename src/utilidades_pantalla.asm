@@ -6,6 +6,16 @@ BITS 32
 ; Asume que fs apunta al comienzo del video (0xb8000).
 ; Tenerlo en cuenta a la hora de utilizarse.
 
+%define nro_tarea_1 0xb8000 + 46*160 + 2*54
+%define nro_tarea_2 0xb8000 + 46*160 + 2*56
+%define nro_tarea_3 0xb8000 + 46*160 + 2*58
+%define nro_tarea_4 0xb8000 + 46*160 + 2*60
+%define nro_tarea_5 0xb8000 + 46*160 + 2*62
+%define nro_tarea_6 0xb8000 + 46*160 + 2*64
+%define nro_tarea_7 0xb8000 + 46*160 + 2*66
+%define nro_tarea_8 0xb8000 + 46*160 + 2*68
+
+
 global limpiar_pantalla
 global limpiar_buffer_video
 global inicializar_pantalla
@@ -106,6 +116,15 @@ inicializar_pantalla:
   imprimir_texto_mp tag_cr3,    tag_cr3_len,    COLOR_TAG_REG, 12, 66
   imprimir_texto_mp tag_cr4,    tag_cr4_len,    COLOR_TAG_REG, 14, 66
   imprimir_texto_mp tag_stack,  tag_stack_len,  COLOR_TAG_REG, 25, 66
+  
+  mov word [nro_tarea_1], 0xb << 8 | '1'
+  mov word [nro_tarea_2], 0xb << 8 | '2'
+  mov word [nro_tarea_3], 0xb << 8 | '3'
+  mov word [nro_tarea_4], 0xb << 8 | '4'
+  mov word [nro_tarea_5], 0xb << 8 | '5'
+  mov word [nro_tarea_6], 0xb << 8 | '6'
+  mov word [nro_tarea_7], 0xb << 8 | '7'
+  mov word [nro_tarea_8], 0xb << 8 | '8'
 
 ret
 

@@ -17,7 +17,7 @@ void task() {
   int counter = 3;
   for(i=0;i<100;i++) {
       for(j=0;j<counter;j++)
-          syscall_mover(dir[d]);
+        syscall_mover(dir[d]);
       counter = counter + 2;
       d = (d + 1) % 4; 
   }

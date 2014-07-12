@@ -36,7 +36,7 @@ void pintar_posicion (char c,
                       unsigned int y,
                       unsigned char color)
 {
-  unsigned short *p;
+  static unsigned short *p;
   
   p = (unsigned short *) 0xb8000 + (80*y + x);
   *p = (color << 8) | c;
@@ -62,6 +62,8 @@ void pintar_posiciones_iniciales () {
 }
 
 
+
+
 void mostrar_contexto (task_id_t tid) {
   static unsigned short *video;
   
@@ -85,5 +87,7 @@ void mostrar_contexto (task_id_t tid) {
   IMPRIMER_HEX_8(rcr2()                 , 10, 71);
   IMPRIMER_HEX_8(tss_tanques[tid].cr3   , 12, 71);
   IMPRIMER_HEX_8(rcr4()                 , 14, 71);
+  
+  pintar_posicion(tid + '1', 79, 0, C_BG_RANDOM | C_FG_WHITE);
 }
 

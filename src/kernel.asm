@@ -153,11 +153,11 @@ protected_mode:
   ; Inicializar la IDT
   call idt_inicializar
   
-  ; Inicializar Game
-  call game_inicializar
-  
   ; Cargar IDT
   lidt [IDT_DESC]
+  
+  ; Inicializar Game
+  call game_inicializar
   
   ; Configurar controlador de interrupciones
   call deshabilitar_pic

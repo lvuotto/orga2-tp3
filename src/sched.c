@@ -73,9 +73,18 @@ void sched_desalojar_tarea (unsigned int id) {
   tareas_vivas[id] = FALSE;
   pos = obtener_posicion_tanque(id);
   
+  /*
+   
+   pos.x <- columna
+   pos.y <- fila
+  
+  */
+  
+  /* Poner X en el mapa. */
   pintar_posicion('X', pos.x, pos.y, C_BG_RED | C_FG_WHITE);
   
   /* Poner X en el clock. */
+  pintar_posicion('X', 54 + 2*id, 48, C_BG_BLACK | C_FG_RED);
 }
 
 

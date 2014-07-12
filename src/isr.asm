@@ -7,10 +7,12 @@
 %include "imprimir.mac"
 %include "registros.mac"
 
+
 BITS 32
 
-sched_tarea_offset:     dd 0x00
-sched_tarea_selector:   dw 0x00
+
+sched_tarea_offset:   dd 0x00
+sched_tarea_selector: dw 0x00
 
 ;; PIC
 extern fin_intr_pic1
@@ -35,6 +37,11 @@ extern pausa_on
 ;; Definición de MACROS
 ;; -------------------------------------------------------------------------- ;;
 
+texto_pausa: db "(paused)"
+texto_pausa_len: equ $ - texto_pausa
+
+texto_vacio: db 0,0,0,0,0,0,0,0
+texto_vacio_len: equ $ - texto_vacio
 
 _isr_msg_0:  db ' Atendimos interrupcion 0 [#DE - divide error]. '
 _isr_len_0:  equ $ - _isr_msg_0
@@ -66,7 +73,7 @@ _isr_msg_13: db ' Atendimos interrupcion 13 [#GP - general protection]. '
 _isr_len_13: equ $ - _isr_msg_13
 _isr_msg_14: db ' Atendimos interrupcion 14 [#PF - page fault]. '
 _isr_len_14: equ $ - _isr_msg_14
-_isr_msg_15: db ' Atendimos interrupcion 15 [intel reserved]. '
+_isr_msg_15: db ' Atendimos interrupcion 15 [Intel reserved]. '
 _isr_len_15: equ $ - _isr_msg_15
 _isr_msg_16: db ' Atendimos interrupcion 16 [#MF - fpu fp exception]. '
 _isr_len_16: equ $ - _isr_msg_16
@@ -165,6 +172,7 @@ ISR 19
 ;; Rutina de atención del RELOJ
 ;; -------------------------------------------------------------------------- ;;
 
+
 global _isr32
 
 _isr32:
@@ -187,13 +195,12 @@ _isr32:
   jmp far [sched_tarea_offset]
   jmp .fin
   
-  
   .saltar_a_tarea:
   call sched_proxima_tarea
   call proximo_reloj_tarea_actual   ; conserva eax.
   
-  cmp ax, 0
-  je .no_salto
+  cmp ax, 0                         ; sched_proxima_tarea == 0 sii tengo que   
+  je .no_salto                      ; volver a saltar a la tarea actual.
   
   mov [sched_tarea_selector], ax
   call fin_intr_pic1
@@ -207,7 +214,7 @@ _isr32:
   
   .fin:
   popad
-  iret 
+  iret
 ; FIN _isr32
 
 ;;
@@ -223,7 +230,10 @@ _isr33:
   xor eax, eax
   in al, 0x60
   test al, 0x80
-  jnz .fin
+  jne .fin
+  
+    imprimir_texto_mp texto_vacio, texto_vacio_len, 0x2, 0, 67*2
+
   
   ; atiendo cuando se presiona.
   cmp al, 0x19
@@ -242,6 +252,7 @@ _isr33:
   
   .pausar:
   xor byte [poner_pausa], 1
+  imprimir_texto_mp texto_pausa, texto_pausa_len, 0x2, 0, 67*2
   
   .fin:
   call fin_intr_pic1
@@ -371,32 +382,15 @@ proximo_reloj_tarea_actual:
   push eax
   call sched_tarea_actual
   
-  mov ebx, eax
-  push ebx
-  call sched_estado_tarea
-  add esp, 4
-  
-  cmp eax, 0
-  je .murio
-  
-  inc dword [relojes + 4*ebx]
-  and dword [relojes + 4*ebx], 0x3
-  mov edx, [relojes + 4*ebx]
+  inc dword [relojes + 4*eax]
+  and dword [relojes + 4*eax], 0x3
+  mov edx, [relojes + 4*eax]
   add edx, isrClock
-  shl ebx, 1
-  add ebx, 54
+  shl eax, 1
+  add eax, 54
   
-  imprimir_texto_mp edx, 1, 0x0b, 48, ebx
-  jmp .fin
+  imprimir_texto_mp edx, 1, 0x0b, 48, eax
   
-  .murio:
-  shl ebx, 1
-  add ebx, 54
-  mov edx, tarea_muerta
-  
-  imprimir_texto_mp edx, 1, 0x0b, 48, ebx
-  
-  .fin:
   pop eax
   ret
   

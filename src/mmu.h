@@ -80,6 +80,8 @@ void         copiar_memoria             (unsigned int dst,
                                          unsigned int src,
                                          unsigned int size);
 
+unsigned int rand ();
+
 #endif  /* !__MMU_H__ */
 
 

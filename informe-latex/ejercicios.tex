@@ -122,9 +122,10 @@ Las entradas est\'an definidas como \verb|Interrupt Gates|, y el selector de seg
 c\'odigo, utilizado por el kernel (entrada 9 de la \verb|GDT|, \verb|GDT_IDX_CD_0|). Una \verb|Interrupt Gate| se 
 utiliza para especificar una rutina de interrupci\'on de servicio, deshabilita el llamado a futuras rutinas de 
 atenci\'on de interrupciones, haci\'endola especialmente \'util, por ejemplo, para atender interrupciones de hardware.
+Las rutinas de atención de las interrupciones se encuentran en \verb|isr.asm|.
 
 Cada rutina muestra un mensaje alusivo al tipo de excepci\'on generada. Adem\'as, de producirse dicha 
-excepci\'on, muestra por pantalla el estado de los registros. 
+excepci\'on, muestra por pantalla el estado de los registros.
 
 \vspace*{0.5cm} \noindent
 
@@ -163,18 +164,19 @@ Esta rutina simplemente escribe caracteres nulos en el segmento de video.
 
 
 \noindent
-b) Escribir las rutinas encargadas de inicializar el directorio y tablas de páginas para el \textit{kernel}\newline
-(\verb|mmu_inicializar_dir_kernel|). Se debe generar un directorio de páginas que mapee, usando \textit{identity mapping}, 
-las direcciones \verb|0x00000000| a \verb|0x00DC3FFF|, como ilustra la figura 5. Además, esta función debe inicializar
-el directorio de páginas en la dirección \verb|0x27000| y las tablas de páginas según muestra la figura 1.
+b) Escribir las rutinas encargadas de inicializar el directorio \textit{page directory} y tablas de páginas \textit{page tables} 
+para el \textit{kernel}\newline (\verb|mmu_inicializar_dir_kernel|). Se debe generar un directorio de páginas que mapee, 
+usando \textit{identity mapping}, las direcciones \verb|0x00000000| a \verb|0x00DC3FFF|, como ilustra la figura 5. 
+Además, esta función debe inicializar el directorio de páginas en la dirección \verb|0x27000| y las tablas de páginas según muestra la figura 1.
 
 \vspace*{0.3cm}
 
 Para inicializar el directorio de p\'aginas, utilizamos la funci\'on \verb|mmu_inicializar_dir_kernel|, la cual, 
 primero crea las 1024 entradas del directorio, con permisos de lectura/escritura y nivel de privilegio 0. Las 4 
-primeras entradas se marcan como presentes. Adem\'as, en estas 4, se cambian las bases, apuntando a \verb|0x28, 0x29, 0x2a, 0x2b|,  respectivamente. Luego, inicializamos las tablas correspondientes a cada una de las entradas del directorio, marcando 
-las primeras 3524 como presentes y dejando las 572 restantes como ausentes. El directorio es cargado en la direcci\'on 
-\verb|0x2700|, mediante \textit{identity mapping}.
+primeras entradas se marcan como presentes. Adem\'as, en estas 4, se cambian las bases, apuntando a \verb|0x28, 0x29, 0x2a, 0x2b|, 
+respectivamente. Luego, inicializamos las tablas correspondientes a cada una de las entradas del directorio, marcando 
+las primeras 3524 como presentes y dejando las 572 restantes como ausentes (no llegamos a utilizar 4 page tables completamente). 
+El directorio es cargado en la direcci\'on \verb|0x27000|, mediante \textit{identity mapping}.
 
 \vspace*{0.5cm} \noindent
 
@@ -232,7 +234,8 @@ y por \'ultimo las coordenadas fila y columna, respectivamente.
 \vspace*{0.5cm}
 
 \noindent
-a) Escribir una rutina (\verb|inicializar_mmu|), que se encargue de inicializar las estructuras necesarias para administrar la memoria en el área libre.
+a) Escribir una rutina (\verb|inicializar_mmu|), que se encargue de inicializar las estructuras necesarias para administrar 
+la memoria en el área libre.
 
 \vspace*{0.3cm}
 
@@ -244,14 +247,16 @@ un ciclo for, que utilizamos posteriormente para la implementaci\'on de los \tex
 
 
 \noindent
-b) Escribir una rutina (\verb|mmu_inicializar_dir_tarea|), encargada de inicializar un directorio de páginas y tablas de páginas para una tarea, respetando la figura 5 (ver enunciado). La rutina debe copiar el código de la tarea a su área asignada, es decir, sus dos páginas de código dentro de \textit{el_mapa} y mapear dichas páginas a partir de la dirección virtual (\verb|0x08000000|) (128MB).
+b) Escribir una rutina (\verb|mmu_inicializar_dir_tarea|), encargada de inicializar un directorio de páginas y tablas de páginas para 
+una tarea, respetando la figura 5 (ver enunciado). La rutina debe copiar el código de la tarea a su área asignada, es decir, 
+sus dos páginas de código dentro de \textit{el_mapa} y mapear dichas páginas a partir de la dirección virtual (\verb|0x08000000|) (128MB).
 
 \vspace*{0.3cm}
 
 \verb|mmu_inicializar_dir_tarea| opera de manera similar a \verb|mmu_inicializar_dir_kernel|, pero, a diferencia 
 de esta \'ultima, los directorios no comienzan en posiciones arbitrarias, sino que \verb|mmu_inicializar_dir_tarea| 
 obtiene posiciones de memoria libre del \textit{\'area libre}. Luego, se copia el c\'odigo de las tareas a alguna 
-posici\'on del mapa, y mapeamos a la direcci\'on \verb|0x8000000| a dicha direcci\'on del mapa. Esta funci\'on adem\'as 
+posici\'on aleatoria del mapa y mapeamos la direcci\'on \verb|0x8000000| a dicha direcci\'on del mapa. Esta funci\'on adem\'as 
 devuelve el \verb|cr3| para poder utilizar la estructura de directorios creada.
 
 \vspace*{0.5cm} \noindent
@@ -314,7 +319,9 @@ del reloj, otra a la interrupci\'on del teclado y por \'ultimo, una a la interru
 \vspace*{0.3cm}
 
 Al igual que en el \textbf{ejercicio 2.a}, agregamos 3 nuevas entradas en la \verb|IDT|, asociando las interrupciones 
-de reloj y teclado, asign\'andoles los mismos valores. La interrupci\'on de software \verb|(0x52)|, en cambio, se carga igual exceptuando el \verb|dpl|, que esta vez es seteado en nivel 3, de usuario.
+de reloj (32) y teclado (33), asign\'andoles los mismos valores. La interrupci\'on de software \verb|(0x52)|, en cambio, 
+se carga igual exceptuando el \verb|dpl|, que esta vez es seteado en nivel 3, de usuario, ya que esta interrupción
+corresponde a los \textit{syscalls}, que son llamados por las tareas.
 
 \vspace*{0.5cm} \noindent
 
@@ -327,7 +334,8 @@ animaci\'on de un cursor rotando en la esquina inferior derecha de la pantalla.
 
 \vspace*{0.3cm}
 
-
+Pudimos manejar interrupciones que no son excepciones y en cada ciclo de reloj
+llamamos una función que actualiza el clock.
 
 \vspace*{0.5cm} \noindent
 
@@ -340,21 +348,10 @@ escrito en color blanco con fondo de color aleatorio por cada tecla que sea pres
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
-
-\vspace*{0.5cm} \noindent
-
-
-
-\noindent
-d) Escribir la rutina asociada a la interrupci\'on \verb|0x52| para que modifique el valor de \verb|eax| por \verb|0x42|. Posteriormente, este comportamiento va a ser modificado para atender los servicios del sistema.
-
-\vspace*{0.3cm}
-
-\textbf{completar.}
-
-\vspace*{0.5cm} \noindent
-
+Al igual que en el ítem anterior, escribimos la rutina correspondiente, pero alteramos ligeramente
+la funcionalidad, de manera tal que, además de mostrar el valor correspondiente en la esquina superior 
+derecha de la pantalla, con el fondo aleatorio, también mostramos el contenido de los registros de la 
+tarea correspondiente.
 
 
 

@@ -109,7 +109,6 @@ void mmu_inicializar_dir_kernel () {
     p[i].disponible = 0;
     p[i].base = i;
   }
-  //~ p[0].rw = 0;
   
   p = (page_table_entry_t *) (pd[1].base << 12);
   for (i = 0; i < 1024; i++) {
@@ -185,7 +184,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   for(i = 0; i < 1024; i++) {
     pd[i].p = 0;
     pd[i].rw = 1;
-    pd[i].us = 1;
+    pd[i].us = 0;
     pd[i].pwt = 0;
     pd[i].pcd = 0;
     pd[i].a = 0;
@@ -406,7 +405,6 @@ void mmu_mapear_pagina (unsigned int virtual,
   
   tabla_idx = (virtual & MASK_22_BAJOS) >> 12;
   
-  /* CONSULTAR */
   tabla[tabla_idx].p = 1;
   tabla[tabla_idx].rw = rw;
   tabla[tabla_idx].us = us;

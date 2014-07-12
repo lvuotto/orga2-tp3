@@ -29,6 +29,8 @@
 #define C_BG_BROWN              (0x6 << 4)
 #define C_BG_LIGHT_GREY         (0x7 << 4)
 
+#define C_BG_RANDOM             ((rand() % 8) << 4)
+
 #define C_BLINK                 (0x8 << 4)
 
 #endif /* !__COLORS_H__ */

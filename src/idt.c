@@ -49,10 +49,10 @@ unsigned int idt_inicializar() {
   IDT_ENTRY(  18, 0b1001000, 0b1000111000000000);
   IDT_ENTRY(  19, 0b1001000, 0b1000111000000000);
   
-  IDT_ENTRY(  32, 0b1001000, 0b1000111000000000);
-  IDT_ENTRY(  33, 0b1001000, 0b1000111000000000);
+  IDT_ENTRY(  32, 0b1001000, 0b1000111000000000); /* reloj */
+  IDT_ENTRY(  33, 0b1001000, 0b1000111000000000); /* teclado */
   IDT_ENTRY(0x52, 0b1001000, 0b1110111000000000); 
-  /* 0x52 -> cs de nivel 0, attr.dpl en 3 para poder ser llamado por tareas. */
+  /* 0x52 -> syscalls, cs de nivel 0, attr.dpl en 3 para poder ser llamado por tareas. */
   
   return (unsigned int)tss_tanques;
 }
