@@ -232,8 +232,7 @@ _isr33:
   test al, 0x80
   jne .fin
   
-    imprimir_texto_mp texto_vacio, texto_vacio_len, 0x2, 0, 67*2
-
+  imprimir_texto_mp texto_vacio, texto_vacio_len, 0x2, 0, 67*2
   
   ; atiendo cuando se presiona.
   cmp al, 0x19

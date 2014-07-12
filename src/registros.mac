@@ -68,7 +68,6 @@ imprimir_registros:
   imprimir_valor_hex [esp +  4*1], 8, COLOR_REG, 18, 57   ; edi
   imprimir_valor_hex [esp +  4*3], 8, COLOR_REG, 20, 57   ; ebp
   
-  
   imprimir_valor_hex [esp + 4*10], 8, COLOR_REG, 24, 57   ; eip
   
   imprimir_valor_hex [esp + 4*11], 4, COLOR_REG, 26, 57   ; cs

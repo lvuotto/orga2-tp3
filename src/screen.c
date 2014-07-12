@@ -64,7 +64,7 @@ void pintar_posiciones_iniciales () {
 
 
 
-void mostrar_contexto (task_id_t tid) {
+void mostrar_contexto (task_id_t tid, unsigned int eip) {
   static unsigned short *video;
   
   IMPRIMER_HEX_8(tss_tanques[tid].eax   ,  8, 57);
