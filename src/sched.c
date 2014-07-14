@@ -73,12 +73,12 @@ void sched_desalojar_tarea (unsigned int id) {
   tareas_vivas[id] = FALSE;
   pos = obtener_posicion_tanque(id);
   
-  /*
-   
-   pos.x <- columna
-   pos.y <- fila
-  
-  */
+  /**
+   *
+   * pos.x <- columna
+   * pos.y <- fila
+   *
+   **/
   
   /* Poner X en el mapa. */
   pintar_posicion('X', pos.x, pos.y, C_BG_RED | C_FG_WHITE);
@@ -152,9 +152,16 @@ unsigned short sched_proxima_tarea () {
    **/
   anterior = guardar_tanquecito ? &(tss_tanques[_tarea_actual]) : &tss_idle;
   
+  
+  /**
+   * ASFDFKASFDKHASFKJLHASDF
+   * Si se mueren las tarea, dejar de correrlas.
+   **/
+  
+  
   proximo = proxima_tarea();
   /* Si proximo devolvio NULL, no hay que saltar a otra tarea. */
-  if (proximo == NULL && !primera_vez) {
+  if (proximo == NULL) {
     return 0;
   }
   
