@@ -373,42 +373,87 @@ y \verb|TSS2| respectivamente.
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+En \verb|gdt.c|, agregamos 3 entradas para guardar descriptores de la \verb|TSS|. Como \textit{l\'imite}, pusimos \verb|0x67|, 
+\textit{tipo 9} (c\'odigo), \textit{granularity} en 0, pues utilizamos 104B. Seteamos el \textit{dpl} en 0 y marcamos los segmentos 
+como presentes. 
 
 \vspace*{0.5cm} \noindent
 
 
 
 \noindent
-b) .
+b) Completar la entrada de la \verb|TSS1| con la informaci\'on de la tarea \verb|Idle|. Esta informaci\'on se
+encuentra en el archivo \verb|TSS.C|. La tarea \verb|Idle| se encuentra en la direcci\'on \verb|0x00020000|. La 
+pila se alojar\'a en la misma direcci\'on que la pila del kernel y ser\'a mapeada con \textit{identity mapping}. 
+Esta tarea ocupa 2 p\'aginas  de 4KB y debe ser mapeada con \textit{identity mapping}. Adem\'as, la misma debe 
+compartir el mismo \verb|CR3| que el \textit{kernel}.
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+Para esto, utilizamos la funci\'on \verb|tss_inicializar_tarea_idle|, que cumple con lo pedido.
 
 \vspace*{0.5cm} \noindent
 
 
 
 \noindent
-c) .
+c) Completar el resto de la informaci\'on correspondiente a cada tarea en la estructura auxiliar de contextos. El 
+c\'odigo de las tareas se encuentra a partir de la direcci\'on \verb|0x00010000|, ocupando dos p\'aginas de 4KB cada una. 
+El mismo debe ser mapeado a partir de la direcci\'on \verb|0x08000000|. Para la direcci\'on de la pila, se debe utilizar 
+el mismo espacio de la tarea, la misma crecer\'a desde la base de la tarea. Para el mapa de memoria se debe construir uno 
+nuevo para cada tarea, utilizando la funci\'on \verb|mmu_inicializar_dir_usuario|. Adem\'as, tener en cuenta que cada tarea 
+utilizar\'a una pila distinta de nivel 0, para esto se debe pedir una nueva p\'agina libre a tal fin. 
+
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+Para esto, utilizamos la funci\'on \verb|tss_inicializar|, que se encarga de inicializar los campos de la \verb|TSS| 
+de cada tarea, seg\'n lo pedido.
 
 \vspace*{0.5cm} \noindent
 
 
 
 \noindent
-d) .
+d, e y f) Simplemente completamos las entradas correspondientes de la \verb|GDT|, para la \verb|tarea_inicial|, \verb|TSS1| y
+\verb|TSS2|.
+
 
 \vspace*{0.3cm}
 
-\textbf{completar.}
+
 
 \vspace*{0.5cm} \noindent
+
+
+
+\noindent
+g) Escribir el c\'odigo necesario para ejecutar la tarea \verb|Idle|, es decir, saltar intercambiando las \verb|TSS|, 
+entre la \verb|tarea_inicial| y la tarea \verb|Idle|.
+ 
+\vspace*{0.3cm}
+
+En \verb|kernel.asm|, realizamos un \verb|jmp far| a la entrada de la \verb|GDT| donde se encuentra ubicado el descriptor de 
+la \verb|TSS| de la tarea \verb|Idle|. Para ello, empleamos el siguiente c\'odigo: 
+
+\begin{verbatim}
+ offset:   dd 0x0
+ selector: dw 0x0
+
+ ...
+
+ mov ax, 0b1111000
+ mov [selector], ax
+ jmp far [offset]
+\end{verbatim}
+
+
+\vspace*{0.5cm} \noindent
+
+
+
+
+\newpage
 
 
 
@@ -416,8 +461,96 @@ d) .
 
 \subsection*{Ejercicio 7}
 
-\vspace*{0.3cm} \noindent
+\vspace*{0.5cm}
 
-completar.
+\noindent
+a) Construir una funci\'on para inicializar las estructuras de datos del \textit{scheduler}.
 
-\newpage
+\vspace*{0.3cm}
+
+En \verb|sched.c|, creamos la funci\'on \verb|sched_inicializar|, que se encarga de marcar todas las tareas como vivas e inicializa 
+las siguientes variables de control, con los valores mostrados: 
+
+\begin{verbatim}
+ _esta_corriendo_la_idle = TRUE;
+ guardar_tanquecito = TRUE;
+ _estan_todas_muertas = TRUE;
+  
+ _tarea_actual = CANT_TANQUES - 1;
+  
+ primera_vez = TRUE;
+\end{verbatim}
+
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+b) Crear la funci\'on \verb|sched_proximo_indice|, que devuelve el \'indice en la \verb|GDT| de la pr\'oxima tarea a ser ejecutada. 
+Construir la rutina de forma que devuelva el \'indice de la \verb|TSS1| y luego el de la \verb|TSS2| de forma intercalada, para 
+dos tareas fijas.
+
+\vspace*{0.3cm}
+
+En \verb|sched.c|, creamos la funci\'on \verb|sched_proximo_indice|, que se encuentra generosamente documentada, explicando detalladamente 
+el funcionamiento.
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+c) Modificar la rutina de la interrupci\'on \verb|0x52|, para que implemente los tres servicios del sistema, seg\'un se indica en la 
+secci\'on 3.1.1. 
+
+
+\vspace*{0.3cm}
+
+Modificamos la rutina \verb|_isr0x52|, que se encuentra en el archivo \verb|isr.asm|. En esta rutina hicimos un chequeo de los par\'ametros 
+recibidos, se encarga de brindar los servicios del \textit{kernel} disponibles para las tareas y aplicaciones, desalojando en el caso adecuado.
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+d) Modificar el c\'odigo necesario para que se realice el intercambio de tareas por cada ciclo de reloj. El intercambio se realizar\'a 
+seg\'un indique la funci\'on \verb|sched_proximo_indice|. 
+
+
+\vspace*{0.3cm}
+
+Agregamos el c\'odigo necesario en la interrupci\'on del clock (\verb|_isr32|), para luego llamar a \verb|sched_proximo_indice| y 
+realizar el \verb|jmp far| al descriptor devuelto por dicha funci\'on.
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+e) Modificar la funci\'on \verb|sched_proximo_indice| de forma que ejecute todas las tareas seg\'un se describe en la secci\'on 3.2. 
+
+
+\vspace*{0.3cm}
+
+Lo pedido en este \'item fue realizado conjuntamente en el \'item b, descripto anteriormente.
+
+\vspace*{0.5cm} \noindent
+
+
+
+\noindent
+f) Modificar las rutinas de excepciones del procesador, para que impriman el problema que se produjo en pantalla, desalojen a la tarea 
+que estaba corriendo y corran la pr\'oxima, indicando en pantalla por qu\'e raz\'on fue desalojada la tarea en cuesti\'on. 
+
+
+\vspace*{0.3cm}
+
+El \textit{handler} de las excepciones del procesador se encarga de determinar si hubo un cambio de contexto al producirse la excepci\'on, 
+lo cual indica si en ese momento se estaba ejecutando una tarea o no. En el caso que se estuviera ejecutando una tarea, se procede a 
+desalojarla y mostrar por pantalla la raz\'on de desalojo, junto con el contenido de los registros de prop\'osito general, los distintos 
+segmentos y los registros de control. En caso contrario, se imprime por pantalla la excepci\'on producida (en la primer l\'inea) y entramos 
+en un ciclo infinito, ``\textit{colgando}`` la ejecuci\'on del \textit{kernel}.
+
+\vspace*{0.5cm} \noindent
