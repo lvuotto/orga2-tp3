@@ -237,6 +237,7 @@ _isr32:
   cmp byte [poner_pausa], 1
   jne .saltar_a_tarea
   
+  imprimir_texto_mp texto_pausa, texto_pausa_len, 0xa, 1, 54
   call esta_corriendo_la_idle
   cmp eax, 1
   je .no_salto
@@ -249,6 +250,7 @@ _isr32:
   jmp .fin
   
   .saltar_a_tarea:
+  imprimir_texto_mp texto_vacio, texto_vacio_len, 0x0, 1, 54
   call sched_proxima_tarea
   call proximo_reloj_tarea_actual   ; conserva eax.
   
@@ -285,8 +287,6 @@ _isr33:
   test al, 0x80
   jne .fin
   
-  imprimir_texto_mp texto_vacio, texto_vacio_len, 0x2, 0, 67*2
-  
   ; atiendo cuando se presiona.
   cmp al, 0x19
   je .pausar
@@ -304,7 +304,6 @@ _isr33:
   
   .pausar:
   xor byte [poner_pausa], 1
-  imprimir_texto_mp texto_pausa, texto_pausa_len, 0x2, 0, 67*2
   
   .fin:
   call fin_intr_pic1

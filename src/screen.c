@@ -93,19 +93,27 @@ void mostrar_contexto (task_id_t tid) {
   IMPRIMER_HEX_8(tss_tanques[tid].esi   , 16, 57);
   IMPRIMER_HEX_8(tss_tanques[tid].edi   , 18, 57);
   IMPRIMER_HEX_8(tss_tanques[tid].ebp   , 20, 57);
-  IMPRIMER_HEX_8(tss_tanques[tid].esp   , 22, 57);
-  IMPRIMER_HEX_8(tss_tanques[tid].eip   , 24, 57);
-  IMPRIMER_HEX_4(tss_tanques[tid].cs    , 26, 57);
   IMPRIMER_HEX_4(tss_tanques[tid].ds    , 28, 57);
   IMPRIMER_HEX_4(tss_tanques[tid].es    , 30, 57);
   IMPRIMER_HEX_4(tss_tanques[tid].fs    , 32, 57);
   IMPRIMER_HEX_4(tss_tanques[tid].gs    , 34, 57);
-  IMPRIMER_HEX_4(tss_tanques[tid].ss    , 36, 57);
   IMPRIMER_HEX_8(tss_tanques[tid].eflags, 38, 60);
   IMPRIMER_HEX_8(fallos_tanques[tid].cr0,  8, 71);
   IMPRIMER_HEX_8(fallos_tanques[tid].cr2, 10, 71);
   IMPRIMER_HEX_8(tss_tanques[tid].cr3   , 12, 71);
   IMPRIMER_HEX_8(fallos_tanques[tid].cr4, 14, 71);
+  
+  if (sched_estado_tarea(tid)) {
+    IMPRIMER_HEX_8(tss_tanques[tid].esp   , 22, 57);
+    IMPRIMER_HEX_8(tss_tanques[tid].eip   , 24, 57);
+    IMPRIMER_HEX_4(tss_tanques[tid].cs    , 26, 57);
+    IMPRIMER_HEX_4(tss_tanques[tid].ss    , 36, 57);
+  } else {
+    IMPRIMER_HEX_8(fallos_tanques[tid].esp, 22, 57);
+    IMPRIMER_HEX_8(fallos_tanques[tid].eip, 24, 57);
+    IMPRIMER_HEX_4(fallos_tanques[tid].cs , 26, 57);
+    IMPRIMER_HEX_4(fallos_tanques[tid].ss , 36, 57);
+  }
   
   pintar_posicion(tid + '1', 79, 0, C_BG_RANDOM | C_FG_WHITE);
   pintar_string(fallos_tanques[tid].mensaje, 52, 42, C_BG_BLACK | C_FG_LIGHT_RED);
