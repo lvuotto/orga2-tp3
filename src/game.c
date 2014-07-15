@@ -13,6 +13,8 @@ unsigned char posiciones_ocupadas[CAMPO_SIZE][CAMPO_SIZE];
 posicion_t posicion[CANT_TANQUES];
 extern unsigned int codigo_virtual_tanques[CANT_TANQUES];
 char poner_pausa;
+char pise_una_mina;
+informe_de_fallos_t fallos_tanques[CANT_TANQUES];
 
 
 void game_inicializar() {
@@ -34,9 +36,14 @@ void game_inicializar() {
   for (i = 0; i < CANT_TANQUES; i++) {
     posicion[i].x = 5 + 5*i;
     posicion[i].y = 5 + 5*i;
+    fallos_tanques[i].cr0 = 0;
+    fallos_tanques[i].cr2 = 0;
+    fallos_tanques[i].cr4 = 0;
+    fallos_tanques[i].mensaje = (char *) 0;
   }
   
   poner_pausa = 0;
+  pise_una_mina = 0;
 }
 
 
@@ -96,6 +103,11 @@ unsigned int game_mover (unsigned int id, direccion d) {
   {
     sched_desalojar_tarea(id);
     campo_minado[pos->y][pos->x] = FALSE;
+    pise_una_mina = 1;
+    fallos_tanques[id].cr0 = rcr0();
+    fallos_tanques[id].cr2 = rcr2();
+    fallos_tanques[id].cr4 = rcr4();
+    fallos_tanques[id].mensaje = "KILL'D BY MINA! ";
     return FALSE;
   }
   

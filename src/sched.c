@@ -14,11 +14,8 @@
  **/
 #define GDT_TSS_1_BUSY() (gdt[GDT_TSS_1].type == 0b1011)
 
-
 #define NULL 0
 
-
-extern void actualizar_contexto ();
 
 
 tss *tss_tarea_1, *tss_tarea_2;     /* Necesario para context switch. */
@@ -29,7 +26,9 @@ unsigned int tareas_vivas[CANT_TANQUES];  /*  \                 */
 unsigned int _esta_corriendo_la_idle,     /*   \ bastante auto- */
              guardar_tanquecito,          /*   / descriptivos.  */
              primera_vez;                 /*  /                 */
-extern char poner_pausa;                  /* /                  */
+extern char  poner_pausa;                 /* /                  */
+unsigned int _estan_todas_muertas;
+extern informe_de_fallos_t fallos_tanques[CANT_TANQUES];
 
 
 void sched_inicializar () {
@@ -45,6 +44,7 @@ void sched_inicializar () {
   tss_copy(tss_tarea_1, &tss_idle);
   _esta_corriendo_la_idle = TRUE;
   guardar_tanquecito = TRUE;
+  _estan_todas_muertas = TRUE;
   
   _tarea_actual = CANT_TANQUES - 1;
   
@@ -85,16 +85,26 @@ void sched_desalojar_tarea (unsigned int id) {
   
   /* Poner X en el clock. */
   pintar_posicion('X', 54 + 2*id, 48, C_BG_BLACK | C_FG_RED);
+  
+  /* Tarea desalojada */
+  pintar_string("Tanque", 52, 6, C_BG_BLACK | C_FG_WHITE);
+  pintar_posicion('1' + id, 59, 6, C_BG_BLACK | C_FG_WHITE);
+  pintar_string(fallos_tanques[id].mensaje, 52, 42, C_BG_BLACK | C_FG_LIGHT_RED);
 }
 
 
 unsigned int proximo_indice_vivo () {
-  unsigned int i;
+  unsigned int i, j;
   
   i = (_tarea_actual + 1) % CANT_TANQUES;
   while (tareas_vivas[i] == FALSE && i != _tarea_actual) {
     i++;
     i %= CANT_TANQUES;
+  }
+  
+  _estan_todas_muertas = TRUE;
+  for (j = 0; j < CANT_TANQUES; j++) {
+    _estan_todas_muertas = _estan_todas_muertas && !tareas_vivas[j];
   }
   
   return i == _tarea_actual && !_esta_corriendo_la_idle ? 0xdeadc0de : i;
@@ -152,16 +162,12 @@ unsigned short sched_proxima_tarea () {
    **/
   anterior = guardar_tanquecito ? &(tss_tanques[_tarea_actual]) : &tss_idle;
   
-  
-  /**
-   * ASFDFKASFDKHASFKJLHASDF
-   * Si se mueren las tarea, dejar de correrlas.
-   **/
-  
-  
   proximo = proxima_tarea();
-  /* Si proximo devolvio NULL, no hay que saltar a otra tarea. */
-  if (proximo == NULL) {
+  /**
+   * Si proximo devolvio NULL, o estan todas muertas,
+   * no hay que saltar a otra tarea.
+   **/
+  if (proximo == NULL || _estan_todas_muertas) {
     return 0;
   }
   

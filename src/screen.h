@@ -23,6 +23,10 @@ void pintar_posicion             (char c,
                                   unsigned int x,
                                   unsigned int y,
                                   unsigned char color);
+void pintar_string               (char *msg,
+                                  unsigned int x,
+                                  unsigned int y,
+                                  unsigned char color);
 void pintar_posiciones_iniciales ();
 
 

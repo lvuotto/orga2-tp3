@@ -445,4 +445,9 @@ void copiar_memoria (unsigned int dst, unsigned int src, unsigned int size) {
   
   while (size--)
     *d++ = *f++;
+    /**
+     * *d = *f;
+     * d++;
+     * f++;
+     **/
 }

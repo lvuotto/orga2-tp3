@@ -21,35 +21,16 @@ struct posicion_s {
 };
 
 
-struct contexto_desalojo_s {
-  unsigned int   eax;
-  unsigned int   ebx;
-  unsigned int   ecx;
-  unsigned int   edx;
-  unsigned int   esi;
-  unsigned int   edi;
-  unsigned int   ebp;
-  unsigned int   esp;
-  unsigned int   eip;
-  unsigned short cs;
-  unsigned short ds;
-  unsigned short es;
-  unsigned short fs;
-  unsigned short gs;
-  unsigned short ss;
-  unsigned int   eflags;
-  unsigned int   cr3;
-  
-  /**
-   * cr0, cr2, y cr4 son globales. No hay necesidad de
-   * definirlos localmente en cada tanque. Ademas, cr2
-   * solo se seteara en caso de un #PF.
-   **/
-} __attribute__((__packed__, aligned (8)));
-
+struct informe_de_fallos_s {
+  unsigned int   cr0;
+  unsigned int   cr2;
+  unsigned int   cr4;
+  char          *mensaje;
+}__attribute__((__packed__, aligned(4)));
 
 typedef struct posicion_s          posicion_t;
-typedef struct contexto_desalojo_s contexto_desalojo_t;
+typedef struct informe_de_fallos_s informe_de_fallos_t;
+
 
 
 typedef enum direccion_e { NO = 14, N  = 11, NE = 12,

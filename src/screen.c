@@ -43,6 +43,21 @@ void pintar_posicion (char c,
 }
 
 
+void pintar_string (char* msg,
+                    unsigned int x,
+                    unsigned int y,
+                    unsigned char color)
+{
+  static unsigned short *p;
+  
+  p = (unsigned short *) 0xb8000 + (80*y + x);
+  while (*msg){
+    *p++ = (color << 8) | *msg++;
+  }
+  
+}
+
+
 void pintar_posiciones_iniciales () {
   unsigned short i;
   posicion_t pos;

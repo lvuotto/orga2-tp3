@@ -25,6 +25,7 @@ extern sched_estado_tarea
 extern sched_desalojar_tarea
 extern esta_corriendo_la_idle
 extern mostrar_contexto
+extern _estan_todas_muertas
 
 ;; Game
 extern game_mover
@@ -32,6 +33,8 @@ extern game_misil
 extern game_minar
 extern poner_pausa
 extern pausa_on
+extern pise_una_mina
+extern fallos_tanques
 
 ;;
 ;; Definición de MACROS
@@ -85,23 +88,49 @@ _isr_msg_19: db ' Atendimos interrupcion 19 [#XM - simd fp exception]. '
 _isr_len_19: equ $ - _isr_msg_19
 
 
+_isr_desalojo_0:  db '0 - #DE         ', 0
+_isr_desalojo_1:  db '1 - #DB         ', 0
+_isr_desalojo_2:  db '2 - NMI         ', 0
+_isr_desalojo_3:  db '3 - #BP         ', 0
+_isr_desalojo_4:  db '4 - #OF         ', 0
+_isr_desalojo_5:  db '5 - #BR         ', 0
+_isr_desalojo_6:  db '6 - #UD         ', 0
+_isr_desalojo_7:  db '7 - #NM         ', 0
+_isr_desalojo_8:  db '8 - #DF         ', 0
+_isr_desalojo_9:  db '9 - reserved    ', 0
+_isr_desalojo_10: db '10 - #TS        ', 0
+_isr_desalojo_11: db '11 - #NP        ', 0
+_isr_desalojo_12: db '12 - #SS        ', 0
+_isr_desalojo_13: db '13 - #GP        ', 0
+_isr_desalojo_14: db '14 - #PF        ', 0
+_isr_desalojo_15: db '15 - reserved   ', 0
+_isr_desalojo_16: db '16 - #MF        ', 0
+_isr_desalojo_17: db '17 - #AC        ', 0
+_isr_desalojo_18: db '18 - #MC        ', 0
+_isr_desalojo_19: db '19 - #XM        ', 0
+
+syscall_invalido: db 'Syscall invalido', 0
+
+
 %macro ISR 1
 
 global _isr%1
 
 _isr%1:
   ;~ xchg bx, bx
-  
-  imprimir_texto_mp _isr_msg_%1, _isr_len_%1, 0x4f, 0, 0
-  
+    
   pushad
-  call imprimir_registros
+  ;call imprimir_registros
   
   mov ax, word [esp + 4*2]
   test ax, 0x3    ; [esp + 4*2] <- cs antes de la interrupcion.
   jne .loopear
   
   call sched_tarea_actual
+  mov ebx, eax
+  shl ebx, 4
+  add ebx, fallos_tanques
+  mov dword [ebx + 12], _isr_desalojo_%1
   push eax
   call sched_desalojar_tarea
   pop eax
@@ -118,6 +147,7 @@ _isr%1:
   ;       - Falso. No hay que hacer eso.
   
   .loopear:
+    imprimir_texto_mp _isr_msg_%1, _isr_len_%1, 0x4f, 0, 0
     ; To Infinity And Beyond!!
     mov eax, 0xffff
     mov ebx, 0xffff
@@ -271,7 +301,7 @@ _isr33:
 
 global _isr0x52
 
-_isr0x52:     ; HACE MIERDA LOS REGISTROS :D
+_isr0x52:     ; MALTRATA LOS REGISTROS :D
   
   push ebp
   mov ebp, esp
@@ -339,6 +369,18 @@ _isr0x52:     ; HACE MIERDA LOS REGISTROS :D
  
   .desalojar:
   push edi
+  cmp byte [pise_una_mina], 1
+  jne .no_pise
+  mov byte [pise_una_mina], 0
+  jmp ._desalojar
+  
+  .no_pise:
+  mov ebx, edi
+  shl ebx, 4
+  add ebx, fallos_tanques
+  mov dword [ebx + 12], syscall_invalido
+  
+  ._desalojar:
   call sched_desalojar_tarea
   pop edi
  
@@ -379,6 +421,10 @@ proximo_reloj:
 proximo_reloj_tarea_actual:
   
   push eax
+  
+  cmp dword [_estan_todas_muertas], 1
+  je .fin
+  
   call sched_tarea_actual
   
   inc dword [relojes + 4*eax]
@@ -390,6 +436,7 @@ proximo_reloj_tarea_actual:
   
   imprimir_texto_mp edx, 1, 0x0b, 48, eax
   
+  .fin:
   pop eax
   ret
   
