@@ -28,6 +28,7 @@ void pintar_string               (char *msg,
                                   unsigned int y,
                                   unsigned char color);
 void pintar_posiciones_iniciales ();
+void mostrar_contexto (task_id_t tid);
 
 
 #endif  /* !__SCREEN_H__ */

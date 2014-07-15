@@ -22,10 +22,14 @@ struct posicion_s {
 
 
 struct informe_de_fallos_s {
-  unsigned int   cr0;
-  unsigned int   cr2;
-  unsigned int   cr4;
-  char          *mensaje;
+  unsigned int    cr0;
+  unsigned int    cr2;
+  unsigned int    cr4;
+  char           *mensaje;
+  unsigned int    eip;
+  unsigned int    esp;
+  unsigned short  cs;
+  unsigned short  ss;
 }__attribute__((__packed__, aligned(4)));
 
 typedef struct posicion_s          posicion_t;

@@ -118,7 +118,6 @@ protected_mode:
   mov fs, ax
   
   ; Inicializar el generador de numeros pseudoaleatorios
-  ;~ xchg bx, bx
   rdtsc
   push eax
   call srand

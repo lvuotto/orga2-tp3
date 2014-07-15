@@ -28,6 +28,7 @@ unsigned int _esta_corriendo_la_idle,     /*   \ bastante auto- */
              primera_vez;                 /*  /                 */
 extern char  poner_pausa;                 /* /                  */
 unsigned int _estan_todas_muertas;
+unsigned int hubo_muerte;
 extern informe_de_fallos_t fallos_tanques[CANT_TANQUES];
 
 
@@ -45,6 +46,7 @@ void sched_inicializar () {
   _esta_corriendo_la_idle = TRUE;
   guardar_tanquecito = TRUE;
   _estan_todas_muertas = TRUE;
+  hubo_muerte = FALSE;
   
   _tarea_actual = CANT_TANQUES - 1;
   
@@ -67,6 +69,14 @@ unsigned int sched_estado_tarea (unsigned int id) {
 }
 
 
+void actualizar_fallos () {
+  tss_tanques[_tarea_actual].eip = fallos_tanques[_tarea_actual].eip;
+  tss_tanques[_tarea_actual].esp = fallos_tanques[_tarea_actual].esp;
+  tss_tanques[_tarea_actual].cs  = fallos_tanques[_tarea_actual].cs;
+  tss_tanques[_tarea_actual].ss  = fallos_tanques[_tarea_actual].ss;
+}
+
+
 void sched_desalojar_tarea (unsigned int id) {
   posicion_t pos;
   
@@ -74,10 +84,8 @@ void sched_desalojar_tarea (unsigned int id) {
   pos = obtener_posicion_tanque(id);
   
   /**
-   *
    * pos.x <- columna
    * pos.y <- fila
-   *
    **/
   
   /* Poner X en el mapa. */
@@ -86,10 +94,10 @@ void sched_desalojar_tarea (unsigned int id) {
   /* Poner X en el clock. */
   pintar_posicion('X', 54 + 2*id, 48, C_BG_BLACK | C_FG_RED);
   
-  /* Tarea desalojada */
-  pintar_string("Tanque", 52, 6, C_BG_BLACK | C_FG_WHITE);
-  pintar_posicion('1' + id, 59, 6, C_BG_BLACK | C_FG_WHITE);
-  pintar_string(fallos_tanques[id].mensaje, 52, 42, C_BG_BLACK | C_FG_LIGHT_RED);
+  actualizar_fallos(id);
+  mostrar_contexto(id);
+  
+  hubo_muerte = TRUE;
 }
 
 
@@ -141,6 +149,11 @@ unsigned short sched_montar_idle () {
   } else {
     tss_copy(anterior, tss_tarea_1);
     tss_copy(tss_tarea_1, &tss_idle);
+  }
+  
+  if (hubo_muerte && guardar_tanquecito) {
+    actualizar_fallos();
+    hubo_muerte = FALSE;
   }
   
   r = GDT_TSS_1_BUSY() ? GDT_TSS_2 << 3 : GDT_TSS_1 << 3;

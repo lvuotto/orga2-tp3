@@ -36,6 +36,9 @@ extern pausa_on
 extern pise_una_mina
 extern fallos_tanques
 
+;; TSS
+extern tss_tanques
+
 ;;
 ;; Definición de MACROS
 ;; -------------------------------------------------------------------------- ;;
@@ -88,28 +91,38 @@ _isr_msg_19: db ' Atendimos interrupcion 19 [#XM - simd fp exception]. '
 _isr_len_19: equ $ - _isr_msg_19
 
 
-_isr_desalojo_0:  db '0 - #DE         ', 0
-_isr_desalojo_1:  db '1 - #DB         ', 0
-_isr_desalojo_2:  db '2 - NMI         ', 0
-_isr_desalojo_3:  db '3 - #BP         ', 0
-_isr_desalojo_4:  db '4 - #OF         ', 0
-_isr_desalojo_5:  db '5 - #BR         ', 0
-_isr_desalojo_6:  db '6 - #UD         ', 0
-_isr_desalojo_7:  db '7 - #NM         ', 0
-_isr_desalojo_8:  db '8 - #DF         ', 0
-_isr_desalojo_9:  db '9 - reserved    ', 0
-_isr_desalojo_10: db '10 - #TS        ', 0
-_isr_desalojo_11: db '11 - #NP        ', 0
-_isr_desalojo_12: db '12 - #SS        ', 0
-_isr_desalojo_13: db '13 - #GP        ', 0
-_isr_desalojo_14: db '14 - #PF        ', 0
-_isr_desalojo_15: db '15 - reserved   ', 0
-_isr_desalojo_16: db '16 - #MF        ', 0
-_isr_desalojo_17: db '17 - #AC        ', 0
-_isr_desalojo_18: db '18 - #MC        ', 0
-_isr_desalojo_19: db '19 - #XM        ', 0
+_isr_desalojo_0:  db '0 - #DE          ', 0   ;
+_isr_desalojo_1:  db '1 - #DB          ', 0   ;
+_isr_desalojo_2:  db '2 - NMI          ', 0   ;
+_isr_desalojo_3:  db '3 - #BP          ', 0   ;
+_isr_desalojo_4:  db '4 - #OF          ', 0   ;
+_isr_desalojo_5:  db '5 - #BR          ', 0   ;
+_isr_desalojo_6:  db '6 - #UD          ', 0   ;
+_isr_desalojo_7:  db '7 - #NM          ', 0   ;
+_isr_desalojo_8:  db '8 - #DF          ', 0   ;
+_isr_desalojo_9:  db '9 - reserved     ', 0   ;
+_isr_desalojo_10: db '10 - #TS         ', 0   ;
+_isr_desalojo_11: db '11 - #NP         ', 0   ; ALTA CABECEADA,
+_isr_desalojo_12: db '12 - #SS         ', 0   ;
+_isr_desalojo_13: db '13 - #GP         ', 0   ; AMEEGOOOOO!
+_isr_desalojo_14: db '14 - #PF         ', 0   ;
+_isr_desalojo_15: db '15 - reserved    ', 0   ;
+_isr_desalojo_16: db '16 - #MF         ', 0   ;
+_isr_desalojo_17: db '17 - #AC         ', 0   ;
+_isr_desalojo_18: db '18 - #MC         ', 0   ;
+_isr_desalojo_19: db '19 - #XM         ', 0   ;
+                                              ;
+syscall_invalido: db 'Syscall invalido ', 0   ;
+mensaje_mina:     db "KILL'D BY MINA!  ", 0   ;
+;       en C  -->    'La tarea aun vive'      ;
 
-syscall_invalido: db 'Syscall invalido', 0
+
+%define FALLOS_SIZE             28
+%define FALLOS_OFFSET_MENSAJE   12
+%define FALLOS_OFFSET_EIP       16
+%define FALLOS_OFFSET_ESP       20
+%define FALLOS_OFFSET_CS        24
+%define FALLOS_OFFSET_SS        26
 
 
 %macro ISR 1
@@ -117,20 +130,30 @@ syscall_invalido: db 'Syscall invalido', 0
 global _isr%1
 
 _isr%1:
-  ;~ xchg bx, bx
     
   pushad
-  ;call imprimir_registros
   
   mov ax, word [esp + 4*2]
   test ax, 0x3    ; [esp + 4*2] <- cs antes de la interrupcion.
   jne .loopear
   
   call sched_tarea_actual
+  mov edi, eax
+  mov ecx, FALLOS_SIZE
+  mul ecx  ; en eax esta la id de la tarea
   mov ebx, eax
-  shl ebx, 4
+  mov eax, edi
   add ebx, fallos_tanques
-  mov dword [ebx + 12], _isr_desalojo_%1
+  mov dword [ebx + FALLOS_OFFSET_MENSAJE], _isr_desalojo_%1
+  mov ecx, [esp + 4*1]  ; eip
+  mov dword [ebx + FALLOS_OFFSET_EIP], ecx
+  mov ecx, [esp + 4*2]  ; cs
+  mov word  [ebx + FALLOS_OFFSET_CS] , cx
+  mov ecx, [esp + 4*4]  ; esp
+  mov dword [ebx + FALLOS_OFFSET_ESP], ecx
+  mov ecx, [esp + 4*5]  ; ss
+  mov word  [ebx + FALLOS_OFFSET_SS] , cx
+  
   push eax
   call sched_desalojar_tarea
   pop eax
@@ -315,8 +338,6 @@ _isr0x52:     ; MALTRATA LOS REGISTROS :D
   mov edi, eax
   call sched_tarea_actual
   
-  ;~ xchg bx, bx
-  
   cmp edi, SYS_MOVER
   je .mover
  
@@ -342,7 +363,6 @@ _isr0x52:     ; MALTRATA LOS REGISTROS :D
  
  
   .misil:
-  ;~ xchg bx, bx
   mov edi, eax
   push dword [ebp - 20] ; esi
   push dword [ebp - 12] ; edx
@@ -369,16 +389,30 @@ _isr0x52:     ; MALTRATA LOS REGISTROS :D
  
   .desalojar:
   push edi
+  mov esi, eax
+  mov eax, edi
+  mov ecx, FALLOS_SIZE
+  mul ecx
+  mov ebx, eax
+  mov eax, esi
+  add ebx, fallos_tanques
+  mov ecx, [esp + 4*1 + 4*6]  ; eip
+  mov dword [ebx + FALLOS_OFFSET_EIP], ecx
+  mov ecx, [esp + 4*2 + 4*6]  ; cs
+  mov word  [ebx + FALLOS_OFFSET_CS] , cx
+  mov ecx, [esp + 4*4 + 4*6]  ; esp
+  mov dword [ebx + FALLOS_OFFSET_ESP], ecx
+  mov ecx, [esp + 4*5 + 4*6]  ; ss
+  mov word  [ebx + FALLOS_OFFSET_SS] , cx
+  
   cmp byte [pise_una_mina], 1
   jne .no_pise
   mov byte [pise_una_mina], 0
+  mov dword [ebx + FALLOS_OFFSET_MENSAJE], mensaje_mina
   jmp ._desalojar
   
   .no_pise:
-  mov ebx, edi
-  shl ebx, 4
-  add ebx, fallos_tanques
-  mov dword [ebx + 12], syscall_invalido
+  mov dword [ebx + FALLOS_OFFSET_MENSAJE], syscall_invalido
   
   ._desalojar:
   call sched_desalojar_tarea

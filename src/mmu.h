@@ -8,6 +8,10 @@
 #ifndef __MMU_H__
 #define __MMU_H__
 
+
+typedef enum task_id_e task_id_t;
+
+
 #include "defines.h"
 #include "i386.h"
 #include "tss.h"
@@ -60,7 +64,6 @@ struct page_table_entry_s {
 
 typedef struct page_directory_entry_s page_directory_entry_t;
 typedef struct page_table_entry_s page_table_entry_t;
-typedef enum task_id_e task_id_t;
 
 
 extern page_directory_entry_t *page_dir;

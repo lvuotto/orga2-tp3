@@ -29,6 +29,7 @@
 
 extern unsigned char posiciones_ocupadas_tanques[CANT_TANQUES][CAMPO_SIZE][CAMPO_SIZE];
 extern unsigned char posiciones_ocupadas[CAMPO_SIZE][CAMPO_SIZE];
+extern informe_de_fallos_t fallos_tanques[CANT_TANQUES];
 
 
 void pintar_posicion (char c,
@@ -79,8 +80,11 @@ void pintar_posiciones_iniciales () {
 
 
 
-void mostrar_contexto (task_id_t tid, unsigned int eip) {
+void mostrar_contexto (task_id_t tid) {
   static unsigned short *video;
+  
+  pintar_string("Tanque", 52, 6, C_BG_BLACK | C_FG_WHITE);
+  pintar_posicion('1' + tid, 59, 6, C_BG_BLACK | C_FG_WHITE);
   
   IMPRIMER_HEX_8(tss_tanques[tid].eax   ,  8, 57);
   IMPRIMER_HEX_8(tss_tanques[tid].ebx   , 10, 57);
@@ -98,11 +102,12 @@ void mostrar_contexto (task_id_t tid, unsigned int eip) {
   IMPRIMER_HEX_4(tss_tanques[tid].gs    , 34, 57);
   IMPRIMER_HEX_4(tss_tanques[tid].ss    , 36, 57);
   IMPRIMER_HEX_8(tss_tanques[tid].eflags, 38, 60);
-  IMPRIMER_HEX_8(rcr0()                 ,  8, 71);
-  IMPRIMER_HEX_8(rcr2()                 , 10, 71);
+  IMPRIMER_HEX_8(fallos_tanques[tid].cr0,  8, 71);
+  IMPRIMER_HEX_8(fallos_tanques[tid].cr2, 10, 71);
   IMPRIMER_HEX_8(tss_tanques[tid].cr3   , 12, 71);
-  IMPRIMER_HEX_8(rcr4()                 , 14, 71);
+  IMPRIMER_HEX_8(fallos_tanques[tid].cr4, 14, 71);
   
   pintar_posicion(tid + '1', 79, 0, C_BG_RANDOM | C_FG_WHITE);
+  pintar_string(fallos_tanques[tid].mensaje, 52, 42, C_BG_BLACK | C_FG_LIGHT_RED);
 }
 
