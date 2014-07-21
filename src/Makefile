@@ -27,6 +27,7 @@ CFLAGS=-m32 -g -ggdb -Wall -Werror -O0 \
 
 TASK0=idle.tsk
 TASK1=task1.ctsk
+#TASK1=tanque_poua.ctsk
 TASK2=task2.ctsk
 TASK3=task3.ctsk
 TASK4=task4.ctsk
@@ -104,9 +105,14 @@ idle.tsk: idle.asm
 	rm $@.tmp
 	@echo ''
 
-task1.tsko: tarea1.c
+#task1.tsko: tarea1.c
+#	@echo 'Compilando tarea...'
+#	$(CC) $(CFLAGS) -Dtask1 -c -o $@ $^
+#	@echo ''
+
+task1.tsko: tanque_poua.asm
 	@echo 'Compilando tarea...'
-	$(CC) $(CFLAGS) -Dtask1 -c -o $@ $^
+	$(NASM) $(NASMFLAGS) -o $@ $^
 	@echo ''
 
 task2.tsko: tarea2.c
@@ -155,6 +161,8 @@ task8.tsko: tarea8.c
 	mv $@.tmp $@
 
 tasks: $(TASKSBINS)
+#	$(QUIET) gcc -Wall -Wextra -Werror -pedantic -O2 -o magia magia.c
+#	./magia
 	@echo 'Generando imagen de las tareas...'
 	$(QUIET) dd if=/dev/zero bs=1 count=$(TASKSSIZE) of=$(TASKS) status=noxfer > /dev/null 2>&1
 

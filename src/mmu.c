@@ -323,6 +323,7 @@ unsigned int mmu_inicializar_dir_tarea (task_id_t tid) {
   do {
     pos = rand() % (CAMPO_SIZE*CAMPO_SIZE);
   } while (ESTA_OCUPADA(pos));
+  //~ pos = tid == 3 ? pos : 13*CAMPO_SIZE + 13;
   codigo_mapa[tid] = pos;
   pintar_posicion(tid + '1',
                   pos % CAMPO_SIZE,

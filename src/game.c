@@ -152,7 +152,7 @@ unsigned int game_misil (unsigned int id,
   
   pos = obtener_posicion_tanque(id);
   pos.x = (pos.x + CAMPO_SIZE + val_x) % CAMPO_SIZE;
-  pos.y = (pos.y + CAMPO_SIZE + val_y) % CAMPO_SIZE;
+  pos.y = (pos.y + CAMPO_SIZE - val_y) % CAMPO_SIZE;
   
   if (campo_minado[pos.y][pos.x]) {
     campo_minado[pos.y][pos.x] = FALSE;
