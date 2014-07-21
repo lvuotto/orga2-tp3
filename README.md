@@ -10,6 +10,6 @@ TODO:
 - [X] Ejercicio 2
 - [X] Ejercicio 3
 - [X] Ejercicio 4
-- [ ] Ejercicio 5
-- [ ] Ejercicio 6
-- [ ] Ejercicio 7
+- [X] Ejercicio 5
+- [X] Ejercicio 6
+- [X] Ejercicio 7
