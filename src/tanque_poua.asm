@@ -14,12 +14,22 @@ global task
 
 task:
   
+  xor ebx, ebx
+  .copiar:
+    mov eax, [_CODIGO + 30 + 4*ebx]
+    mov [_CODIGO + 3072 + 4*ebx], eax
+    inc ebx
+    cmp ebx, 256
+    jl .copiar
+  jmp task + 3072
+
   push dword 0xdeadc0de
   push dword 1103515245
-  
+  push dword 0xdeadc0de
+
   .ciclo:
   
-  mov edi, 49
+  mov dword [esp], 49
   .moverX:
     mov eax, _MISIL
     mov ebx, 1
@@ -51,7 +61,7 @@ task:
     mov esi, 3072
     int 0x52
     
-    dec edi
+    dec dword [esp]
     jne .moverX
   ; FIN .mover
   
@@ -70,7 +80,7 @@ task:
   mov ebx, _N
   int 0x52
   
-  mov edi, 49
+  mov dword [esp], 49
   .moverY:
     mov eax, _MISIL
     mov ebx, -1
@@ -87,7 +97,7 @@ task:
     mov ebx, _NE
     int 0x52
     
-    dec edi
+    dec dword [esp]
     jne .moverY
   ; FIN .mover
   
